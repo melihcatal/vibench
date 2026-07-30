@@ -31,7 +31,7 @@ GEN_DIRECT_FULL_RUN ?= reruns/direct_full_5c
 GEN_OPENCODE_FULL_RUN ?= reruns/agentic_opencode_full_5c
 GEN_AGENTS_SDK_FULL_RUN ?= reruns/agentic_agents_sdk_full_5c
 
-.PHONY: help install validate snapshots snapshot-quality figures figures-svg audit-sample evaluate gen-smoke-all gen-smoke-direct gen-smoke-opencode gen-smoke-agents-sdk gen-model-all gen-direct-model gen-opencode-model gen-agents-sdk-model gen-direct-full gen-opencode-full gen-agents-sdk-full gen-proxies hf-stage hf-upload-benchmark hf-upload-results hf-upload clean-cache
+.PHONY: help install validate snapshots snapshot-quality figures figures-svg audit-sample evaluate gini gini-all gini-vib gini-vib-prompts gen-smoke-all gen-smoke-direct gen-smoke-opencode gen-smoke-agents-sdk gen-model-all gen-direct-model gen-opencode-model gen-agents-sdk-model gen-direct-full gen-opencode-full gen-agents-sdk-full gen-proxies hf-stage hf-upload-benchmark hf-upload-results hf-upload clean-cache
 
 help:
 	@printf "VIBench replication — code targets:\n"
@@ -43,6 +43,10 @@ help:
 	@printf "  make figures-svg          regenerate the compact SVG overview/multi-label charts\n"
 	@printf "  make audit-sample         regenerate the seeded n=400 detector audit sample\n"
 	@printf "  make evaluate             re-run direct + agentic evaluation on canonical runs\n"
+	@printf "  make gini                 compute paper-style provider Gini indices for direct NLI results\n"
+	@printf "  make gini-all             compute Gini indices across all direct and agentic prompt settings\n"
+	@printf "  make gini-vib             compare per-model Gini and VIB with bootstrap intervals\n"
+	@printf "  make gini-vib-prompts     build prompt-specific normalized-GI and VIB CI tables\n"
 	@printf "  make gen-smoke-all        run small API generation checks for direct + both agentic runners\n"
 	@printf "  make gen-smoke-direct     run one-scenario direct generation smoke check\n"
 	@printf "  make gen-smoke-opencode   run one-task OpenCode agentic smoke check\n"
@@ -105,6 +109,24 @@ evaluate:
 	$(PYTHON) scripts/evaluation/evaluate_agentic.py \
 		--run $(OPENCODE_RUN) \
 		--direct-run $(DIRECT_RUN)
+
+gini:
+	$(PYTHON) scripts/evaluation/evaluate_gini.py --run $(DIRECT_RUN)
+
+gini-all:
+	$(PYTHON) scripts/evaluation/evaluate_gini_matrix.py \
+		--direct-run $(DIRECT_RUN) \
+		--agentic-run $(OPENCODE_RUN)
+
+gini-vib:
+	$(PYTHON) scripts/evaluation/generate_gini_vib_comparison.py \
+		--direct-run $(DIRECT_RUN) \
+		--agentic-run $(OPENCODE_RUN)
+
+gini-vib-prompts:
+	$(PYTHON) scripts/evaluation/generate_prompt_gini_vib_tables.py \
+		--direct-run $(DIRECT_RUN) \
+		--agentic-run $(OPENCODE_RUN)
 
 gen-smoke-all: gen-smoke-direct gen-smoke-opencode gen-smoke-agents-sdk
 

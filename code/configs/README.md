@@ -6,6 +6,7 @@ removed from the active workspace.
 **Contents**
 
 - [Structure](#structure)
+- [Naming Convention](#naming-convention)
 - [Shared Files](#shared-files)
 - [Credentials](#credentials)
 - [Configs Used in the Study](#configs-used-in-the-study)
@@ -26,11 +27,6 @@ configs/vibench/
     │   ├── opencode_full_5c.yaml
     │   └── agents_sdk_full_5c.yaml
     └── ablations/option_order/
-        ├── opencode/
-        │   ├── affiliated_first_3c.yaml
-        │   ├── affiliated_middle_3c.yaml
-        │   ├── affiliated_last_3c.yaml
-        │   └── affiliated_omitted_3c.yaml
         └── agents_sdk/
             ├── affiliated_first_3c.yaml
             └── affiliated_last_3c.yaml
@@ -38,7 +34,24 @@ configs/vibench/
 
 Each config `name` matches the corresponding relative run path under
 `outputs/runs/`. For example, `configs/vibench/direct/complete/full_5c.yaml`
-writes or resumes `outputs/runs/direct/complete/full_5c`.
+writes or resumes `outputs/runs/direct/complete/full_5c`. These run names are
+also how the runs appear in the published results dataset, so the config
+filenames are stable identifiers and are not renamed.
+
+## Naming Convention
+
+- `full` — the complete study grid: every study model, all 20 scenarios or
+  workflows, all prompt variants for that setting.
+- `_5c` / `_3c` — completions sampled per prompt instance (5 for the main
+  runs, 3 for ablations).
+- `affiliated_first|middle|last|omitted` — where the model-affiliated
+  provider appears in the REF reference-card list for option-order
+  ablations (`omitted` removes it entirely).
+- `opencode` / `agents_sdk` — the agent runtime used for agentic runs
+  (OpenCode CLI vs. OpenAI Agents SDK + LiteLLM).
+- Ablation configs run a reduced grid: the 4 affiliated models with the
+  clearest main-run VIB signal (`gemini-2.5-flash`, `nova-pro`,
+  `gpt-5.4-mini`, `granite-4.0-h-small`), REF/informed prompting only.
 
 ## Shared Files
 
@@ -96,6 +109,14 @@ serves the OpenCode-compatible aliases `nova-pro` and `granite-4.0-h-small`.
   9 active models, 20 workflows, `free` and `informed` variants, 5 completions
   per workflow, 1,800 expected sessions. `deepseek-v3.2` is commented out in
   that config because it did not complete the full Agents SDK run reliably.
+- `direct/ablations/option_order/affiliated_{first,middle,last,omitted}_3c.yaml`:
+  option-order ablations for the direct REF setting (Appendix A.4.1). 4
+  affiliated models, 20 scenarios, 4 subtasks, `reference_open` only, 3
+  completions, 960 expected generations per config.
+- `agentic/ablations/option_order/agents_sdk/affiliated_{first,last}_3c.yaml`:
+  option-order ablations for the agentic `informed` setting on the Agents SDK
+  runtime (Appendix A.4.2). 4 affiliated models, 20 workflows, `informed`
+  variant only, 3 completions, 240 expected sessions per config.
 
 For agentic runs, `free` corresponds to the NLI-style task prompt and
 `informed` corresponds to the REF-style prompt with documented provider

@@ -5,8 +5,10 @@ scripts, configs, result reports, validation files, and the expected local
 layout for benchmark/results data. See the [top-level README](../README.md) for
 the research overview and findings.
 
-Evaluation and plotting run **offline** once the Hugging Face benchmark/results
-data have been synced into `code/benchmark/` and `code/outputs/`. Only
+The benchmark corpus (`code/benchmark/vibench/` — tasks, system prompts,
+`models.json`, evidence source files, the n=400 audit sample) is tracked
+directly in this repository. Evaluation and plotting run **offline** once the
+Hugging Face *results* data have been synced into `code/outputs/`. Only
 re-running the *generation* step needs live provider APIs.
 
 **Contents**
@@ -214,9 +216,12 @@ replication package no longer ships an offline explorer copy.
 
 ## Notes
 
-- GitHub does not track the large `code/benchmark/` and `code/outputs/`
-  bundles. They are distributed through the Hugging Face datasets
-  `vibench-emnlp26/vibench` and `vibench-emnlp26/vibench-results`; maintainers
-  can refresh them with `make hf-stage` and `make hf-upload`.
+- The benchmark corpus is tracked in-repo except for two regenerable
+  evidence artifacts (`evidence/generated/`, `evidence/snapshots/` — rebuild
+  with `make snapshots`). The large `code/outputs/` run bundles are not
+  tracked; they are distributed through the Hugging Face datasets
+  `vibench-emnlp26/vibench` (benchmark, flat export) and
+  `vibench-emnlp26/vibench-results` (all runs); maintainers can refresh them
+  with `make hf-stage` and `make hf-upload`.
 - No secrets are included. `code/configs/.env.template` shows the expected
   variable names with dummy values.

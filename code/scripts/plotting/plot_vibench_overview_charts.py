@@ -144,10 +144,6 @@ def significance_marker(row: dict | None) -> str:
         value = row.get("p_value")
     if value is None:
         return ""
-    if value < 0.001:
-        return "***"
-    if value < 0.01:
-        return "**"
     if value < 0.05:
         return "*"
     return ""

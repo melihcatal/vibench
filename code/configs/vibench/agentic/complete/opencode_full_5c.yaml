@@ -1,0 +1,51 @@
+# VIBench — OpenCode agentic benchmark.
+#
+# Purpose:
+#   Main agentic run using OpenCode as the agent runtime.
+#
+# Scope:
+#   10 models x 18 workflows x 2 variants x 5 completions
+#   = 1,800 expected OpenCode sessions.
+#
+# Notes:
+#   - GPT-5-family OpenCode variant is forced to "none" to match the current
+#     no-reasoning policy.
+#   - Nova Pro and Granite Small use OpenCode-local OpenAI-compatible provider
+#     routes backed by LiteLLM proxy servers. Start both proxies before running.
+
+name: agentic/complete/opencode_full_5c
+benchmark: vibench
+type: agentic
+system_prompt_file: agentic_system_prompt.txt
+tasks: all
+
+variants:
+  - free
+  - informed
+
+completions: 5
+timeout: 1200
+max_workers: 10
+max_consecutive_errors: 5
+
+sampling:
+  temperature: null
+  max_tokens: null
+  top_p: null
+  opencode_variant: null
+  opencode_variant_policy: supported_only
+  opencode_variant_by_model:
+    gpt-5.4: none
+    gpt-5.4-mini: none
+
+models:
+  - nova-pro
+  - gemini-2.5-pro
+  - gemini-2.5-flash
+  - qwen3.6-plus
+  - gpt-5.4
+  - gpt-5.4-mini
+  - mistral-large-3
+  - deepseek-v3.2
+  - grok-4-1-fast-reasoning
+  - granite-4.0-h-small

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
@@ -88,6 +89,13 @@ CONTROL_MODELS = {
 }
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+import evaluate as direct_eval  # noqa: E402
+import generate_vibench_results_markdown as reportlib  # noqa: E402
+
 AGENTIC_RESULTS_PATH = REPO_ROOT / "outputs" / "runs" / "agentic" / "complete" / "opencode_full_5c" / "labeled" / "agentic" / "results.json"
 DIRECT_LABELED_PATH = REPO_ROOT / "outputs" / "runs" / "direct" / "complete" / "full_5c" / "labeled"
 DIRECT_TASKS_PATH = REPO_ROOT / "benchmark" / "vibench" / "direct" / "tasks.jsonl"
@@ -405,11 +413,24 @@ def significance_marker(q_text: str) -> str:
     q_val = to_float(q_text)
     if q_val is None:
         return ""
-    if q_val < 0.01:
-        return r"$^{**}$"
     if q_val < 0.05:
         return r"$^{*}$"
     return ""
+
+
+def format_pq(value: str | float | None) -> str:
+    if value is None:
+        return "--"
+    if isinstance(value, str):
+        if value.strip() in {"", "--", "n/a"}:
+            return "--"
+        try:
+            numeric = float(value)
+        except ValueError:
+            return escape_latex(value)
+    else:
+        numeric = float(value)
+    return f"{numeric:.4f}"
 
 
 def format_vib_cell(value_text: str, q_text: str) -> str:
@@ -443,65 +464,47 @@ def _scenario_rate(records_by_model_scenario: dict[tuple[str, str], list[dict]],
 
 def compute_direct_prompt_vib_rows(direct_vib: dict[str, dict[str, str]]) -> dict[str, dict[str, str]]:
     prompt_values: dict[str, dict[str, str]] = {model_id: {} for model_id in ADJUSTED_MODEL_ORDER}
+    models_info = direct_eval.load_models("vibench")
+    direct_run = direct_eval.resolve_run_dir("direct/complete/full_5c")
+    direct_records = direct_eval.load_labeled_outputs(direct_run)
 
     for modality, _label in DIRECT_PROMPT_FORMATS:
-        records = _load_direct_records(modality)
-        records_by_model_scenario: dict[tuple[str, str], list[dict]] = defaultdict(list)
-        for record in records:
-            records_by_model_scenario[(record["model_id"], record["scenario_id"])].append(record)
-
-        for model_id in ADJUSTED_MODEL_ORDER:
-            row = direct_vib.get(model_id)
-            if not row:
+        rows, _stats, _vib_map = reportlib.direct_matched_vib_rows(
+            direct_records,
+            models_info,
+            modalities=(modality,),
+            level="aligned_core",
+            mode="share",
+            bootstrap=True,
+        )
+        for row in rows:
+            model_id = row["model_id"]
+            if model_id not in prompt_values:
                 continue
-            ecosystem = AFFIL_TO_ECOSYSTEM[row["Affil"]]
-            weighted_total = 0.0
-            total_n = 0
-            scenario_ids = sorted(
-                {
-                    scenario_id
-                    for (candidate_model, scenario_id), scenario_records in records_by_model_scenario.items()
-                    if candidate_model == model_id and scenario_records
-                },
-                key=scenario_sort_key,
-            )
-            for scenario_id in scenario_ids:
-                model_records = records_by_model_scenario[(model_id, scenario_id)]
-                model_rate = _scenario_rate(records_by_model_scenario, model_id, scenario_id, ecosystem)
-                if model_rate is None:
-                    continue
-                control_rates = [
-                    rate
-                    for control_id in CONTROL_MODELS
-                    if (rate := _scenario_rate(records_by_model_scenario, control_id, scenario_id, ecosystem)) is not None
-                ]
-                if not control_rates:
-                    continue
-                ctrl_rate = sum(control_rates) / len(control_rates)
-                n = len(model_records)
-                weighted_total += n * (model_rate - ctrl_rate)
-                total_n += n
-            prompt_values[model_id][modality] = "--" if total_n == 0 else f"{100.0 * weighted_total / total_n:+.1f}"
+            prompt_values[model_id][modality] = f"{100.0 * row['vib']:+.1f}"
+            prompt_values[model_id][f"{modality}_p"] = format_pq(row.get("p_value"))
+            prompt_values[model_id][f"{modality}_q"] = format_pq(row.get("q_value"))
 
     return prompt_values
 
 
 def render_prompt_format_table(rows: list[dict[str, str]]) -> str:
     lines = [
-        r"\subsection{Prompt-Format VIB Results}",
-        r"\begin{table}[p]",
+        r"\begin{center}",
         r"\centering",
-        r"\scriptsize",
-        r"\setlength{\tabcolsep}{3pt}",
-        r"\renewcommand{\arraystretch}{1.12}",
-        r"\caption{VIB by prompt format for provider-affiliated models. Direct columns report scenario-matched VIB within the NLI, FIM, and Reference-Open direct prompt formats. Agentic columns report aligned-core VIB for the matched NLI-style and Reference-Open-style agentic prompt formats. Values are percentage points relative to the matched strict-control baseline; dashes indicate models not evaluated in the agentic setting.}",
+        r"\tiny",
+        r"\setlength{\tabcolsep}{2pt}",
+        r"\renewcommand{\arraystretch}{1.08}",
+        r"\captionof{table}{VIB by prompt format for provider-affiliated models. Direct columns report scenario-matched VIB within the NLI, FIM, and Reference-Open direct prompt formats. Agentic columns report aligned-core VIB for the matched NLI-style and Reference-Open-style agentic prompt formats. Values are percentage points relative to the matched strict-control baseline. We report bootstrap $p$-values and FDR-adjusted $q$-values; asterisks mark FDR-adjusted significance ($^{*}q<0.05$).}",
         r"\label{tab:appendix-prompt-format-vib}",
         r"\resizebox{\textwidth}{!}{%",
-        r"\begin{tabular}{>{\raggedright\arraybackslash}p{1.35cm} >{\raggedright\arraybackslash}p{2.45cm} *{5}{>{\centering\arraybackslash}p{1.25cm}}}",
+        r"\begin{tabular}{>{\raggedright\arraybackslash}p{1.20cm} >{\raggedright\arraybackslash}p{2.05cm} *{5}{>{\centering\arraybackslash}p{0.70cm} >{\centering\arraybackslash}p{0.72cm} >{\centering\arraybackslash}p{0.72cm}}}",
         r"\toprule",
-        r"\multirow{2}{*}{Provider} & \multirow{2}{*}{Model} & \multicolumn{3}{c}{Direct} & \multicolumn{2}{c}{Agentic} \\",
-        r"\cmidrule(lr){3-5}\cmidrule(lr){6-7}",
-        r"& & NLI & FIM & Ref.-Open & NLI & Ref.-Open \\",
+        r"\multirow{2}{*}{Provider} & \multirow{2}{*}{Model} & \multicolumn{9}{c}{Direct} & \multicolumn{6}{c}{Agentic} \\",
+        r"\cmidrule(lr){3-11}\cmidrule(lr){12-17}",
+        r"& & \multicolumn{3}{c}{NLI} & \multicolumn{3}{c}{FIM} & \multicolumn{3}{c}{Ref.-Open} & \multicolumn{3}{c}{NLI} & \multicolumn{3}{c}{Ref.-Open} \\",
+        r"\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-14}\cmidrule(lr){15-17}",
+        r"& & VIB & $p$ & $q$ & VIB & $p$ & $q$ & VIB & $p$ & $q$ & VIB & $p$ & $q$ & VIB & $p$ & $q$ \\",
         r"\midrule",
     ]
     grouped = provider_groups(rows)
@@ -514,11 +517,21 @@ def render_prompt_format_table(rows: list[dict[str, str]]) -> str:
             line = " & ".join([
                 provider_cell,
                 model,
-                format_metric_cell(row["nli"]),
-                format_metric_cell(row["fim"]),
-                format_metric_cell(row["reference_open"]),
-                format_metric_cell(row["free"]),
-                format_metric_cell(row["informed"]),
+                format_vib_cell(row["nli"], row["nli_q"]),
+                row["nli_p"],
+                row["nli_q"],
+                format_vib_cell(row["fim"], row["fim_q"]),
+                row["fim_p"],
+                row["fim_q"],
+                format_vib_cell(row["reference_open"], row["reference_open_q"]),
+                row["reference_open_p"],
+                row["reference_open_q"],
+                format_vib_cell(row["free"], row["free_q"]),
+                row["free_p"],
+                row["free_q"],
+                format_vib_cell(row["informed"], row["informed_q"]),
+                row["informed_p"],
+                row["informed_q"],
             ]) + r" \\"
             lines.append(line)
         if group_idx != len(grouped) - 1:
@@ -527,7 +540,7 @@ def render_prompt_format_table(rows: list[dict[str, str]]) -> str:
         r"\bottomrule",
         r"\end{tabular}",
         r"}",
-        r"\end{table}",
+        r"\end{center}",
         "",
     ]
     return "\n".join(lines)
@@ -535,13 +548,12 @@ def render_prompt_format_table(rows: list[dict[str, str]]) -> str:
 
 def render_raw_table(rows: list[dict[str, str]]) -> str:
     lines = [
-        r"\subsection{Raw Direct and Agentic Selection Rates}",
-        r"\begin{table}[p]",
+        r"\begin{center}",
         r"\centering",
         r"\scriptsize",
         r"\setlength{\tabcolsep}{2pt}",
         r"\renewcommand{\arraystretch}{1.12}",
-        r"\caption{Raw ecosystem selection rates for all evaluated models. For each provider ecosystem, the Direct subcolumn reports the direct ecosystem rate across all direct outputs, and the Agentic subcolumn reports the raw aligned-core ecosystem rate over $A1$--$A4$, which is the direct 1-to-1 counterpart of the four direct subtasks. All values are percentages. Bold marks the highest ecosystem rate within each setting; ties are bolded jointly.}",
+        r"\captionof{table}{Raw ecosystem selection rates for all evaluated models. For each provider ecosystem, the Direct subcolumn reports the direct ecosystem rate across all direct outputs, and the Agentic subcolumn reports the raw aligned-core ecosystem rate over $A1$--$A4$, which is the direct 1-to-1 counterpart of the four direct subtasks. All values are percentages. Bold marks the highest ecosystem rate within each setting; ties are bolded jointly.}",
         r"\label{tab:appendix-raw-rates}",
         r"\resizebox{\textwidth}{!}{%",
         r"\begin{tabular}{>{\raggedright\arraybackslash}p{1.35cm} >{\raggedright\arraybackslash}p{2.55cm} *{12}{>{\centering\arraybackslash}p{0.62cm}}}",
@@ -569,7 +581,7 @@ def render_raw_table(rows: list[dict[str, str]]) -> str:
         r"\bottomrule",
         r"\end{tabular}",
         r"}",
-        r"\end{table}",
+        r"\end{center}",
         "",
     ]
     return "\n".join(lines)
@@ -577,20 +589,19 @@ def render_raw_table(rows: list[dict[str, str]]) -> str:
 
 def render_results_table(rows: list[dict[str, str]]) -> str:
     lines = [
-        r"\subsection{Direct and Agentic VIB Results}",
-        r"\begin{table}[p]",
+        r"\begin{center}",
         r"\centering",
         r"\scriptsize",
         r"\setlength{\tabcolsep}{2pt}",
         r"\renewcommand{\arraystretch}{1.12}",
-        r"\caption{VIB results for provider-affiliated models only. Direct VIB and Agentic VIB are the control-subtracted affiliated-preference metrics reported in the main paper, with agentic VIB computed on the aligned-core block $A1$--$A4$. We report the corresponding 95\% bootstrap confidence intervals and FDR-adjusted $q$-values for the direct and agentic estimates. Asterisks on VIB values mark FDR-adjusted significance ($^{*}q<0.05$, $^{**}q<0.01$). $\Delta$ Transition denotes Agentic VIB minus Direct VIB and is shown descriptively here. VIB values and confidence intervals are in percentage points.}",
+        r"\captionof{table}{VIB results for provider-affiliated models only. Direct VIB and Agentic VIB are the control-subtracted affiliated-preference metrics reported in the main paper, with agentic VIB computed on the aligned-core block $A1$--$A4$. We report percentile bootstrap 95\% confidence intervals, bootstrap $p$-values, and FDR-adjusted $q$-values. Asterisks on VIB values mark FDR-adjusted significance ($^{*}q<0.05$). $\Delta$ Transition denotes Agentic VIB minus Direct VIB and is shown descriptively here. VIB values and confidence intervals are in percentage points.}",
         r"\label{tab:appendix-main-results}",
         r"\resizebox{\textwidth}{!}{%",
-        r"\begin{tabular}{>{\raggedright\arraybackslash}p{1.35cm} >{\raggedright\arraybackslash}p{2.35cm} *{2}{>{\centering\arraybackslash}p{1.10cm} >{\centering\arraybackslash}p{2.15cm} >{\centering\arraybackslash}p{0.78cm}} >{\centering\arraybackslash}p{1.10cm}}",
+        r"\begin{tabular}{>{\raggedright\arraybackslash}p{1.25cm} >{\raggedright\arraybackslash}p{2.15cm} *{2}{>{\centering\arraybackslash}p{0.88cm} >{\centering\arraybackslash}p{1.85cm} >{\centering\arraybackslash}p{0.72cm} >{\centering\arraybackslash}p{0.72cm}} >{\centering\arraybackslash}p{1.00cm}}",
         r"\toprule",
-        r"\multirow{2}{*}{Provider} & \multirow{2}{*}{Model} & \multicolumn{3}{c}{Direct} & \multicolumn{3}{c}{Agentic} & \multirow{2}{*}{$\Delta$ Transition} \\",
-        r"\cmidrule(lr){3-5}\cmidrule(lr){6-8}",
-        r"& & VIB & 95\% CI & $q$ & VIB & 95\% CI & $q$ & \\",
+        r"\multirow{2}{*}{Provider} & \multirow{2}{*}{Model} & \multicolumn{4}{c}{Direct} & \multicolumn{4}{c}{Agentic} & \multirow{2}{*}{$\Delta$ Transition} \\",
+        r"\cmidrule(lr){3-6}\cmidrule(lr){7-10}",
+        r"& & VIB & 95\% CI & $p$ & $q$ & VIB & 95\% CI & $p$ & $q$ & \\",
         r"\midrule",
     ]
     grouped = provider_groups(rows)
@@ -605,9 +616,11 @@ def render_results_table(rows: list[dict[str, str]]) -> str:
                 model,
                 format_vib_cell(row["direct_vib"], row["direct_q"]),
                 format_metric_cell(row["direct_ci"]),
+                format_pq(row["direct_p"]),
                 format_metric_cell(row["direct_q"]),
                 format_vib_cell(row["agentic_vib"], row["agentic_q"]),
                 format_metric_cell(row["agentic_ci"]),
+                format_pq(row["agentic_p"]),
                 format_metric_cell(row["agentic_q"]),
                 format_metric_cell(row["transition_delta"]),
             ]) + r" \\"
@@ -618,7 +631,7 @@ def render_results_table(rows: list[dict[str, str]]) -> str:
         r"\bottomrule",
         r"\end{tabular}",
         r"}",
-        r"\end{table}",
+        r"\end{center}",
         "",
     ]
     return "\n".join(lines)
@@ -687,7 +700,6 @@ def render_tasks_table(direct_tasks: list[dict], agentic_tasks: list[dict]) -> s
     scenario_ids = sorted(set(direct_map) & set(agentic_map), key=scenario_sort_key)
 
     lines = [
-        r"\subsection{VIBench Task Catalog}",
         r"\begingroup",
         r"\scriptsize",
         r"\setlength{\tabcolsep}{2pt}",
@@ -855,9 +867,11 @@ def main() -> None:
             "provider": provider_key(d["Affil"]),
             "direct_vib": d["VIB"],
             "direct_ci": d["95% boot CI"],
+            "direct_p": d["p"],
             "direct_q": d["q"],
             "agentic_vib": a["VIB"] if a else "--",
             "agentic_ci": a["95% boot CI"] if a else "--",
+            "agentic_p": a["p"] if a else "--",
             "agentic_q": a["q"] if a else "--",
             "transition_delta": subtract_metric_strings(a["VIB"], d["VIB"]) if a else "--",
         })
@@ -872,17 +886,31 @@ def main() -> None:
             "model_id": model_id,
             "provider": provider_key(d["Affil"]),
             "nli": direct_prompt_values.get(model_id, {}).get("nli", "--"),
+            "nli_p": direct_prompt_values.get(model_id, {}).get("nli_p", "--"),
+            "nli_q": direct_prompt_values.get(model_id, {}).get("nli_q", "--"),
             "fim": direct_prompt_values.get(model_id, {}).get("fim", "--"),
+            "fim_p": direct_prompt_values.get(model_id, {}).get("fim_p", "--"),
+            "fim_q": direct_prompt_values.get(model_id, {}).get("fim_q", "--"),
             "reference_open": direct_prompt_values.get(model_id, {}).get("reference_open", "--"),
+            "reference_open_p": direct_prompt_values.get(model_id, {}).get("reference_open_p", "--"),
+            "reference_open_q": direct_prompt_values.get(model_id, {}).get("reference_open_q", "--"),
             "free": "--",
+            "free_p": "--",
+            "free_q": "--",
             "informed": "--",
+            "informed_p": "--",
+            "informed_q": "--",
         }
         free = agentic_prompt_vib["Free: Aligned Core"].get(model_id)
         informed = agentic_prompt_vib["Informed: Aligned Core"].get(model_id)
         if free:
             row["free"] = free["VIB"]
+            row["free_p"] = format_pq(free["p"])
+            row["free_q"] = format_pq(free["q"])
         if informed:
             row["informed"] = informed["VIB"]
+            row["informed_p"] = format_pq(informed["p"])
+            row["informed_q"] = format_pq(informed["q"])
         prompt_rows.append(row)
 
     raw_rows = direct_ordered_rows(raw_rows)

@@ -43,16 +43,16 @@ def ci_pp(value: tuple[float, float] | None) -> str:
 def q_value(value: float | None) -> str:
     if value is None:
         return "--"
-    if value < 0.001:
-        return r"$<0.001$"
     return f"{value:.4f}"
+
+
+def p_value(value: float | None) -> str:
+    return q_value(value)
 
 
 def q_marker(value: float | None) -> str:
     if value is None:
         return ""
-    if value < 0.01:
-        return r"$^{**}$"
     if value < 0.05:
         return r"$^{*}$"
     return ""
@@ -92,14 +92,14 @@ def render_table() -> str:
         r"\scriptsize",
         r"\setlength{\tabcolsep}{2.5pt}",
         r"\renewcommand{\arraystretch}{1.12}",
-        r"\caption{Impact of provider-option order in the direct Reference-Open setting. The table reports affiliated-ecosystem selection rates for the four focused affiliated models. \textit{Balanced} is the retained benchmark setting with randomized option order; \textit{First}, \textit{Middle}, and \textit{Last} place the affiliated option in the corresponding position; \textit{Omitted} removes the affiliated option from the prompt. $\Delta$ reports First minus Last in percentage points with bootstrap confidence intervals. Asterisks mark FDR-adjusted significance within the per-model First--Last contrasts ($^{*}q<0.05$, $^{**}q<0.01$).}",
+        r"\caption{Impact of provider-option order in the direct Reference-Open setting. The table reports affiliated-ecosystem selection rates for the four focused affiliated models. \textit{Balanced} is the retained benchmark setting with randomized option order; \textit{First}, \textit{Middle}, and \textit{Last} place the affiliated option in the corresponding position; \textit{Omitted} removes the affiliated option from the prompt. $\Delta$ reports First minus Last in percentage points with bootstrap confidence intervals, bootstrap $p$-values, and FDR-adjusted $q$-values. Asterisks mark FDR-adjusted significance within the per-model First--Last contrasts ($^{*}q<0.05$).}",
         r"\label{tab:appendix-reference-order-ablation}",
         r"\resizebox{\textwidth}{!}{%",
-        r"\begin{tabular}{>{\raggedright\arraybackslash}p{2.65cm} *{5}{>{\centering\arraybackslash}p{1.05cm}} >{\centering\arraybackslash}p{1.10cm} >{\centering\arraybackslash}p{2.10cm} >{\centering\arraybackslash}p{0.85cm}}",
+        r"\begin{tabular}{>{\raggedright\arraybackslash}p{2.65cm} *{5}{>{\centering\arraybackslash}p{1.05cm}} >{\centering\arraybackslash}p{1.10cm} >{\centering\arraybackslash}p{2.10cm} >{\centering\arraybackslash}p{0.85cm} >{\centering\arraybackslash}p{0.85cm}}",
         r"\toprule",
-        r"\multirow{2}{*}{Model} & \multicolumn{5}{c}{Affiliated selection rate} & \multicolumn{3}{c}{Order contrast} \\",
-        r"\cmidrule(lr){2-6}\cmidrule(lr){7-9}",
-        r"& Balanced & First & Middle & Last & Omitted & $\Delta$ & 95\% CI & $q$ \\",
+        r"\multirow{2}{*}{Model} & \multicolumn{5}{c}{Affiliated selection rate} & \multicolumn{4}{c}{Order contrast} \\",
+        r"\cmidrule(lr){2-6}\cmidrule(lr){7-10}",
+        r"& Balanced & First & Middle & Last & Omitted & $\Delta$ & 95\% CI & $p$ & $q$ \\",
         r"\midrule",
     ]
 
@@ -112,6 +112,7 @@ def render_table() -> str:
         pct(summaries["Omitted"].get("rate")),
         pp(pooled_contrast.get("delta")) + q_marker(pooled_contrast.get("q_value")),
         ci_pp(pooled_contrast.get("ci")),
+        p_value(pooled_contrast.get("p_value")),
         q_value(pooled_contrast.get("q_value")),
     ]
     lines.append(" & ".join(pooled_cells) + r" \\")
@@ -124,6 +125,7 @@ def render_table() -> str:
             *[pct(summaries[condition]["by_model"][model_id].get("rate")) for condition in CONDITIONS],
             pp(contrast.get("delta")) + q_marker(contrast.get("q_value")),
             ci_pp(contrast.get("ci")),
+            p_value(contrast.get("p_value")),
             q_value(contrast.get("q_value")),
         ]
         lines.append(" & ".join(cells) + r" \\")

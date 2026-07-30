@@ -1,0 +1,57 @@
+# VIBench — current direct benchmark.
+#
+# 13 models × 18 scenarios × 4 subtasks × 3 modalities × 5 completions
+# = 14,040 expected generations.
+#
+# Temperature/top-p/max_tokens are left unset. Reasoning is explicitly disabled
+# only for GPT models where LiteLLM/OpenAI and OpenCode both expose a `none`
+# control; other models use their provider/default route because no common
+# zero-reasoning control exists.
+
+name: direct/complete/full_5c
+benchmark: vibench
+dataset_format: hf_jsonl
+system_prompt_file: system_prompt.txt
+
+completions: 5
+rate_limit_delay: 0.3
+rate_limit_delay_per_model:
+  nova-pro: 1
+  nova-2-lite: 1
+  granite-4.0-h-small: 1
+  granite-4.0-h-tiny-local: 1
+  mistral-large-3: 3
+max_workers: 13
+max_consecutive_errors: 5
+
+sampling:
+  temperature: null
+  max_tokens: null
+  top_p: null
+  reasoning_effort: null
+  reasoning_effort_policy: supported_only
+  reasoning_effort_by_model:
+    gpt-5.4: none
+    gpt-5.4-mini: none
+
+modalities:
+  - nli
+  - fim
+  - reference_open
+
+models:
+  - gemini-2.5-pro
+  - gemini-2.5-flash
+  - gpt-5.4
+  - gpt-5.4-mini
+  - nova-pro
+  - nova-2-lite
+  - qwen3.6-plus
+  - qwen3-coder-flash
+  - granite-4.0-h-small
+  - granite-4.0-h-tiny-local
+  - grok-4-1-fast-reasoning
+  - deepseek-v3.2
+  - mistral-large-3
+
+scenarios: all

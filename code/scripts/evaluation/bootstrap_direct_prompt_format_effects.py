@@ -202,8 +202,6 @@ def fmt_unsigned_ci(values: list[float]) -> str:
 
 
 def fmt_q(value: float) -> str:
-    if value < 0.001:
-        return r"$<0.001$"
     return f"{value:.3f}"
 
 

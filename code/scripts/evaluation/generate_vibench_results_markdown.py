@@ -53,7 +53,7 @@ DIRECT_ECOSYSTEM_COLUMNS = [
     "unknown",
 ]
 
-BOOTSTRAP_ITERATIONS = 2000
+BOOTSTRAP_ITERATIONS = 10000
 BOOTSTRAP_SEED = 42
 
 
@@ -164,6 +164,26 @@ def bootstrap_means(values, seed: int, n_boot: int = BOOTSTRAP_ITERATIONS):
     rng = np.random.default_rng(seed)
     sample_idx = rng.integers(0, arr.size, size=(n_boot, arr.size))
     return arr[sample_idx].mean(axis=1)
+
+
+def bootstrap_cluster_rates(units, seed: int, n_boot: int = BOOTSTRAP_ITERATIONS):
+    if not units:
+        return None
+    successes = np.asarray([unit["success"] for unit in units], dtype=float)
+    totals = np.asarray([unit["total"] for unit in units], dtype=float)
+    if successes.size == 0:
+        return None
+    if successes.size == 1:
+        return np.repeat(successes[0] / totals[0], n_boot)
+    rng = np.random.default_rng(seed)
+    sample_idx = rng.integers(0, successes.size, size=(n_boot, successes.size))
+    sampled_success = successes[sample_idx].sum(axis=1)
+    sampled_total = totals[sample_idx].sum(axis=1)
+    return sampled_success / sampled_total
+
+
+def cluster_unit(success: float, total: int) -> dict[str, float | int]:
+    return {"success": float(success), "total": int(total)}
 
 
 def bootstrap_stats_from_samples(samples, point_estimate: float | None):
@@ -341,6 +361,41 @@ def direct_target_units_by_scenario(records, model_id, target_ecosystem, modalit
     return buckets
 
 
+def direct_target_clusters_by_scenario(records, model_id, target_ecosystem, modalities, level):
+    allowed_modalities = set(modalities)
+    grouped = defaultdict(lambda: defaultdict(list))
+    for record in records:
+        if record.get("model_id") != model_id:
+            continue
+        if record.get("modality") not in allowed_modalities:
+            continue
+        scenario_id = record.get("scenario_id")
+        if not scenario_id:
+            continue
+        suffix = agentic_eval._task_suffix(record.get("task_id"))
+        if level == "primary" and suffix != "a":
+            continue
+        if level == "aligned_core" and suffix not in {"a", "b", "c", "d"}:
+            continue
+        cluster_key = (
+            scenario_id,
+            record.get("task_id"),
+            record.get("modality"),
+        )
+        grouped[scenario_id][cluster_key].append(record)
+
+    buckets = defaultdict(list)
+    for scenario_id, clusters in grouped.items():
+        for cluster_records in clusters.values():
+            values = [
+                direct_eval._record_target_share(record, target_ecosystem, field="detected_ecosystem")
+                for record in cluster_records
+            ]
+            if values:
+                buckets[scenario_id].append(cluster_unit(sum(values), len(values)))
+    return buckets
+
+
 def agentic_target_units_by_scenario(agentic_results, model_id, target_ecosystem, level, variant=None):
     buckets = defaultdict(list)
     for row in agentic_results:
@@ -359,6 +414,30 @@ def agentic_target_units_by_scenario(agentic_results, model_id, target_ecosystem
             if component.get("component_group") != "aligned_core":
                 continue
             buckets[scenario_id].append(agentic_eval._affiliation_share(component, target_ecosystem) or 0.0)
+    return buckets
+
+
+def agentic_target_clusters_by_scenario(agentic_results, model_id, target_ecosystem, level, variant=None):
+    buckets = defaultdict(list)
+    for row in agentic_results:
+        if row.get("model_id") != model_id:
+            continue
+        if variant and row.get("variant") != variant:
+            continue
+        scenario_id = row.get("primary_atomic_scenario") or "unknown"
+        if level == "primary":
+            component = row.get("components", {}).get(row.get("primary_component_role"), {})
+            buckets[scenario_id].append(cluster_unit(agentic_eval._affiliation_share(component, target_ecosystem) or 0.0, 1))
+            continue
+        if level != "aligned_core":
+            raise ValueError(f"Unsupported agentic level for bootstrap: {level}")
+        values = []
+        for component in row.get("components", {}).values():
+            if component.get("component_group") != "aligned_core":
+                continue
+            values.append(agentic_eval._affiliation_share(component, target_ecosystem) or 0.0)
+        if values:
+            buckets[scenario_id].append(cluster_unit(sum(values), len(values)))
     return buckets
 
 
@@ -742,6 +821,8 @@ def bootstrap_delta_from_unit_lists(values_a, values_b, key, point_estimate):
 
 def bootstrap_matched_vib_from_maps(model_map, baseline_maps, scenario_ids, point_estimate, key):
     valid_scenarios = []
+    total_clusters = 0
+    total_ctrl_clusters = 0
     total_units = 0
     total_ctrl = 0
     for scenario_id in scenario_ids:
@@ -754,13 +835,17 @@ def bootstrap_matched_vib_from_maps(model_map, baseline_maps, scenario_ids, poin
         if not model_units or not control_maps:
             continue
         valid_scenarios.append((scenario_id, model_units, control_maps))
-        total_units += len(model_units)
-        total_ctrl += sum(len(units) for units in control_maps.values())
+        total_clusters += len(model_units)
+        total_ctrl_clusters += sum(len(units) for units in control_maps.values())
+        total_units += sum(unit["total"] for unit in model_units)
+        total_ctrl += sum(unit["total"] for units in control_maps.values() for unit in units)
 
     if total_units <= 0 or not valid_scenarios:
         return {
             "n_model": total_units,
             "n_ctrl": total_ctrl,
+            "n_model_clusters": total_clusters,
+            "n_ctrl_clusters": total_ctrl_clusters,
             "ci": None,
             "p_value": None,
             "significant": None,
@@ -769,10 +854,10 @@ def bootstrap_matched_vib_from_maps(model_map, baseline_maps, scenario_ids, poin
 
     samples = np.zeros(BOOTSTRAP_ITERATIONS, dtype=float)
     for scenario_id, model_units, control_maps in valid_scenarios:
-        weight = len(model_units) / total_units
-        model_boot = bootstrap_means(model_units, bootstrap_seed(key, scenario_id, "model"))
+        weight = sum(unit["total"] for unit in model_units) / total_units
+        model_boot = bootstrap_cluster_rates(model_units, bootstrap_seed(key, scenario_id, "model"))
         control_boots = [
-            bootstrap_means(units, bootstrap_seed(key, scenario_id, control_id))
+            bootstrap_cluster_rates(units, bootstrap_seed(key, scenario_id, control_id))
             for control_id, units in sorted(control_maps.items())
         ]
         control_boot = np.mean(np.vstack(control_boots), axis=0)
@@ -782,6 +867,8 @@ def bootstrap_matched_vib_from_maps(model_map, baseline_maps, scenario_ids, poin
     return {
         "n_model": total_units,
         "n_ctrl": total_ctrl,
+        "n_model_clusters": total_clusters,
+        "n_ctrl_clusters": total_ctrl_clusters,
         "ci": stats["ci"],
         "p_value": stats["p_value"],
         "significant": stats["significant"],
@@ -843,7 +930,7 @@ def matched_vib_significance_rows(stats, models_info, vib_rows, *, bootstrap_sou
             affiliation = vib_row["affiliation"]
             scenario_ids = vib_row["scenario_ids"]
             if bootstrap_source["kind"] == "direct":
-                model_map = direct_target_units_by_scenario(
+                model_map = direct_target_clusters_by_scenario(
                     bootstrap_source["records"],
                     model_id,
                     affiliation,
@@ -851,7 +938,7 @@ def matched_vib_significance_rows(stats, models_info, vib_rows, *, bootstrap_sou
                     bootstrap_source["level"],
                 )
                 baseline_maps = {
-                    baseline_model: direct_target_units_by_scenario(
+                    baseline_model: direct_target_clusters_by_scenario(
                         bootstrap_source["records"],
                         baseline_model,
                         affiliation,
@@ -861,7 +948,7 @@ def matched_vib_significance_rows(stats, models_info, vib_rows, *, bootstrap_sou
                     for baseline_model in STRICT_CONTROL_IDS
                 }
             elif bootstrap_source["kind"] == "agentic":
-                model_map = agentic_target_units_by_scenario(
+                model_map = agentic_target_clusters_by_scenario(
                     bootstrap_source["results"],
                     model_id,
                     affiliation,
@@ -869,7 +956,7 @@ def matched_vib_significance_rows(stats, models_info, vib_rows, *, bootstrap_sou
                     variant=bootstrap_source.get("variant"),
                 )
                 baseline_maps = {
-                    baseline_model: agentic_target_units_by_scenario(
+                    baseline_model: agentic_target_clusters_by_scenario(
                         bootstrap_source["results"],
                         baseline_model,
                         affiliation,
@@ -900,6 +987,8 @@ def matched_vib_significance_rows(stats, models_info, vib_rows, *, bootstrap_sou
             "significant": stats_row.get("significant"),
             "n_model": stats_row["n_model"],
             "n_ctrl": stats_row["n_ctrl"],
+            "n_model_clusters": stats_row.get("n_model_clusters"),
+            "n_ctrl_clusters": stats_row.get("n_ctrl_clusters"),
             "scenario_count": len(vib_row["scenario_ids"]),
         })
     rows.sort(key=lambda row: (row["vib"] is None, -(row["vib"] or -999)))
@@ -936,7 +1025,7 @@ def transition_rows(direct_stats, agentic_stats, models_info, modality_name, vib
             continue
         if direct_bootstrap_source is not None and agentic_bootstrap_source is not None:
             affiliation = agentic_vib["affiliation"]
-            direct_model_map = direct_target_units_by_scenario(
+            direct_model_map = direct_target_clusters_by_scenario(
                 direct_bootstrap_source["records"],
                 model_id,
                 affiliation,
@@ -944,7 +1033,7 @@ def transition_rows(direct_stats, agentic_stats, models_info, modality_name, vib
                 direct_bootstrap_source["level"],
             )
             direct_baseline_maps = {
-                baseline_model: direct_target_units_by_scenario(
+                baseline_model: direct_target_clusters_by_scenario(
                     direct_bootstrap_source["records"],
                     baseline_model,
                     affiliation,
@@ -953,7 +1042,7 @@ def transition_rows(direct_stats, agentic_stats, models_info, modality_name, vib
                 )
                 for baseline_model in STRICT_CONTROL_IDS
             }
-            agentic_model_map = agentic_target_units_by_scenario(
+            agentic_model_map = agentic_target_clusters_by_scenario(
                 agentic_bootstrap_source["results"],
                 model_id,
                 affiliation,
@@ -961,7 +1050,7 @@ def transition_rows(direct_stats, agentic_stats, models_info, modality_name, vib
                 variant=agentic_bootstrap_source.get("variant"),
             )
             agentic_baseline_maps = {
-                baseline_model: agentic_target_units_by_scenario(
+                baseline_model: agentic_target_clusters_by_scenario(
                     agentic_bootstrap_source["results"],
                     baseline_model,
                     affiliation,

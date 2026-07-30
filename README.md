@@ -7,10 +7,13 @@ VIBench is a benchmark for measuring **Vertical Integration Bias (VIB)**:
 whether provider-affiliated LLMs preferentially generate code for their own
 clouds, APIs, libraries, or service ecosystems when comparable alternatives are
 available. The package includes the VIBench code, study configs,
+the benchmark corpus (`code/benchmark/vibench/` — tasks, system prompts,
+model metadata, provider-evidence sources, audit sample),
 provider-attribution/evaluation scripts, figures, and reproduction utilities.
-The benchmark corpus and generated outputs are distributed through Hugging Face
-datasets rather than committed to GitHub, and the interactive browser is hosted
-as a Hugging Face Space.
+The generated model outputs are distributed through Hugging Face datasets
+rather than committed to GitHub (the benchmark corpus is mirrored there too,
+as a flat export), and the interactive browser is hosted as a Hugging Face
+Space.
 
 <p align="center">
   <a href="https://huggingface.co/spaces/vibench-emnlp26/vibench"><img alt="VIBench Explorer" src="https://img.shields.io/badge/Explorer-HF%20Space-blue?logo=huggingface"></a>
@@ -76,17 +79,18 @@ pip install -r requirements.txt
 make help
 ```
 
-After the Hugging Face benchmark/results data are synced locally, evaluation
-and plotting can run offline. API keys are only needed when you run new
-generation commands.
+The benchmark corpus ships with the repository; after the Hugging Face
+*results* data are synced locally, evaluation and plotting can run offline.
+API keys are only needed when you run new generation commands.
 
 ---
 
 ## Data Availability
 
-The large VIBench data artifacts are **not committed to GitHub**. GitHub keeps
-the scripts, configs, documentation, and reproduction utilities; the benchmark
-corpus and generated outputs are distributed through Hugging Face:
+The large VIBench run outputs are **not committed to GitHub**. GitHub keeps
+the scripts, configs, benchmark corpus, documentation, and reproduction
+utilities; the generated outputs (and a flat benchmark export) are
+distributed through Hugging Face:
 
 | Artifact | Where it lives |
 |---|---|

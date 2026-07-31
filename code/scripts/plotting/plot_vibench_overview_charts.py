@@ -18,6 +18,7 @@ if str(EVAL_DIR) not in sys.path:
 
 import evaluate as direct_eval  # noqa: E402
 import evaluate_agentic as agentic_eval  # noqa: E402
+import model_registry as registry  # noqa: E402
 import generate_vibench_results_markdown as reportlib  # noqa: E402
 
 
@@ -128,7 +129,7 @@ class SvgCanvas:
 
 
 def display_model(model_id: str) -> str:
-    return MODEL_DISPLAY_NAMES.get(model_id, model_id.replace("-", " "))
+    return MODEL_DISPLAY_NAMES.get(model_id) or registry.display_name(model_id)
 
 
 def role_order(model_id: str, models_info: dict) -> tuple[int, str]:

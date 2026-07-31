@@ -2,6 +2,7 @@
 
 Core evaluation:
 
+- [`model_registry.py`](model_registry.py): single source of truth for study-model metadata — control baseline, study membership, canonical table order, ecosystems, tiers, and default display names — backed by `benchmark/vibench/models.json` (`study_order` + `role` fields). Scripts must derive model lists from here instead of hard-coding them; per-artifact label dicts may override display names but fall back to the registry.
 - [`detect_services.py`](detect_services.py): provider and ecosystem detection.
 - [`evaluate.py`](evaluate.py): direct benchmark metrics.
 - [`evaluate_agentic.py`](evaluate_agentic.py): agentic benchmark metrics.

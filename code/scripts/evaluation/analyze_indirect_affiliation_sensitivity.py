@@ -19,12 +19,13 @@ if str(SCRIPT_DIR) not in sys.path:
 
 import detect_services  # noqa: E402
 import evaluate as direct_eval  # noqa: E402
+import model_registry as registry  # noqa: E402
 import evaluate_agentic as agentic_eval  # noqa: E402
 import generate_vibench_results_markdown as reportlib  # noqa: E402
 from generate_gini_vib_comparison import model_metadata  # noqa: E402
 
 
-STRICT_CONTROLS = ["deepseek-v3.2", "mistral-large-3", "grok-4-1-fast-reasoning"]
+STRICT_CONTROLS = registry.strict_controls()
 GPT_MODELS = ["gpt-5.4", "gpt-5.4-mini"]
 MAPPINGS = {
     "merged_microsoft_openai": "microsoft_openai",

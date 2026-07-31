@@ -18,12 +18,13 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import evaluate as direct_eval  # noqa: E402
+import model_registry as registry  # noqa: E402
 import evaluate_agentic as agentic_eval  # noqa: E402
 import generate_vibench_results_markdown as reportlib  # noqa: E402
 from evaluate_gini import compute_rows  # noqa: E402
 
 
-STRICT_CONTROLS = ["deepseek-v3.2", "mistral-large-3", "grok-4-1-fast-reasoning"]
+STRICT_CONTROLS = registry.strict_controls()
 BOOTSTRAP_ITERATIONS = 2000
 BOOTSTRAP_SEED = 42
 

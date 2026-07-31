@@ -18,35 +18,16 @@ from pathlib import Path
 from typing import Iterable
 from collections import Counter, defaultdict
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
-DIRECT_MODEL_ORDER = [
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-    "gpt-5.4",
-    "gpt-5.4-mini",
-    "nova-pro",
-    "nova-2-lite",
-    "granite-4.0-h-small",
-    "granite-4.0-h-tiny-local",
-    "qwen3.6-plus",
-    "qwen3-coder-flash",
-    "deepseek-v3.2",
-    "mistral-large-3",
-    "grok-4-1-fast-reasoning",
-]
+import model_registry as registry  # noqa: E402
 
-ADJUSTED_MODEL_ORDER = [
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-    "gpt-5.4",
-    "gpt-5.4-mini",
-    "nova-pro",
-    "nova-2-lite",
-    "granite-4.0-h-small",
-    "granite-4.0-h-tiny-local",
-    "qwen3.6-plus",
-    "qwen3-coder-flash",
-]
+
+DIRECT_MODEL_ORDER = registry.study_models()
+
+ADJUSTED_MODEL_ORDER = registry.affiliated_models()
 
 PROVIDER_LABELS = {
     "google": "Google",
@@ -82,11 +63,7 @@ PROVIDER_ORDER = [
     "independent",
 ]
 
-CONTROL_MODELS = {
-    "deepseek-v3.2",
-    "mistral-large-3",
-    "grok-4-1-fast-reasoning",
-}
+CONTROL_MODELS = set(registry.strict_controls())
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -513,7 +490,7 @@ def render_prompt_format_table(rows: list[dict[str, str]]) -> str:
             provider_cell = ""
             if idx == 0:
                 provider_cell = rf"\multirow{{{len(group_rows)}}}{{*}}{{{PROVIDER_LABELS[provider]}}}"
-            model = escape_latex(MODEL_LABELS[row["model_id"]])
+            model = escape_latex(MODEL_LABELS.get(row["model_id"], registry.display_name(row["model_id"])))
             line = " & ".join([
                 provider_cell,
                 model,
@@ -569,7 +546,7 @@ def render_raw_table(rows: list[dict[str, str]]) -> str:
             provider_cell = ""
             if idx == 0:
                 provider_cell = rf"\multirow{{{len(group_rows)}}}{{*}}{{{PROVIDER_LABELS[provider]}}}"
-            model = escape_latex(MODEL_LABELS[row["model_id"]])
+            model = escape_latex(MODEL_LABELS.get(row["model_id"], registry.display_name(row["model_id"])))
             cells = []
             for direct_key, agentic_key in zip(RAW_DIRECT_KEYS, RAW_AGENTIC_KEYS):
                 cells.append(format_panel_cell(row, direct_key, RAW_DIRECT_KEYS))
@@ -610,7 +587,7 @@ def render_results_table(rows: list[dict[str, str]]) -> str:
             provider_cell = ""
             if idx == 0:
                 provider_cell = rf"\multirow{{{len(group_rows)}}}{{*}}{{{PROVIDER_LABELS[provider]}}}"
-            model = escape_latex(MODEL_LABELS[row["model_id"]])
+            model = escape_latex(MODEL_LABELS.get(row["model_id"], registry.display_name(row["model_id"])))
             line = " & ".join([
                 provider_cell,
                 model,

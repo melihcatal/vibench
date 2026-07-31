@@ -28,6 +28,7 @@ if str(SCRIPT_DIR) not in sys.path:
 import evaluate as direct_eval  # noqa: E402
 import evaluate_agentic as agentic_eval  # noqa: E402
 import generate_vibench_results_markdown as reportlib  # noqa: E402
+import model_registry as registry  # noqa: E402
 import plot_vibench_overview_charts as overview  # noqa: E402
 
 
@@ -117,7 +118,7 @@ ECO_SOFT_RED = "#fee2e2"
 
 
 def label_model(model_id: str) -> str:
-    return MODEL_LABEL.get(model_id, model_id.replace("-", " "))
+    return MODEL_LABEL.get(model_id) or registry.display_name(model_id)
 
 
 def label_model_compact(model_id: str) -> str:

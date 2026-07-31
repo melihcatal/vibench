@@ -48,6 +48,7 @@ def _canonical_benchmark_name(benchmark):
     return aliases[key]
 
 # Reuse detection rules from detect_services.py
+import model_registry as registry
 from detect_services import (
     DETECTION_RULES,
     detect_provider_matches_open,
@@ -547,11 +548,7 @@ def _neutral_baseline_schemes(models_info, present_models):
     def _present(model_id):
         return model_id in present_models
 
-    expected_strict = (
-        "deepseek-v3.2",
-        "mistral-large-3",
-        "grok-4-1-fast-reasoning",
-    )
+    expected_strict = tuple(registry.strict_controls())
     strict_controls = [m for m in expected_strict if _present(m)]
     missing = [m for m in expected_strict if not _present(m)]
     if missing:

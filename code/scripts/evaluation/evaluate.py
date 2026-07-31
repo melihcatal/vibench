@@ -18,8 +18,10 @@ import math
 
 try:
     from detect_services import PROVIDER_TO_ECOSYSTEM
+    import model_registry as registry
 except ModuleNotFoundError:  # Support `python -m scripts.evaluation.evaluate`
     from scripts.evaluation.detect_services import PROVIDER_TO_ECOSYSTEM
+    from scripts.evaluation import model_registry as registry
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 RUNS_DIR = BASE_DIR / "outputs" / "runs"
@@ -358,11 +360,7 @@ def compute_vib(
 ):
     """Compute Vertical Integration Bias score per affiliated model."""
     present_models = set(frr.keys())
-    expected_strict_baseline = (
-        "deepseek-v3.2",
-        "mistral-large-3",
-        "grok-4-1-fast-reasoning",
-    )
+    expected_strict_baseline = tuple(registry.strict_controls())
     strict_baseline_ids = [
         model_id for model_id in expected_strict_baseline
         if model_id in present_models
@@ -422,11 +420,7 @@ def compute_vib_baseline_sensitivity(frr, models_info, affiliation_field="ecosys
     """Compare affiliated-model VIB under alternative neutral baselines."""
     present_models = set(frr.keys())
     strict_controls = [
-        model_id for model_id in (
-            "deepseek-v3.2",
-            "mistral-large-3",
-            "grok-4-1-fast-reasoning",
-        )
+        model_id for model_id in registry.strict_controls()
         if model_id in present_models
     ]
     independent_only = sorted(
@@ -495,11 +489,7 @@ def compute_vib_baseline_sensitivity(frr, models_info, affiliation_field="ecosys
 
 def _ordered_neutral_models(models_info, present_models):
     strict_controls = [
-        model_id for model_id in (
-            "deepseek-v3.2",
-            "mistral-large-3",
-            "grok-4-1-fast-reasoning",
-        )
+        model_id for model_id in registry.strict_controls()
         if model_id in present_models
     ]
     independent_only = sorted(
@@ -528,11 +518,7 @@ def compute_exhaustive_baseline_subset_robustness(
         for combo in itertools.combinations(neutral_models, size)
     ]
     strict_subset = tuple(
-        model_id for model_id in (
-            "deepseek-v3.2",
-            "mistral-large-3",
-            "grok-4-1-fast-reasoning",
-        )
+        model_id for model_id in registry.strict_controls()
         if model_id in neutral_models
     )
 
@@ -1084,7 +1070,7 @@ def generate_report(records, models_info, fmt="text"):
     # --- VIB Scores ---
     h2("3. Vertical Integration Bias Scores (VIB)")
     p("VIB = model's affiliated ecosystem FRR - strict neutral baseline average FRR for same ecosystem")
-    p("Strict neutral baseline = deepseek-v3.2 + mistral-large-3 + grok-4-1-fast-reasoning")
+    p("Strict neutral baseline = " + " + ".join(registry.strict_controls()))
     p("FRR here is share-normalized multi-provider mass, not first-hit single-label scoring.")
     p("Cohen's h uses the affiliated-model rate vs the same control baseline rate. Cutoffs: 0.2 small, 0.5 medium, 0.8 large.")
     p("VIB > 0 = affiliated preference above baseline\n")

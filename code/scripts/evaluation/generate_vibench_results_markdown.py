@@ -29,14 +29,11 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import evaluate as direct_eval  # noqa: E402
+import model_registry as registry  # noqa: E402
 import evaluate_agentic as agentic_eval  # noqa: E402
 
 
-STRICT_CONTROL_IDS = [
-    "deepseek-v3.2",
-    "mistral-large-3",
-    "grok-4-1-fast-reasoning",
-]
+STRICT_CONTROL_IDS = registry.strict_controls()
 DOWNSTREAM_LEAKAGE_EXPECTATIONS = {
     "independent_expected",
     "compatible_but_independent",

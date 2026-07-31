@@ -15,10 +15,11 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import evaluate as direct_eval  # noqa: E402
+import model_registry as registry  # noqa: E402
 import evaluate_agentic as agentic_eval  # noqa: E402
 
 
-CONTROLS = ("deepseek-v3.2", "mistral-large-3", "grok-4-1-fast-reasoning")
+CONTROLS = tuple(registry.strict_controls())
 TARGETS = ("aws", "google", "microsoft_openai", "ibm", "alibaba")
 SETTINGS = (
     ("direct_nli", "direct", "nli"),

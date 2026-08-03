@@ -27,6 +27,11 @@ configs/vibench/
     │   ├── opencode_full_5c.yaml
     │   └── agents_sdk_full_5c.yaml
     └── ablations/option_order/
+        ├── opencode/
+        │   ├── affiliated_first_3c.yaml
+        │   ├── affiliated_middle_3c.yaml
+        │   ├── affiliated_last_3c.yaml
+        │   └── affiliated_omitted_3c.yaml
         └── agents_sdk/
             ├── affiliated_first_3c.yaml
             └── affiliated_last_3c.yaml
@@ -113,10 +118,14 @@ serves the OpenCode-compatible aliases `nova-pro` and `granite-4.0-h-small`.
   option-order ablations for the direct REF setting (Appendix A.4.1). 4
   affiliated models, 20 scenarios, 4 subtasks, `reference_open` only, 3
   completions, 960 expected generations per config.
+- `agentic/ablations/option_order/opencode/affiliated_{first,middle,last,omitted}_3c.yaml`:
+  option-order ablations for the agentic `informed` setting on the primary
+  OpenCode runtime (Appendix A.4.2). 4 affiliated models, 20 workflows,
+  `informed` variant only, 3 completions per config.
 - `agentic/ablations/option_order/agents_sdk/affiliated_{first,last}_3c.yaml`:
   option-order ablations for the agentic `informed` setting on the Agents SDK
-  runtime (Appendix A.4.2). 4 affiliated models, 20 workflows, `informed`
-  variant only, 3 completions, 240 expected sessions per config.
+  runtime (Appendix A.4.2, runtime check). 4 affiliated models, 20 workflows,
+  `informed` variant only, 3 completions, 240 expected sessions per config.
 
 For agentic runs, `free` corresponds to the NLI-style task prompt and
 `informed` corresponds to the REF-style prompt with documented provider

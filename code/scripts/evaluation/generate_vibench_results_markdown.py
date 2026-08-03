@@ -750,6 +750,8 @@ def build_direct_multilabel_summary_rows(records, models_info, single_rows, mult
         summary_row = summary.get(model_id, {})
         single = single_map.get(model_id, {})
         multi = multi_map.get(model_id, {})
+        if not summary_row and not single and not multi:
+            continue  # registered but absent from this run's data
         rows.append({
             "model_id": model_id,
             "affiliation": affinity,
@@ -784,6 +786,8 @@ def build_agentic_multilabel_summary_rows(agentic_results, models_info, primary_
         pm = primary_multi.get(model_id, {})
         als = aligned_single.get(model_id, {})
         alm = aligned_multi.get(model_id, {})
+        if not summary_row and not ps and not pm and not als and not alm:
+            continue  # registered but absent from this run's data
         rows.append({
             "model_id": model_id,
             "affiliation": affinity,

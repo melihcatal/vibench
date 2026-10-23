@@ -1,0 +1,1 @@
+from safety_client import moderate_messages as moderate_batch

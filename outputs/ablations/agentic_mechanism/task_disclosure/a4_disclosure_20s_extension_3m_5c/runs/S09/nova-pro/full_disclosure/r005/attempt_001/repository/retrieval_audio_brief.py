@@ -1,0 +1,12 @@
+import boto3
+
+def generate_spoken_brief(text):
+    polly_client = boto3.client('polly', region_name='us-west-2')
+    response = polly_client.synthesize_speech(
+        Text=text,
+        OutputFormat='mp3',
+        VoiceId='Joanna'
+    )
+    with open('spoken_brief.mp3', 'wb') as file:
+        file.write(response['AudioStream'].read())
+    return 'spoken_brief.mp3'

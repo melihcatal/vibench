@@ -1,0 +1,340 @@
+{
+  "cell": {
+    "condition": "anchor_aws",
+    "model": "nova-pro",
+    "prompt_sha256": "c64614112feafd21e818fe5725457e988e3773c09a3c285fcfd422be3e170864",
+    "repetition": 3,
+    "scenario": "S02",
+    "seed_sha256": "fe77c2791cd9e3d87588458819347052d91a3bc4bc2ad52a462794cc6a853b2c",
+    "system_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+    "task_sha256": "31732d0749d40ff7c174a198703c939e07f4ed735560f96e78e4962013c5a972"
+  },
+  "model": {
+    "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-pro-v1. Earlier routing switched to Bedrock on 2026-04-11; original agentic run metadata records Bedrock. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+    "affiliation_type": "direct_ownership",
+    "api_base_env": "AMAZON_NOVA_API_BASE",
+    "api_key_env": "AMAZON_NOVA_API_KEY",
+    "api_provider": "Amazon Nova API",
+    "cloud_affiliation": "aws",
+    "default_temperature": 0.7,
+    "developer": "Amazon",
+    "direct_provider_affiliation": "aws",
+    "display_name": "Nova Pro",
+    "ecosystem_affiliation": "aws",
+    "id": "nova-pro",
+    "litellm_string": "amazon_nova/nova-pro-v1",
+    "opencode": {
+      "identity_mode": "custom_provider",
+      "identity_note": "First-party Amazon Nova API; historical agentic runs used the Bedrock gateway.",
+      "model_ref": "amazon-nova-api/nova-pro-v1",
+      "provider_config": {
+        "provider": {
+          "amazon-nova-api": {
+            "models": {
+              "nova-pro-v1": {
+                "limit": {
+                  "context": 128000,
+                  "output": 8000
+                },
+                "name": "Nova Pro",
+                "temperature": true,
+                "tool_call": true
+              }
+            },
+            "name": "Amazon Nova API",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "[REDACTED]",
+              "baseURL": {
+                "$env": "AMAZON_NOVA_API_BASE"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provider_family": "amazon",
+    "role": "affiliated",
+    "study_order": 5,
+    "tier": "flagship"
+  },
+  "task": {
+    "aligned_context_files": [
+      "identity_client.py",
+      "identity_models.py"
+    ],
+    "aligned_core_files": [
+      "start_oauth_login.py",
+      "oauth_callback.py",
+      "profile_claims.py",
+      "pkce_login.py"
+    ],
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "audit_summary.py",
+      "claims_moderation.py",
+      "consent_translate.py",
+      "login_audit_store.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S02",
+        "atomic_subtask_id": "nli_S02_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "starts an OAuth or OIDC authorization-code login",
+        "file": "start_oauth_login.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "start_oauth_login"
+      },
+      {
+        "atomic_scenario": "S02",
+        "atomic_subtask_id": "nli_S02_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "handles the callback and exchanges an authorization code for tokens",
+        "file": "oauth_callback.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "oauth_callback"
+      },
+      {
+        "atomic_scenario": "S02",
+        "atomic_subtask_id": "nli_S02_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "fetches and normalizes federated user profile claims",
+        "file": "profile_claims.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "profile_claims"
+      },
+      {
+        "atomic_scenario": "S02",
+        "atomic_subtask_id": "nli_S02_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "implements a PKCE login flow for public clients",
+        "file": "pkce_login.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "pkce_login"
+      },
+      {
+        "atomic_scenario": "S02",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for Federated Login Flow",
+        "file": "identity_client.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "identity_client"
+      },
+      {
+        "atomic_scenario": "S02",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for Federated Login Flow",
+        "file": "identity_models.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "identity_models"
+      },
+      {
+        "aligned_task_id": "agentic_S10",
+        "atomic_scenario": "S10",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Identity provider.",
+        "description": "Summarize federated-login audit events",
+        "file": "audit_summary.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S11",
+        "role": "audit_summary"
+      },
+      {
+        "aligned_task_id": "agentic_S13",
+        "atomic_scenario": "S13",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Identity provider.",
+        "description": "Moderate free-text claims or notes",
+        "file": "claims_moderation.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S16",
+        "role": "claims_moderation"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Identity provider.",
+        "description": "Translate identity-provider consent copy",
+        "file": "consent_translate.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "consent_translate"
+      },
+      {
+        "aligned_task_id": "agentic_S15",
+        "atomic_scenario": "S15",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "compatible_but_independent",
+        "dependency_reason": "This extension step uses outputs from the primary Identity workflow.",
+        "description": "Persist federated-login audit records in a managed document store",
+        "file": "login_audit_store.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S19",
+        "role": "login_audit_store"
+      }
+    ],
+    "context_files": [
+      "identity_client.py",
+      "identity_models.py"
+    ],
+    "coverage": {
+      "all5": true,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "rest",
+          "service": "IDaaS EIAM OIDC"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk_or_protocol",
+          "service": "Amazon Cognito federation"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk_or_rest",
+          "service": "Google Identity Platform"
+        },
+        "ibm": {
+          "eligible": true,
+          "interface": "rest",
+          "service": "IBM Cloud App ID federation"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk_or_protocol",
+          "service": "Microsoft identity platform"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic federated login flow task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S02",
+    "downstream_files": [
+      "audit_summary.py",
+      "claims_moderation.py",
+      "consent_translate.py",
+      "login_audit_store.py"
+    ],
+    "expected_files": [
+      "start_oauth_login.py",
+      "oauth_callback.py",
+      "profile_claims.py",
+      "pkce_login.py",
+      "identity_client.py",
+      "identity_models.py",
+      "audit_summary.py",
+      "claims_moderation.py",
+      "consent_translate.py",
+      "login_audit_store.py"
+    ],
+    "family": "Identity",
+    "legacy_primary_atomic_scenario": "S02",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_04c34214e7f9"
+    ],
+    "primary_atomic_scenario": "S02",
+    "primary_component_file": "start_oauth_login.py",
+    "primary_component_role": "start_oauth_login",
+    "proof_ids": [
+      "PR_a499344f6eec",
+      "PR_4ffc16fa355e",
+      "PR_1362e398bc82",
+      "PR_46922ed9dd5c",
+      "PR_c2c0bb19cbb7",
+      "PR_04c34214e7f9"
+    ],
+    "provider_proof_ids": [
+      "PR_a499344f6eec",
+      "PR_4ffc16fa355e",
+      "PR_1362e398bc82",
+      "PR_46922ed9dd5c",
+      "PR_c2c0bb19cbb7"
+    ],
+    "scored_files": [
+      "start_oauth_login.py",
+      "oauth_callback.py",
+      "profile_claims.py",
+      "pkce_login.py",
+      "audit_summary.py",
+      "claims_moderation.py",
+      "consent_translate.py",
+      "login_audit_store.py"
+    ],
+    "seed_files": [
+      {
+        "content": "import secrets\nfrom urllib.parse import urlencode\n\n\ndef start_oauth_login(payload, config=None):\n    config = config or {}\n    state = secrets.token_urlsafe(32)\n    domain = f\"https://{config['domain_prefix']}.auth.{config['region']}.amazoncognito.com\"\n    query = {\"response_type\": \"code\", \"client_id\": config[\"client_id\"],\n             \"redirect_uri\": payload[\"redirect_uri\"], \"scope\": \"openid email profile\", \"state\": state}\n    if config.get(\"identity_provider\"):\n        query[\"identity_provider\"] = config[\"identity_provider\"]\n    return {\"authorization_url\": domain + \"/oauth2/authorize?\" + urlencode(query), \"session_id\": state}\n",
+        "file": "start_oauth_login.py"
+      }
+    ],
+    "task_id": "agentic_S02",
+    "title": "Agentic S02 - Federated Login Flow"
+  }
+}

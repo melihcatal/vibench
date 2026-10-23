@@ -8,4 +8,7 @@ Scripts are grouped by function:
 - [`scripts/benchmark`](benchmark): benchmark construction and validation utilities
 - [`scripts/utils`](utils): smaller operational helpers
 
-The loader utility is [`scripts/vibench_loader.py`](vibench_loader.py).
+Two utilities sit at this level: [`scripts/browse.py`](browse.py), which reads the
+benchmark and the generated outputs in the terminal (`make scenarios`, `make models`,
+`make runs`, `make browse ARGS=...`), and the dataset loader
+[`scripts/vibench_loader.py`](vibench_loader.py).

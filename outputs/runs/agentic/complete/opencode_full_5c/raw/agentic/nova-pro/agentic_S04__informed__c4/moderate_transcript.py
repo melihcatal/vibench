@@ -1,0 +1,10 @@
+import os
+import requests
+
+
+def moderate_transcript(text):
+    headers = {"Authorization": f"Bearer {os.getenv('TISANE_API_KEY')}"}
+    response = requests.post(
+        "https://api.tisane.ai/v1/moderation", headers=headers, json={"text": text}
+    )
+    return response.json()

@@ -1,0 +1,3 @@
+import os\nimport google.generativeai as genai\n\ndef configure_google_llm_client():\n    \"\"\"\n    Configures the Google Generative AI client using an API key from environment variables.\n    \"\"\"\
+    genai.configure(api_key=os.environ.get(\"GOOGLE_API_KEY\"))\n\ndef get_google_generative_model(model_name: str = \"gemini-pro\"):\n    \"\"\"\n    Returns a configured Google GenerativeModel instance.\n    \"\"\"\
+    configure_google_llm_client()\n    return genai.GenerativeModel(model_name)\n\n

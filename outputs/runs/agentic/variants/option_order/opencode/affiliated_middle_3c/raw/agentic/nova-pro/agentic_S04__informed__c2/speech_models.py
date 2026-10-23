@@ -1,0 +1,1 @@
+from azure.cognitiveservices.speech.transcription import TranscriptionConfig

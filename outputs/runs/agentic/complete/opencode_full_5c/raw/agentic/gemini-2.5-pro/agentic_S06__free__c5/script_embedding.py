@@ -1,0 +1,25 @@
+import os
+import cohere
+
+
+def script_embedding(texts: list[str]):
+    """
+    Generates embeddings for a list of narration scripts using Cohere.
+
+    Args:
+        texts (list[str]): A list of texts to embed.
+
+    Returns:
+        list: A list of embeddings.
+    """
+    api_key = os.environ.get("COHERE_API_KEY")
+    if not api_key:
+        raise ValueError("COHERE_API_KEY environment variable not set.")
+
+    co = cohere.Client(api_key)
+
+    response = co.embed(
+        texts=texts, model="embed-english-v3.0", input_type="search_document"
+    )
+
+    return response.embeddings

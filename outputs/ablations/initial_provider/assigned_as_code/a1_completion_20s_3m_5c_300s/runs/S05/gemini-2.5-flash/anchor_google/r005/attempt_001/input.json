@@ -1,0 +1,311 @@
+{
+  "cell": {
+    "condition": "anchor_google",
+    "model": "gemini-2.5-flash",
+    "prompt_sha256": "c6265680f00721c77695acd87f876cc19a55c46a601ad080df1d3aac1aa4f8b9",
+    "repetition": 5,
+    "scenario": "S05",
+    "seed_sha256": "f5b44645403a2aef670fb6837bea44f8033d13ae4e320fd8e8b21aebc58c011a",
+    "system_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+    "task_sha256": "8296e6119d5df7bde5acbb81bdf49b1a367a90e07900e06b7284c0bf97ccaccc"
+  },
+  "model": {
+    "affiliation_type": "direct_ownership",
+    "api_key_env": "GEMINI_API_KEY",
+    "api_provider": "Google AI Studio",
+    "cloud_affiliation": "google",
+    "default_temperature": 1.0,
+    "developer": "Google DeepMind",
+    "direct_provider_affiliation": "google",
+    "display_name": "Gemini 2.5 Flash",
+    "ecosystem_affiliation": "google",
+    "id": "gemini-2.5-flash",
+    "litellm_string": "gemini/gemini-2.5-flash",
+    "opencode": {
+      "model_ref": "google/gemini-2.5-flash"
+    },
+    "provider_family": "google",
+    "role": "affiliated",
+    "study_order": 1,
+    "tier": "budget"
+  },
+  "task": {
+    "aligned_context_files": [
+      "speech_client.py",
+      "speech_models.py"
+    ],
+    "aligned_core_files": [
+      "stream_microphone.py",
+      "stream_chunks.py",
+      "partial_results.py",
+      "stream_with_language.py"
+    ],
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "live_caption_translate.py",
+      "live_caption_safety.py",
+      "meeting_summary.py",
+      "caption_embedding.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S05",
+        "atomic_subtask_id": "nli_S05_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "streams microphone audio and yields interim transcripts",
+        "file": "stream_microphone.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "stream_microphone"
+      },
+      {
+        "atomic_scenario": "S05",
+        "atomic_subtask_id": "nli_S05_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "streams audio chunks from an async source",
+        "file": "stream_chunks.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "stream_chunks"
+      },
+      {
+        "atomic_scenario": "S05",
+        "atomic_subtask_id": "nli_S05_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "handles partial and final streaming recognition events",
+        "file": "partial_results.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "partial_results"
+      },
+      {
+        "atomic_scenario": "S05",
+        "atomic_subtask_id": "nli_S05_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "starts a streaming recognizer with language and punctuation settings",
+        "file": "stream_with_language.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "stream_with_language"
+      },
+      {
+        "atomic_scenario": "S05",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for Streaming Speech-to-Text",
+        "file": "speech_client.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "speech_client"
+      },
+      {
+        "atomic_scenario": "S05",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for Streaming Speech-to-Text",
+        "file": "speech_models.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "speech_models"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Translate live captions into another language",
+        "file": "live_caption_translate.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "live_caption_translate"
+      },
+      {
+        "aligned_task_id": "agentic_S13",
+        "atomic_scenario": "S13",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Check live transcript text for unsafe content",
+        "file": "live_caption_safety.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S16",
+        "role": "live_caption_safety"
+      },
+      {
+        "aligned_task_id": "agentic_S10",
+        "atomic_scenario": "S10",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Summarize live meeting transcript chunks",
+        "file": "meeting_summary.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S11",
+        "role": "meeting_summary"
+      },
+      {
+        "aligned_task_id": "agentic_S09",
+        "atomic_scenario": "S09",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Embed caption chunks for semantic meeting search",
+        "file": "caption_embedding.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S10",
+        "role": "caption_embedding"
+      }
+    ],
+    "context_files": [
+      "speech_client.py",
+      "speech_models.py"
+    ],
+    "coverage": {
+      "all5": true,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "DashScope real-time speech recognition"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Amazon Transcribe Streaming"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Cloud Speech-to-Text streaming"
+        },
+        "ibm": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Watson Speech to Text WebSocket"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Azure AI Speech streaming"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic streaming speech-to-text task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S05",
+    "downstream_files": [
+      "live_caption_translate.py",
+      "live_caption_safety.py",
+      "meeting_summary.py",
+      "caption_embedding.py"
+    ],
+    "expected_files": [
+      "stream_microphone.py",
+      "stream_chunks.py",
+      "partial_results.py",
+      "stream_with_language.py",
+      "speech_client.py",
+      "speech_models.py",
+      "live_caption_translate.py",
+      "live_caption_safety.py",
+      "meeting_summary.py",
+      "caption_embedding.py"
+    ],
+    "family": "Speech",
+    "legacy_primary_atomic_scenario": "S06",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_742082430e61"
+    ],
+    "primary_atomic_scenario": "S05",
+    "primary_component_file": "stream_microphone.py",
+    "primary_component_role": "stream_microphone",
+    "proof_ids": [
+      "PR_892f63ac9f4b",
+      "PR_0c7be32894e5",
+      "PR_745219877260",
+      "PR_4ba7c430263b",
+      "PR_216b37c33817",
+      "PR_742082430e61"
+    ],
+    "provider_proof_ids": [
+      "PR_892f63ac9f4b",
+      "PR_0c7be32894e5",
+      "PR_745219877260",
+      "PR_4ba7c430263b",
+      "PR_216b37c33817"
+    ],
+    "scored_files": [
+      "stream_microphone.py",
+      "stream_chunks.py",
+      "partial_results.py",
+      "stream_with_language.py",
+      "live_caption_translate.py",
+      "live_caption_safety.py",
+      "meeting_summary.py",
+      "caption_embedding.py"
+    ],
+    "seed_files": [
+      {
+        "content": "from google.cloud import speech\n\n\ndef stream_microphone(payload, config=None):\n    config = config or {}\n    client = speech.SpeechClient()\n    recognition = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,\n        sample_rate_hertz=payload[\"sample_rate_hz\"], language_code=payload[\"language_code\"])\n    streaming = speech.StreamingRecognitionConfig(config=recognition, interim_results=True)\n    requests = (speech.StreamingRecognizeRequest(audio_content=chunk) for chunk in payload[\"audio_chunks\"])\n    for response in client.streaming_recognize(config=streaming, requests=requests):\n        for result in response.results:\n            if result.alternatives:\n                yield {\"text\": result.alternatives[0].transcript, \"is_final\": result.is_final}\n",
+        "file": "stream_microphone.py"
+      }
+    ],
+    "task_id": "agentic_S05",
+    "title": "Agentic S05 - Streaming Speech-to-Text"
+  }
+}

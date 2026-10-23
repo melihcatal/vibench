@@ -1,0 +1,19 @@
+import os
+import requests
+
+
+def summarize_quality_issues(text):
+    api_key = os.getenv("PERSPECTIVE_API_KEY")
+    url = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze"
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "comment": {"text": text},
+        "languages": ["en"],
+        "requestedAttributes": {"TOXICITY": {}},
+    }
+    response = requests.post(url, headers=headers, json=data, params={"key": api_key})
+    return response.json()
+
+
+if __name__ == "__main__":
+    print(summarize_quality_issues("This is a toxic comment."))

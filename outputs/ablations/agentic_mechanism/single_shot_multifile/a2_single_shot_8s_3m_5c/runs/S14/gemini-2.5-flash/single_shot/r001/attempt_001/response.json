@@ -1,0 +1,47 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "image_tokens": null,
+    "reasoning_tokens": 4177,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 2181,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 25.37,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 830,
+  "output_text": "{\n    \"upload_object.py\": \"import os\\nfrom typing import Union, BinaryIO\\nfrom storage_client import get_s3_client\\n\\ndef upload_object(bucket_name: str, object_key: str, data: Union[bytes, BinaryIO], content_type: str = 'application/octet-stream') -> dict:\\n    s3_client = get_s3_client()\\n    response = s3_client.put_object(\\n        Bucket=bucket_name,\\n        Key=object_key,\\n        Body=data,\\n        ContentType=content_type\\n    )\\n    return {\\n        \\\"ETag\\\": response.get('ETag'),\\n        \\\"VersionId\\\": response.get('VersionId')\\n    }\\n\",\n    \"presigned_download.py\": \"import os\\nfrom storage_client import get_s3_client\\nfrom storage_models import PresignedUrlResponse\\n\\ndef create_presigned_download_url(bucket_name: str, object_key: str, expiration: int = 3600) -> PresignedUrlResponse:\\n    s3_client = get_s3_client()\\n    url = s3_client.generate_presigned_url(\\n        'get_object',\\n        Params={'Bucket': bucket_name, 'Key': object_key},\\n        ExpiresIn=expiration\\n    )\\n    return PresignedUrlResponse(url=url)\\n\",\n    \"object_metadata.py\": \"import os\\nfrom storage_client import get_s3_client\\nfrom storage_models import ObjectInfo\\n\\ndef get_object_metadata(bucket_name: str, object_key: str) -> ObjectInfo:\\n    s3_client = get_s3_client()\\n    response = s3_client.head_object(\\n        Bucket=bucket_name,\\n        Key=object_key\\n    )\\n    return ObjectInfo(\\n        key=object_key,\\n        size=response['ContentLength'],\\n        last_modified=response['LastModified'].isoformat(),\\n        etag=response['ETag'],\\n        metadata=response.get('Metadata', {})\\n    )\\n\",\n    \"list_prefix.py\": \"import os\\nfrom typing import List\\nfrom storage_client import get_s3_client\\nfrom storage_models import ObjectListingEntry\\n\\ndef list_objects_with_prefix(bucket_name: str, prefix: str = '', max_keys: int = 1000) -> List[ObjectListingEntry]:\\n    s3_client = get_s3_client()\\n    response = s3_client.list_objects_v2(\\n        Bucket=bucket_name,\\n        Prefix=prefix,\\n        MaxKeys=max_keys\\n    )\\n    objects = []\\n    for obj in response.get('Contents', []):\\n        objects.append(ObjectListingEntry(\\n            key=obj['Key'],\\n            last_modified=obj['LastModified'].isoformat(),\\n            etag=obj['ETag'],\\n            size=obj['Size'],\\n            storage_class=obj['StorageClass']\\n        ))\\n    return objects\\n\",\n    \"storage_client.py\": \"import os\\nimport boto3\\n\\ndef get_s3_client():\\n    return boto3.client(\\n        's3',\\n        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),\\n        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),\\n        region_name=os.environ.get('AWS_REGION', 'us-east-1')\\n    )\\n\\ndef get_textract_client():\\n    return boto3.client(\\n        'textract',\\n        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),\\n        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),\\n        region_name=os.environ.get('AWS_REGION', 'us-east-1')\\n    )\\n\\ndef get_translate_client():\\n    return boto3.client(\\n        'translate',\\n        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),\\n        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),\\n        region_name=os.environ.get('AWS_REGION', 'us-east-1')\\n    )\\n\",\n    \"storage_models.py\": \"from typing import Dict, Any, List\\nfrom pydantic import BaseModel\\n\\nclass ObjectInfo(BaseModel):\\n    key: str\\n    size: int\\n    last_modified: str\\n    etag: str\\n    metadata: Dict[str, Any] = {}\\n\\nclass PresignedUrlResponse(BaseModel):\\n    url: str\\n\\nclass ObjectListingEntry(BaseModel):\\n    key: str\\n    last_modified: str\\n    etag: str\\n    size: int\\n    storage_class: str\\n\\nclass DocumentTextResponse(BaseModel):\\n    text_content: str\\n    detected_languages: List[str] = []\\n\\nclass TranslatedTextResponse(BaseModel):\\n    translated_text: str\\n    source_language_code: str\\n    target_language_code: str\\n\\nclass SummaryResponse(BaseModel):\\n    summary: str\\n\\nclass EmbeddingResponse(BaseModel):\\n    embedding: List[float]\\n\",\n    \"stored_document_ocr.py\": \"import os\\nfrom typing import List\\nfrom storage_client import get_textract_client\\nfrom storage_models import DocumentTextResponse\\n\\ndef run_ocr_on_stored_document(bucket_name: str, object_key: str) -> DocumentTextResponse:\\n    textract_client = get_textract_client()\\n    response = textract_client.analyze_document(\\n        Document={\\n            'S3Object': {\\n                'Bucket': bucket_name,\\n                'Name': object_key\\n            }\\n        },\\n        FeatureTypes=[\\\"FORMS\\\", \\\"TABLES\\\"]\\n    )\\n\\n    full_text = []\\n    detected_languages = set()\\n\\n    for block in response['Blocks']:\\n        if block['BlockType'] == 'WORD':\\n            full_text.append(block['Text'])\\n        if block['BlockType'] == 'PAGE' and 'DetectedLanguages' in block:\\n            for lang_info in block['DetectedLanguages']:\\n                detected_languages.add(lang_info['LanguageCode'])\\n\\n    return DocumentTextResponse(\\n        text_content=\\\" \\\".join(full_text),\\n        detected_languages=list(detected_languages)\\n    )\\n\",\n    \"stored_text_translate.py\": \"import os\\nfrom storage_client import get_translate_client\\nfrom storage_models import TranslatedTextResponse\\n\\ndef translate_text(text_content: str, source_language_code: str, target_language_code: str) -> TranslatedTextResponse:\\n    translate_client = get_translate_client()\\n    response = translate_client.translate_text(\\n        Text=text_content,\\n        SourceLanguageCode=source_language_code,\\n        TargetLanguageCode=target_language_code\\n    )\\n    return TranslatedTextResponse(\\n        translated_text=response['TranslatedText'],\\n        source_language_code=response['SourceLanguageCode'],\\n        target_language_code=response['TargetLanguageCode']\\n    )\\n\",\n    \"stored_asset_summary.py\": \"import os\\nfrom openai import OpenAI\\nfrom storage_models import SummaryResponse\\n\\ndef summarize_text(text_content: str, max_tokens: int = 150) -> SummaryResponse:\\n    client = OpenAI(\\n        api_key=os.environ.get('OPENAI_API_KEY')\\n    )\\n    model_id = \\\"gpt-4o-mini\\\"\\n\\n    response = client.chat.completions.create(\\n        model=model_id,\\n        messages=[\\n            {\\\"role\\\": \\\"system\\\", \\\"content\\\": \\\"You are a helpful assistant that summarizes text concisely.\\\"},\\n            {\\\"role\\\": \\\"user\\\", \\\"content\\\": f\\\"Please summarize the following text:\\\\n\\\\n{text_content}\\\"}\\n        ],\\n        max_tokens=max_tokens,\\n        temperature=0.7,\\n    )\\n    summary = response.choices[0].message.content.strip()\\n    return SummaryResponse(summary=summary)\\n\",\n    \"asset_metadata_embedding.py\": \"import os\\nfrom typing import List\\nfrom openai import OpenAI\\nfrom storage_models import EmbeddingResponse\\n\\ndef get_text_embedding(text_content: str) -> EmbeddingResponse:\\n    client = OpenAI(\\n        api_key=os.environ.get('OPENAI_API_KEY')\\n    )\\n    model_id = \\\"text-embedding-3-small\\\"\\n\\n    response = client.embeddings.create(\\n        input=text_content,\\n        model=model_id\\n    )\\n    embedding = response.data[0].embedding\\n    return EmbeddingResponse(embedding=embedding)\\n\"\n}",
+  "output_tokens": 6358,
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "image_tokens": null,
+    "text_tokens": 830,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 4177,
+  "usage": {
+    "cache_read_input_tokens": null,
+    "completion_tokens": 6358,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "image_tokens": null,
+      "reasoning_tokens": 4177,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 2181,
+      "video_tokens": null
+    },
+    "prompt_tokens": 830,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "image_tokens": null,
+      "text_tokens": 830,
+      "video_tokens": null
+    },
+    "total_tokens": 7188
+  }
+}

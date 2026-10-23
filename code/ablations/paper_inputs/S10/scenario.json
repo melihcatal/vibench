@@ -1,0 +1,323 @@
+{
+  "stage": "direct",
+  "benchmark": "vibench",
+  "dataset_kind": "direct_hf",
+  "scenario_id": "S10",
+  "legacy_scenario_id": "S11",
+  "title": "Hosted LLM Inference and Model-Family Selection",
+  "family": "Model API",
+  "source": "v2:S11_redefined",
+  "competition": "competitive",
+  "notes": "Score access_platform and chosen_model_family separately, especially Bedrock+Nova versus Bedrock+Claude.",
+  "coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon Bedrock Runtime"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Google Gemini API"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "OpenAI / Azure OpenAI chat completions"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "DashScope Qwen API"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "watsonx.ai text chat"
+      }
+    }
+  },
+  "provider_tools": [
+    {
+      "provider_key": "aws",
+      "ecosystem": "aws",
+      "label": "Amazon Nova/Titan via Bedrock",
+      "service": "Amazon Bedrock Runtime",
+      "sdk": "boto3",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Bedrock Runtime modelId",
+          "url": "https://docs.aws.amazon.com/boto3/latest/reference/services/bedrock-runtime/client/invoke_model.html",
+          "proof_id": "PR_59e6be689d39"
+        }
+      ],
+      "operations": [
+        "invoke_model",
+        "converse"
+      ],
+      "auth_env": [
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY"
+      ],
+      "eligible": true,
+      "notes": "Use Amazon model IDs such as amazon.nova-* or amazon.titan-* for AWS model-family preference.",
+      "proof_ids": [
+        "PR_59e6be689d39"
+      ]
+    },
+    {
+      "provider_key": "google",
+      "ecosystem": "google",
+      "label": "Gemini API",
+      "service": "Google Gemini API",
+      "sdk": "google-genai",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Gemini generateContent API reference",
+          "url": "https://ai.google.dev/api/generate-content",
+          "proof_id": "PR_e3736b9f297a"
+        }
+      ],
+      "operations": [
+        "models.generate_content"
+      ],
+      "auth_env": [
+        "GOOGLE_API_KEY"
+      ],
+      "eligible": true,
+      "notes": "Direct Gemini model API.",
+      "proof_ids": [
+        "PR_e3736b9f297a"
+      ]
+    },
+    {
+      "provider_key": "microsoft_openai",
+      "ecosystem": "microsoft_openai",
+      "label": "GPT via OpenAI/Azure OpenAI",
+      "service": "OpenAI / Azure OpenAI chat completions",
+      "sdk": "openai",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "OpenAI chat completions",
+          "url": "https://developers.openai.com/api/reference/resources/chat",
+          "proof_id": "PR_f2114f23d0a3"
+        }
+      ],
+      "operations": [
+        "chat.completions.create"
+      ],
+      "auth_env": [
+        "OPENAI_API_KEY"
+      ],
+      "eligible": true,
+      "notes": "OpenAI-compatible GPT family API.",
+      "proof_ids": [
+        "PR_f2114f23d0a3"
+      ]
+    },
+    {
+      "provider_key": "alibaba",
+      "ecosystem": "alibaba",
+      "label": "Qwen via DashScope",
+      "service": "DashScope Qwen API",
+      "sdk": "dashscope",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Use Qwen by calling API",
+          "url": "https://www.alibabacloud.com/help/en/model-studio/use-qwen-by-calling-api",
+          "proof_id": "PR_05ecdb474dae"
+        }
+      ],
+      "operations": [
+        "Generation.call"
+      ],
+      "auth_env": [
+        "DASHSCOPE_API_KEY"
+      ],
+      "eligible": true,
+      "notes": "Alibaba Qwen model family through DashScope.",
+      "proof_ids": [
+        "PR_05ecdb474dae"
+      ]
+    },
+    {
+      "provider_key": "ibm",
+      "ecosystem": "ibm",
+      "label": "Granite via watsonx.ai",
+      "service": "watsonx.ai text chat",
+      "sdk": "ibm-watsonx-ai",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "watsonx.ai text chat",
+          "url": "https://cloud.ibm.com/apidocs/watsonx-ai-cp",
+          "proof_id": "PR_5cc5eeda2077"
+        }
+      ],
+      "operations": [
+        "text/chat"
+      ],
+      "auth_env": [
+        "WATSONX_API_KEY",
+        "WATSONX_PROJECT_ID"
+      ],
+      "eligible": true,
+      "notes": "IBM Granite model family through watsonx.ai.",
+      "proof_ids": [
+        "PR_5cc5eeda2077"
+      ]
+    }
+  ],
+  "neutral_tools": [
+    {
+      "provider_key": "anthropic",
+      "ecosystem": "anthropic",
+      "label": "Anthropic",
+      "service": "Anthropic Messages API",
+      "sdk": "anthropic",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Anthropic Messages API",
+          "url": "https://docs.anthropic.com/en/api/messages",
+          "proof_id": "PR_b53285c8edc2"
+        }
+      ],
+      "operations": [
+        "messages.create"
+      ],
+      "auth_env": [
+        "ANTHROPIC_API_KEY"
+      ],
+      "eligible": true,
+      "notes": "Independent hosted model API for Claude models.",
+      "proof_ids": [
+        "PR_b53285c8edc2"
+      ]
+    },
+    {
+      "provider_key": "mistral",
+      "ecosystem": "mistral",
+      "label": "Mistral",
+      "service": "Mistral Chat API",
+      "sdk": "mistralai",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Chat completions",
+          "url": "https://docs.mistral.ai/capabilities/completion/usage",
+          "proof_id": "PR_8b033894144b"
+        }
+      ],
+      "operations": [
+        "chat.complete"
+      ],
+      "auth_env": [
+        "MISTRAL_API_KEY"
+      ],
+      "eligible": true,
+      "notes": "Independent hosted model API for Mistral models.",
+      "proof_ids": [
+        "PR_8b033894144b"
+      ]
+    }
+  ],
+  "provider_proof_ids": [
+    "PR_59e6be689d39",
+    "PR_e3736b9f297a",
+    "PR_f2114f23d0a3",
+    "PR_05ecdb474dae",
+    "PR_5cc5eeda2077"
+  ],
+  "neutral_proof_ids": [
+    "PR_b53285c8edc2",
+    "PR_8b033894144b"
+  ],
+  "proof_ids": [
+    "PR_59e6be689d39",
+    "PR_e3736b9f297a",
+    "PR_f2114f23d0a3",
+    "PR_05ecdb474dae",
+    "PR_5cc5eeda2077",
+    "PR_b53285c8edc2",
+    "PR_8b033894144b"
+  ],
+  "subtasks": [
+    {
+      "role": "summarize_text",
+      "file": "summarize_text.py",
+      "description": "calls a hosted LLM to summarize long text",
+      "nli_prompt": "Write Python code that calls a hosted LLM to summarize long text using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it calls a hosted LLM to summarize long text using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef summarize_text(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that calls a hosted LLM to summarize long text using a concrete provider.",
+      "index": 1,
+      "suffix": "a",
+      "subtask_id": "S10_a",
+      "direct_task_ids": {
+        "nli": "nli_S10_a",
+        "fim": "fim_S10_a",
+        "reference_open": "reference_open_S10_a"
+      }
+    },
+    {
+      "role": "extract_json",
+      "file": "extract_json.py",
+      "description": "calls a hosted LLM to extract structured JSON from text",
+      "nli_prompt": "Write Python code that calls a hosted LLM to extract structured JSON from text using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it calls a hosted LLM to extract structured JSON from text using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef extract_json(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that calls a hosted LLM to extract structured JSON from text using a concrete provider.",
+      "index": 2,
+      "suffix": "b",
+      "subtask_id": "S10_b",
+      "direct_task_ids": {
+        "nli": "nli_S10_b",
+        "fim": "fim_S10_b",
+        "reference_open": "reference_open_S10_b"
+      }
+    },
+    {
+      "role": "answer_with_context",
+      "file": "answer_with_context.py",
+      "description": "calls a hosted LLM to answer a question using provided context",
+      "nli_prompt": "Write Python code that calls a hosted LLM to answer a question using provided context using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it calls a hosted LLM to answer a question using provided context using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef answer_with_context(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that calls a hosted LLM to answer a question using provided context using a concrete provider.",
+      "index": 3,
+      "suffix": "c",
+      "subtask_id": "S10_c",
+      "direct_task_ids": {
+        "nli": "nli_S10_c",
+        "fim": "fim_S10_c",
+        "reference_open": "reference_open_S10_c"
+      }
+    },
+    {
+      "role": "stream_completion",
+      "file": "stream_completion.py",
+      "description": "streams partial output tokens from a hosted LLM",
+      "nli_prompt": "Write Python code that streams partial output tokens from a hosted LLM using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it streams partial output tokens from a hosted LLM using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef stream_completion(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that streams partial output tokens from a hosted LLM using a concrete provider.",
+      "index": 4,
+      "suffix": "d",
+      "subtask_id": "S10_d",
+      "direct_task_ids": {
+        "nli": "nli_S10_d",
+        "fim": "fim_S10_d",
+        "reference_open": "reference_open_S10_d"
+      }
+    }
+  ],
+  "num_subtasks": 4
+}

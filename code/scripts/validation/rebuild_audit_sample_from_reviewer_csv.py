@@ -9,7 +9,9 @@ from collections import Counter
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(BASE_DIR / "scripts" / "evaluation"))
+# The evaluation modules form one namespace, grouped into folders for readability.
+for _group in ("core", "gini", "tables", "baselines", "audit"):
+    sys.path.insert(0, str(BASE_DIR / "scripts" / "evaluation" / _group))
 sys.path.insert(0, str(BASE_DIR / "scripts" / "audit"))
 
 from generate_audit_sample import _discover_current_runs, load_agentic_pool, load_direct_pool  # noqa: E402

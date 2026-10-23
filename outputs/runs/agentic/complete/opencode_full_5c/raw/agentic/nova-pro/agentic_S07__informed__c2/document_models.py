@@ -1,0 +1,7 @@
+from typing import Any, Dict
+
+
+class DocumentModels:
+    @staticmethod
+    def normalize_response(response: Dict[str, Any]) -> Dict[str, Any]:
+        return response

@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 9.33,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 791,
+  "output_text": "{\"summarize_text.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import BuildTextRequest, SummarizeResult\\n\\n\\ndef summarize_text(text: str, *, max_sentences: int = 3, model: str | None = None) -> SummarizeResult:\\n    client = get_client()\\n    model_name = model or get_model_name(\\\"summary\\\")\\n    request = BuildTextRequest(task=\\\"summarize\\\", input_text=text, max_sentences=max_sentences)\\n    prompt = request.to_prompt()\\n    response = client.responses.create(model=model_name, input=prompt)\\n    output_text = response.output_text if hasattr(response, \\\"output_text\\\") else str(response)\\n    return SummarizeResult.from_text(output_text, model=model_name)\\n\",\"extract_json.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import BuildTextRequest, JsonExtractionResult\\n\\n\\ndef extract_json(text: str, schema_hint: str, *, model: str | None = None) -> JsonExtractionResult:\\n    client = get_client()\\n    model_name = model or get_model_name(\\\"extract\\\")\\n    request = BuildTextRequest(task=\\\"extract_json\\\", input_text=text, schema_hint=schema_hint)\\n    response = client.responses.create(model=model_name, input=request.to_prompt())\\n    output_text = response.output_text if hasattr(response, \\\"output_text\\\") else str(response)\\n    return JsonExtractionResult.from_text(output_text, model=model_name)\\n\",\"answer_with_context.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import QARequest, QAResult\\n\\n\\ndef answer_with_context(question: str, context: str, *, model: str | None = None) -> QAResult:\\n    client = get_client()\\n    model_name = model or get_model_name(\\\"qa\\\")\\n    request = QARequest(question=question, context=context)\\n    response = client.responses.create(model=model_name, input=request.to_prompt())\\n    output_text = response.output_text if hasattr(response, \\\"output_text\\\") else str(response)\\n    return QAResult.from_text(output_text, model=model_name)\\n\",\"stream_completion.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import StreamPromptRequest\\n\\n\\ndef stream_completion(prompt: str, *, model: str | None = None):\\n    client = get_client()\\n    model_name = model or get_model_name(\\\"stream\\\")\\n    request = StreamPromptRequest(prompt=prompt)\\n    return client.responses.stream(model=model_name, input=request.prompt)\\n\",\"model_client.py\":\"import os\\nfrom functools import lru_cache\\nfrom openai import OpenAI\\n\\n\\n@lru_cache(maxsize=1)\\ndef get_client() -> OpenAI:\\n    return OpenAI(api_key=os.environ.get(\\\"OPENAI_API_KEY\\\"))\\n\\n\\ndef get_model_name(task: str) -> str:\\n    mapping = {\\n        \\\"summary\\\": os.environ.get(\\\"OPENAI_SUMMARY_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n        \\\"extract\\\": os.environ.get(\\\"OPENAI_EXTRACT_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n        \\\"qa\\\": os.environ.get(\\\"OPENAI_QA_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n        \\\"stream\\\": os.environ.get(\\\"OPENAI_STREAM_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n        \\\"safety\\\": os.environ.get(\\\"OPENAI_SAFETY_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n        \\\"translate\\\": os.environ.get(\\\"OPENAI_TRANSLATE_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n        \\\"embed\\\": os.environ.get(\\\"OPENAI_EMBED_MODEL\\\", \\\"text-embedding-3-large\\\"),\\n        \\\"spoken\\\": os.environ.get(\\\"OPENAI_SPOKEN_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n    }\\n    return mapping.get(task, os.environ.get(\\\"OPENAI_DEFAULT_MODEL\\\", \\\"gpt-4.1-mini\\\"))\\n\",\"model_models.py\":\"from __future__ import annotations\\n\\nfrom dataclasses import dataclass\\nimport json\\nfrom typing import Any\\n\\n\\n@dataclass\\nclass BuildTextRequest:\\n    task: str\\n    input_text: str\\n    max_sentences: int | None = None\\n    schema_hint: str | None = None\\n\\n    def to_prompt(self) -> str:\\n        parts = [f\\\"Task: {self.task}\\\", f\\\"Input: {self.input_text}\\\"]\\n        if self.max_sentences is not None:\\n            parts.append(f\\\"Max sentences: {self.max_sentences}\\\")\\n        if self.schema_hint:\\n            parts.append(f\\\"Schema hint: {self.schema_hint}\\\")\\n        return \\\"\\\\n\\\".join(parts)\\n\\n\\n@dataclass\\nclass QARequest:\\n    question: str\\n    context: str\\n\\n    def to_prompt(self) -> str:\\n        return f\\\"Context:\\\\n{self.context}\\\\n\\\\nQuestion: {self.question}\\\"\\n\\n\\n@dataclass\\nclass StreamPromptRequest:\\n    prompt: str\\n\\n\\n@dataclass\\nclass BaseTextResult:\\n    text: str\\n    model: str\\n\\n    @classmethod\\n    def from_text(cls, text: str, model: str):\\n        return cls(text=text, model=model)\\n\\n\\n@dataclass\\nclass SummarizeResult(BaseTextResult):\\n    pass\\n\\n\\n@dataclass\\nclass QAResult(BaseTextResult):\\n    pass\\n\\n\\n@dataclass\\nclass JsonExtractionResult:\\n    data: Any\\n    model: str\\n\\n    @classmethod\\n    def from_text(cls, text: str, model: str):\\n        try:\\n            data = json.loads(text)\\n        except Exception:\\n            data = {\\\"raw\\\": text}\\n        return cls(data=data, model=model)\\n\",\"prompt_safety.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\n\\n\\ndef prompt_safety(prompt: str, generated_text: str = \\\"\\\") -> dict:\\n    client = get_client()\\n    model_name = get_model_name(\\\"safety\\\")\\n    content = f\\\"Prompt:\\\\n{prompt}\\\\n\\\\nGenerated text:\\\\n{generated_text}\\\"\\n    response = client.responses.create(model=model_name, input=content)\\n    text = response.output_text if hasattr(response, \\\"output_text\\\") else str(response)\\n    return {\\\"model\\\": model_name, \\\"assessment\\\": text}\\n\",\"result_translate.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\n\\n\\ndef result_translate(text: str, target_language: str) -> str:\\n    client = get_client()\\n    model_name = get_model_name(\\\"translate\\\")\\n    prompt = f\\\"Translate the following text to {target_language}:\\\\n{text}\\\"\\n    response = client.responses.create(model=model_name, input=prompt)\\n    return response.output_text if hasattr(response, \\\"output_text\\\") else str(response)\\n\",\"output_embedding.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\n\\n\\ndef output_embedding(text: str) -> list[float]:\\n    client = get_client()\\n    model_name = get_model_name(\\\"embed\\\")\\n    response = client.embeddings.create(model=model_name, input=text)\\n    return response.data[0].embedding\\n\",\"spoken_brief.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\n\\n\\ndef spoken_brief(text: str) -> str:\\n    client = get_client()\\n    model_name = get_model_name(\\\"spoken\\\")\\n    prompt = f\\\"Rewrite the following as a short spoken brief suitable for text-to-speech:\\\\n{text}\\\"\\n    response = client.responses.create(model=model_name, input=prompt)\\n    return response.output_text if hasattr(response, \\\"output_text\\\") else str(response)\\n\"}",
+  "output_tokens": 1760,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1760,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 791,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2551
+  }
+}

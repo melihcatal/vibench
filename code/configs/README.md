@@ -69,9 +69,13 @@ Create `configs/.env` from the template:
 
 ```bash
 cd code
-cp configs/.env.template configs/.env
+make env
 $EDITOR configs/.env
 ```
+
+`make env` leaves an existing `configs/.env` untouched — it holds live keys and
+cannot be recovered from the template. `.env` is gitignored; `.env.template` is
+tracked.
 
 Generation scripts load `configs/.env` automatically. You only need keys for
 the models selected by the config or CLI overrides.
@@ -114,15 +118,15 @@ serves the OpenCode-compatible aliases `nova-pro` and `granite-4.0-h-small`.
   9 active models, 20 workflows, `free` and `informed` variants, 5 completions
   per workflow, 1,800 expected sessions. `deepseek-v3.2` is commented out in
   that config because it did not complete the full Agents SDK run reliably.
-- `direct/ablations/option_order/affiliated_{first,middle,last,omitted}_3c.yaml`:
+- `direct/variants/option_order/affiliated_{first,middle,last,omitted}_3c.yaml`:
   option-order ablations for the direct REF setting (Appendix A.4.1). 4
   affiliated models, 20 scenarios, 4 subtasks, `reference_open` only, 3
   completions, 960 expected generations per config.
-- `agentic/ablations/option_order/opencode/affiliated_{first,middle,last,omitted}_3c.yaml`:
+- `agentic/variants/option_order/opencode/affiliated_{first,middle,last,omitted}_3c.yaml`:
   option-order ablations for the agentic `informed` setting on the primary
   OpenCode runtime (Appendix A.4.2). 4 affiliated models, 20 workflows,
   `informed` variant only, 3 completions per config.
-- `agentic/ablations/option_order/agents_sdk/affiliated_{first,last}_3c.yaml`:
+- `agentic/variants/option_order/agents_sdk/affiliated_{first,last}_3c.yaml`:
   option-order ablations for the agentic `informed` setting on the Agents SDK
   runtime (Appendix A.4.2, runtime check). 4 affiliated models, 20 workflows,
   `informed` variant only, 3 completions, 240 expected sessions per config.

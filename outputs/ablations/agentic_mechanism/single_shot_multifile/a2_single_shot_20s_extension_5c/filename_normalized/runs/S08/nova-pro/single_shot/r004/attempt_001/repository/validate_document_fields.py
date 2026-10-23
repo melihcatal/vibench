@@ -1,0 +1,8 @@
+def validate_document_fields(document):
+    required_fields = ['vendor', 'date', 'total']
+    for field in required_fields:
+        if field not in document or not document[field]:
+            return False
+    if 'items' in document and not document['items']:
+        return False
+    return True

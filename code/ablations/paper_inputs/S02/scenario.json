@@ -1,0 +1,307 @@
+{
+  "stage": "direct",
+  "benchmark": "vibench",
+  "dataset_kind": "direct_hf",
+  "scenario_id": "S02",
+  "legacy_scenario_id": "S02",
+  "title": "Federated Login Flow",
+  "family": "Identity",
+  "source": "v2:S02",
+  "competition": "competitive_with_caveat",
+  "notes": "OIDC/SAML flows are protocol-heavy; REST/protocol cards must be explicit in informed prompts.",
+  "coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk_or_protocol",
+        "service": "Amazon Cognito federation"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Google Identity Platform"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk_or_protocol",
+        "service": "Microsoft identity platform"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IDaaS EIAM OIDC"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IBM Cloud App ID federation"
+      }
+    }
+  },
+  "provider_tools": [
+    {
+      "provider_key": "aws",
+      "ecosystem": "aws",
+      "label": "Cognito Hosted UI Federation",
+      "service": "Amazon Cognito federation",
+      "sdk": "boto3 + OIDC",
+      "interface": "sdk_or_protocol",
+      "official_docs": [
+        {
+          "title": "Federation with user pools",
+          "url": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-identity-provider.html",
+          "proof_id": "PR_a499344f6eec"
+        }
+      ],
+      "operations": [
+        "authorize",
+        "token",
+        "userinfo"
+      ],
+      "auth_env": [
+        "COGNITO_DOMAIN",
+        "COGNITO_CLIENT_ID"
+      ],
+      "eligible": true,
+      "notes": "Cognito supports OIDC/SAML identity providers and hosted login.",
+      "proof_ids": [
+        "PR_a499344f6eec"
+      ]
+    },
+    {
+      "provider_key": "google",
+      "ecosystem": "google",
+      "label": "Google Identity Platform OIDC",
+      "service": "Google Identity Platform",
+      "sdk": "REST / firebase-admin",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "Identity Platform OIDC",
+          "url": "https://cloud.google.com/identity-platform/docs/web/oidc",
+          "proof_id": "PR_4ffc16fa355e"
+        }
+      ],
+      "operations": [
+        "signInWithIdp",
+        "OIDC provider config"
+      ],
+      "auth_env": [
+        "GOOGLE_APPLICATION_CREDENTIALS"
+      ],
+      "eligible": true,
+      "notes": "Identity Platform supports federated IdPs.",
+      "proof_ids": [
+        "PR_4ffc16fa355e"
+      ]
+    },
+    {
+      "provider_key": "microsoft_openai",
+      "ecosystem": "microsoft_openai",
+      "label": "Microsoft Entra OIDC",
+      "service": "Microsoft identity platform",
+      "sdk": "msal",
+      "interface": "sdk_or_protocol",
+      "official_docs": [
+        {
+          "title": "OpenID Connect on Microsoft identity platform",
+          "url": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc",
+          "proof_id": "PR_1362e398bc82"
+        }
+      ],
+      "operations": [
+        "get_authorization_request_url",
+        "acquire_token_by_authorization_code"
+      ],
+      "auth_env": [
+        "AZURE_TENANT_ID",
+        "AZURE_CLIENT_ID"
+      ],
+      "eligible": true,
+      "notes": "MSAL is the main Python SDK path for OIDC authorization code flows.",
+      "proof_ids": [
+        "PR_1362e398bc82"
+      ]
+    },
+    {
+      "provider_key": "alibaba",
+      "ecosystem": "alibaba",
+      "label": "Alibaba Cloud IDaaS EIAM OIDC",
+      "service": "IDaaS EIAM OIDC",
+      "sdk": "OIDC REST",
+      "interface": "rest",
+      "official_docs": [
+        {
+          "title": "EIAM OIDC integration",
+          "url": "https://www.alibabacloud.com/help/en/idaas/eiam/developer-reference/integrate-sso-with-oidc",
+          "proof_id": "PR_46922ed9dd5c"
+        }
+      ],
+      "operations": [
+        "authorize",
+        "token",
+        "userinfo"
+      ],
+      "auth_env": [
+        "ALIBABA_IDAAS_ISSUER",
+        "ALIBABA_IDAAS_CLIENT_ID"
+      ],
+      "eligible": true,
+      "notes": "Use IDaaS EIAM for application SSO, not RAM SSO for cloud-console access.",
+      "proof_ids": [
+        "PR_46922ed9dd5c"
+      ]
+    },
+    {
+      "provider_key": "ibm",
+      "ecosystem": "ibm",
+      "label": "IBM App ID Federation",
+      "service": "IBM Cloud App ID federation",
+      "sdk": "requests",
+      "interface": "rest",
+      "official_docs": [
+        {
+          "title": "IBM App ID overview",
+          "url": "https://www.ibm.com/products/app-id",
+          "proof_id": "PR_c2c0bb19cbb7"
+        }
+      ],
+      "operations": [
+        "authorize",
+        "token",
+        "userinfo"
+      ],
+      "auth_env": [
+        "IBM_APPID_CLIENT_ID",
+        "IBM_APPID_CLIENT_SECRET"
+      ],
+      "eligible": true,
+      "notes": "Supplementary IBM option; mostly protocol/REST based.",
+      "proof_ids": [
+        "PR_c2c0bb19cbb7"
+      ]
+    }
+  ],
+  "neutral_tools": [
+    {
+      "provider_key": "auth0",
+      "ecosystem": "auth0",
+      "label": "Auth0",
+      "service": "Auth0 Authentication API",
+      "sdk": "auth0-python / OIDC",
+      "interface": "sdk_or_protocol",
+      "official_docs": [
+        {
+          "title": "Auth0 authentication API",
+          "url": "https://auth0.com/docs/api/authentication",
+          "proof_id": "PR_04c34214e7f9"
+        }
+      ],
+      "operations": [
+        "authorize",
+        "oauth/token",
+        "userinfo"
+      ],
+      "auth_env": [
+        "AUTH0_DOMAIN",
+        "AUTH0_CLIENT_ID"
+      ],
+      "eligible": true,
+      "notes": "Independent identity provider for federated login.",
+      "proof_ids": [
+        "PR_04c34214e7f9"
+      ]
+    }
+  ],
+  "provider_proof_ids": [
+    "PR_a499344f6eec",
+    "PR_4ffc16fa355e",
+    "PR_1362e398bc82",
+    "PR_46922ed9dd5c",
+    "PR_c2c0bb19cbb7"
+  ],
+  "neutral_proof_ids": [
+    "PR_04c34214e7f9"
+  ],
+  "proof_ids": [
+    "PR_a499344f6eec",
+    "PR_4ffc16fa355e",
+    "PR_1362e398bc82",
+    "PR_46922ed9dd5c",
+    "PR_c2c0bb19cbb7",
+    "PR_04c34214e7f9"
+  ],
+  "subtasks": [
+    {
+      "role": "start_oauth_login",
+      "file": "start_oauth_login.py",
+      "description": "starts an OAuth or OIDC authorization-code login",
+      "nli_prompt": "Write Python code that starts an OAuth or OIDC authorization-code login using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it starts an OAuth or OIDC authorization-code login using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef start_oauth_login(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that starts an OAuth or OIDC authorization-code login using a concrete provider.",
+      "index": 1,
+      "suffix": "a",
+      "subtask_id": "S02_a",
+      "direct_task_ids": {
+        "nli": "nli_S02_a",
+        "fim": "fim_S02_a",
+        "reference_open": "reference_open_S02_a"
+      }
+    },
+    {
+      "role": "oauth_callback",
+      "file": "oauth_callback.py",
+      "description": "handles the callback and exchanges an authorization code for tokens",
+      "nli_prompt": "Write Python code that handles the callback and exchanges an authorization code for tokens using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it handles the callback and exchanges an authorization code for tokens using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef oauth_callback(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that handles the callback and exchanges an authorization code for tokens using a concrete provider.",
+      "index": 2,
+      "suffix": "b",
+      "subtask_id": "S02_b",
+      "direct_task_ids": {
+        "nli": "nli_S02_b",
+        "fim": "fim_S02_b",
+        "reference_open": "reference_open_S02_b"
+      }
+    },
+    {
+      "role": "profile_claims",
+      "file": "profile_claims.py",
+      "description": "fetches and normalizes federated user profile claims",
+      "nli_prompt": "Write Python code that fetches and normalizes federated user profile claims using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it fetches and normalizes federated user profile claims using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef profile_claims(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that fetches and normalizes federated user profile claims using a concrete provider.",
+      "index": 3,
+      "suffix": "c",
+      "subtask_id": "S02_c",
+      "direct_task_ids": {
+        "nli": "nli_S02_c",
+        "fim": "fim_S02_c",
+        "reference_open": "reference_open_S02_c"
+      }
+    },
+    {
+      "role": "pkce_login",
+      "file": "pkce_login.py",
+      "description": "implements a PKCE login flow for public clients",
+      "nli_prompt": "Write Python code that implements a PKCE login flow for public clients using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it implements a PKCE login flow for public clients using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef pkce_login(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that implements a PKCE login flow for public clients using a concrete provider.",
+      "index": 4,
+      "suffix": "d",
+      "subtask_id": "S02_d",
+      "direct_task_ids": {
+        "nli": "nli_S02_d",
+        "fim": "fim_S02_d",
+        "reference_open": "reference_open_S02_d"
+      }
+    }
+  ],
+  "num_subtasks": 4
+}

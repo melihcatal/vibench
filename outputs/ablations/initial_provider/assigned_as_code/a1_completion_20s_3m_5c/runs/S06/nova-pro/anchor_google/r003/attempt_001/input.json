@@ -1,0 +1,340 @@
+{
+  "cell": {
+    "condition": "anchor_google",
+    "model": "nova-pro",
+    "prompt_sha256": "1cd54273fa39750cf0017daeb3ff51dc78e6937f6612428fce51211c3a33e89c",
+    "repetition": 3,
+    "scenario": "S06",
+    "seed_sha256": "8e4702e967837064e72195d948c924655c944536b43b74184adfc6d01953def8",
+    "system_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+    "task_sha256": "6c6501adbcaa8a2d148d51611978cc58cb26a3bb5064071412ebbfd18689b96c"
+  },
+  "model": {
+    "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-pro-v1. Earlier routing switched to Bedrock on 2026-04-11; original agentic run metadata records Bedrock. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+    "affiliation_type": "direct_ownership",
+    "api_base_env": "AMAZON_NOVA_API_BASE",
+    "api_key_env": "AMAZON_NOVA_API_KEY",
+    "api_provider": "Amazon Nova API",
+    "cloud_affiliation": "aws",
+    "default_temperature": 0.7,
+    "developer": "Amazon",
+    "direct_provider_affiliation": "aws",
+    "display_name": "Nova Pro",
+    "ecosystem_affiliation": "aws",
+    "id": "nova-pro",
+    "litellm_string": "amazon_nova/nova-pro-v1",
+    "opencode": {
+      "identity_mode": "custom_provider",
+      "identity_note": "First-party Amazon Nova API; historical agentic runs used the Bedrock gateway.",
+      "model_ref": "amazon-nova-api/nova-pro-v1",
+      "provider_config": {
+        "provider": {
+          "amazon-nova-api": {
+            "models": {
+              "nova-pro-v1": {
+                "limit": {
+                  "context": 128000,
+                  "output": 8000
+                },
+                "name": "Nova Pro",
+                "temperature": true,
+                "tool_call": true
+              }
+            },
+            "name": "Amazon Nova API",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "[REDACTED]",
+              "baseURL": {
+                "$env": "AMAZON_NOVA_API_BASE"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provider_family": "amazon",
+    "role": "affiliated",
+    "study_order": 5,
+    "tier": "flagship"
+  },
+  "task": {
+    "aligned_context_files": [
+      "speech_client.py",
+      "speech_models.py"
+    ],
+    "aligned_core_files": [
+      "synthesize_text.py",
+      "synthesize_ssml.py",
+      "select_voice.py",
+      "save_audio.py"
+    ],
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "script_translate.py",
+      "script_safety.py",
+      "script_embedding.py",
+      "tts_qa_transcript.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S06",
+        "atomic_subtask_id": "nli_S06_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "synthesizes plain text to an audio byte stream",
+        "file": "synthesize_text.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "synthesize_text"
+      },
+      {
+        "atomic_scenario": "S06",
+        "atomic_subtask_id": "nli_S06_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "synthesizes SSML with voice and prosody controls",
+        "file": "synthesize_ssml.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "synthesize_ssml"
+      },
+      {
+        "atomic_scenario": "S06",
+        "atomic_subtask_id": "nli_S06_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "lists or selects a voice for a target locale",
+        "file": "select_voice.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "select_voice"
+      },
+      {
+        "atomic_scenario": "S06",
+        "atomic_subtask_id": "nli_S06_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "writes synthesized speech audio to a local file or object",
+        "file": "save_audio.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "save_audio"
+      },
+      {
+        "atomic_scenario": "S06",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for Text-to-Speech",
+        "file": "speech_client.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "speech_client"
+      },
+      {
+        "atomic_scenario": "S06",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for Text-to-Speech",
+        "file": "speech_models.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "speech_models"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Translate narration scripts before synthesis",
+        "file": "script_translate.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "script_translate"
+      },
+      {
+        "aligned_task_id": "agentic_S13",
+        "atomic_scenario": "S13",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Check narration scripts for unsafe content",
+        "file": "script_safety.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S16",
+        "role": "script_safety"
+      },
+      {
+        "aligned_task_id": "agentic_S09",
+        "atomic_scenario": "S09",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Embed narration scripts for voice-asset search",
+        "file": "script_embedding.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S10",
+        "role": "script_embedding"
+      },
+      {
+        "aligned_task_id": "agentic_S04",
+        "atomic_scenario": "S04",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "compatible_but_independent",
+        "dependency_reason": "This extension step uses outputs from the primary Speech workflow.",
+        "description": "Transcribe synthesized QA samples to verify spoken output",
+        "file": "tts_qa_transcript.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S05",
+        "role": "tts_qa_transcript"
+      }
+    ],
+    "context_files": [
+      "speech_client.py",
+      "speech_models.py"
+    ],
+    "coverage": {
+      "all5": true,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "CosyVoice TTS"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Amazon Polly"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Cloud Text-to-Speech"
+        },
+        "ibm": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Watson Text to Speech"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Azure AI Speech TTS"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic text-to-speech task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S06",
+    "downstream_files": [
+      "script_translate.py",
+      "script_safety.py",
+      "script_embedding.py",
+      "tts_qa_transcript.py"
+    ],
+    "expected_files": [
+      "synthesize_text.py",
+      "synthesize_ssml.py",
+      "select_voice.py",
+      "save_audio.py",
+      "speech_client.py",
+      "speech_models.py",
+      "script_translate.py",
+      "script_safety.py",
+      "script_embedding.py",
+      "tts_qa_transcript.py"
+    ],
+    "family": "Speech",
+    "legacy_primary_atomic_scenario": "S07",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_688d8bac0067"
+    ],
+    "primary_atomic_scenario": "S06",
+    "primary_component_file": "synthesize_text.py",
+    "primary_component_role": "synthesize_text",
+    "proof_ids": [
+      "PR_7a266de5db3a",
+      "PR_9c4b68afb777",
+      "PR_046b74a93359",
+      "PR_139f935149cb",
+      "PR_dfa87fea45f3",
+      "PR_688d8bac0067"
+    ],
+    "provider_proof_ids": [
+      "PR_7a266de5db3a",
+      "PR_9c4b68afb777",
+      "PR_046b74a93359",
+      "PR_139f935149cb",
+      "PR_dfa87fea45f3"
+    ],
+    "scored_files": [
+      "synthesize_text.py",
+      "synthesize_ssml.py",
+      "select_voice.py",
+      "save_audio.py",
+      "script_translate.py",
+      "script_safety.py",
+      "script_embedding.py",
+      "tts_qa_transcript.py"
+    ],
+    "seed_files": [
+      {
+        "content": "from google.cloud import texttospeech\n\n\ndef synthesize_text(payload, config=None):\n    config = config or {}\n    client = texttospeech.TextToSpeechClient()\n    response = client.synthesize_speech(input=texttospeech.SynthesisInput(text=payload[\"text\"]),\n        voice=texttospeech.VoiceSelectionParams(language_code=config.get(\"language_code\", \"en-US\")),\n        audio_config=texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3))\n    return {\"audio_bytes\": response.audio_content, \"content_type\": \"audio/mpeg\"}\n",
+        "file": "synthesize_text.py"
+      }
+    ],
+    "task_id": "agentic_S06",
+    "title": "Agentic S06 - Text-to-Speech"
+  }
+}

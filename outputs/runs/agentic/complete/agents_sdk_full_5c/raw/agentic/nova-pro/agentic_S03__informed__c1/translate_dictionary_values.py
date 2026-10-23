@@ -1,0 +1,9 @@
+import boto3
+
+def translate_dictionary_values(dictionary, source_lang, target_lang):
+    translate = boto3.client('translate', region_name='us-west-2')
+    translated_dict = {}
+    for key, value in dictionary.items():
+        result = translate.translate_text(Text=value, SourceLanguageCode=source_lang, TargetLanguageCode=target_lang)
+        translated_dict[key] = result.get('TranslatedText')
+    return translated_dict

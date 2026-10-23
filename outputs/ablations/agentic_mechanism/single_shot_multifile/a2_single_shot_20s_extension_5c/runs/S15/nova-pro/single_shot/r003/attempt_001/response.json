@@ -1,0 +1,18 @@
+{
+  "completion_tokens_details": {},
+  "elapsed_seconds": 5.28,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 831,
+  "output_text": "{\n  \"upsert_document.py\": \"import boto3\\nfrom database_client import get_dynamodb_client\\n\\ndef upsert_document(document):\\n    client = get_dynamodb_client()\\n    response = client.put_item(\\n        TableName='Documents',\\n        Item=document\\n    )\\n    return response\",\n  \"fetch_document.py\": \"import boto3\\nfrom database_client import get_dynamodb_client\\n\\ndef fetch_document(document_id):\\n    client = get_dynamodb_client()\\n    response = client.get_item(\\n        TableName='Documents',\\n        Key={'id': {'S': document_id}}\\n    )\\n    return response['Item'] if 'Item' in response else None\",\n  \"query_documents.py\": \"import boto3\\nfrom database_client import get_dynamodb_client\\n\\ndef query_documents(field_name, field_value):\\n    client = get_dynamodb_client()\\n    response = client.query(\\n        TableName='Documents',\\n        KeyConditionExpression='#field_name = :field_value',\\n        ExpressionAttributeNames={'#field_name': field_name},\\n        ExpressionAttributeValues={':field_value': {'S': field_value}}\\n    )\\n    return response['Items']\",\n  \"conditional_update.py\": \"import boto3\\nfrom database_client import get_dynamodb_client\\n\\ndef conditional_update(document_id, update_expression, expression_attribute_values):\\n    client = get_dynamodb_client()\\n    response = client.update_item(\\n        TableName='Documents',\\n        Key={'id': {'S': document_id}},\\n        UpdateExpression=update_expression,\\n        ExpressionAttributeValues=expression_attribute_values,\\n        ReturnValues='ALL_NEW'\\n    )\\n    return response['Attributes']\",\n  \"database_client.py\": \"import boto3\\nimport os\\n\\ndef get_dynamodb_client():\\n    return boto3.client(\\n        'dynamodb',\\n        region_name=os.getenv('AWS_REGION', 'us-west-2'),\\n        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),\\n        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')\\n    )\",\n  \"database_models.py\": \"def normalize_item(item):\\n    return {k: v['S'] for k, v in item.items()}\\n\\ndef serialize_item(item):\\n    return {k: {'S': v} for k, v in item.items()}\",\n  \"record_summary.py\": \"from summarizer import summarize\\n\\ndef summarize_record(record):\\n    summary = summarize(record['content'])\\n    return {'summary': summary}\",\n  \"record_text_safety.py\": \"from safety_checker import check_safety\\n\\ndef check_record_safety(record):\\n    is_safe = check_safety(record['content'])\\n    return {'is_safe': is_safe}\",\n  \"record_translate.py\": \"from google.cloud import translate_v2 as translate\\n\\ndef translate_record(record, target_language='en'):\\n    translate_client = translate.Client()\\n    translation = translate_client.translate(record['content'], target_language=target_language)\\n    return {'translated_content': translation['translatedText']}\",\n  \"record_export_archive.py\": \"import boto3\\n\\ndef archive_record(record, bucket_name):\\n    s3 = boto3.client('s3')\\n    s3.put_object(Bucket=bucket_name, Key=record['id'], Body=record['content'].encode('utf-8'))\\n    return {'archived': True}\"\n}",
+  "output_tokens": 953,
+  "prompt_tokens_details": {},
+  "reasoning_tokens": null,
+  "usage": {
+    "completion_tokens": 953,
+    "completion_tokens_details": null,
+    "prompt_tokens": 831,
+    "prompt_tokens_details": null,
+    "total_tokens": 1784
+  }
+}

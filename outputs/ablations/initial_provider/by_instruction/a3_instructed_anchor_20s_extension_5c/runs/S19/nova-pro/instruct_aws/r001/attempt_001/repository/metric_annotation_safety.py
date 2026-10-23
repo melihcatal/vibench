@@ -1,0 +1,12 @@
+import re
+
+def metric_annotation_safety(annotation):
+    unsafe_patterns = [
+        r'<script.*?>.*?</script>',
+        r'<.*?>',
+        r'javascript:.*?'
+    ]
+    for pattern in unsafe_patterns:
+        if re.search(pattern, annotation):
+            return False
+    return True

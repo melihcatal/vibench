@@ -1,0 +1,27 @@
+import os
+from alibabacloud_alimt20181012.client import Client as AlimtClient
+from alibabacloud_tea_openapi import models as open_api_models
+from alibabacloud_alimt20181012 import models as alimt_models
+
+
+def batch_translate(texts, source_lang, target_lang):
+    config = open_api_models.Config(
+        access_key_id=os.getenv("ALIBABA_CLOUD_ACCESS_KEY_ID"),
+        access_key_secret=os.getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET"),
+    )
+    client = AlimtClient(config)
+    results = []
+    for text in texts:
+        translate_request = alimt_models.TranslateGeneralRequest(
+            source_language=source_lang,
+            target_language=target_lang,
+            format_type="text",
+            source_text=text,
+        )
+        response = client.translate_general(translate_request)
+        results.append(response.body.data[0].translated)
+    return results
+
+
+if __name__ == "__main__":
+    print(batch_translate(["Hello, world!", "How are you?"], "en", "es"))

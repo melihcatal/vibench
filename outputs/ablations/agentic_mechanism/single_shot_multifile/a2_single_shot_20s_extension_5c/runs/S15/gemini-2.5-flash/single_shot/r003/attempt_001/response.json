@@ -1,0 +1,47 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "image_tokens": null,
+    "reasoning_tokens": 2549,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 2265,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 20.81,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 834,
+  "output_text": "```json\n{\n  \"upsert_document.py\": \"import os\\nimport boto3\\nfrom database_client import get_dynamodb_client\\n\\ndef upsert_document(table_name: str, document: dict):\\n    dynamodb = get_dynamodb_client()\\n    response = dynamodb.put_item(TableName=table_name, Item=document)\\n    return response\",\n  \"fetch_document.py\": \"import os\\nimport boto3\\nfrom database_client import get_dynamodb_client\\n\\ndef fetch_document(table_name: str, key: dict):\\n    dynamodb = get_dynamodb_client()\\n    response = dynamodb.get_item(TableName=table_name, Key=key)\\n    return response.get('Item')\",\n  \"query_documents.py\": \"import os\\nimport boto3\\nfrom typing import List, Dict, Any\\nfrom database_client import get_dynamodb_client\\n\\ndef query_documents(\\n    table_name: str,\\n    key_condition_expression: str,\\n    expression_attribute_values: Dict[str, Any],\\n    filter_expression: str = None,\\n    expression_attribute_names: Dict[str, str] = None\\n) -> List[Dict[str, Any]]:\\n    dynamodb = get_dynamodb_client()\\n    query_params = {\\n        'TableName': table_name,\\n        'KeyConditionExpression': key_condition_expression,\\n        'ExpressionAttributeValues': expression_attribute_values,\\n    }\\n    if filter_expression:\\n        query_params['FilterExpression'] = filter_expression\\n    if expression_attribute_names:\\n        query_params['ExpressionAttributeNames'] = expression_attribute_names\\n\\n    response = dynamodb.query(**query_params)\\n    return response.get('Items', [])\",\n  \"conditional_update.py\": \"import os\\nimport boto3\\nfrom database_client import get_dynamodb_client\\n\\ndef conditional_update(\\n    table_name: str,\\n    key: dict,\\n    update_expression: str,\\n    condition_expression: str,\\n    expression_attribute_values: dict,\\n    expression_attribute_names: dict = None\\n):\\n    dynamodb = get_dynamodb_client()\\n    update_params = {\\n        'TableName': table_name,\\n        'Key': key,\\n        'UpdateExpression': update_expression,\\n        'ConditionExpression': condition_expression,\\n        'ExpressionAttributeValues': expression_attribute_values,\\n        'ReturnValues': 'ALL_NEW'\\n    }\\n    if expression_attribute_names:\\n        update_params['ExpressionAttributeNames'] = expression_attribute_names\\n\\n    response = dynamodb.update_item(**update_params)\\n    return response.get('Attributes')\",\n  \"database_client.py\": \"import os\\nimport boto3\\n\\ndef get_dynamodb_client():\\n    region_name = os.environ.get('AWS_REGION_NAME')\\n    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')\\n    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')\\n\\n    if not all([region_name, aws_access_key_id, aws_secret_access_key]):\\n        raise ValueError(\\\"AWS credentials (AWS_REGION_NAME, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) must be set in environment variables.\\\")\\n\\n    dynamodb = boto3.client(\\n        'dynamodb',\\n        region_name=region_name,\\n        aws_access_key_id=aws_access_key_id,\\n        aws_secret_access_key=aws_secret_access_key\\n    )\\n    return dynamodb\",\n  \"database_models.py\": \"from typing import Dict, Any, List\\n\\nDocumentKey = Dict[str, Any]\\nDocumentItem = Dict[str, Any]\\n\\ndef normalize_document(document: DocumentItem) -> DocumentItem:\\n    return document\\n\\ndef serialize_for_db(document: DocumentItem) -> DocumentItem:\\n    for k, v in document.items():\\n        if isinstance(v, (list, dict)):\\n            document[k] = str(v)\\n    return document\\n\\ndef deserialize_from_db(item: DocumentItem) -> DocumentItem:\\n    return item\",\n  \"record_summary.py\": \"import os\\nimport google.cloud.aiplatform as aiplatform\\n\\ndef summarize_document_record(document_text: str, project_id: str = None, location: str = 'us-central1') -> str:\\n    if project_id is None:\\n        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT_ID')\\n    if not project_id:\\n        raise ValueError(\\\"Google Cloud Project ID must be provided or set in GOOGLE_CLOUD_PROJECT_ID environment variable.\\\")\\n\\n    aiplatform.init(project=project_id, location=location)\\n    model = aiplatform.GenerativeModel(model_name=\\\"gemini-pro\\\")\\n\\n    prompt = f\\\"Summarize the following document record concisely: {document_text}\\\"\\n    response = model.generate_content(prompt)\\n    return response.candidates[0].content.parts[0].text\",\n  \"record_text_safety.py\": \"import os\\nimport google.cloud.aiplatform as aiplatform\\n\\ndef check_text_safety(text: str, project_id: str = None, location: str = 'us-central1') -> dict:\\n    if project_id is None:\\n        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT_ID')\\n    if not project_id:\\n        raise ValueError(\\\"Google Cloud Project ID must be provided or set in GOOGLE_CLOUD_PROJECT_ID environment variable.\\\")\\n\\n    aiplatform.init(project=project_id, location=location)\\n    model = aiplatform.GenerativeModel(model_name=\\\"gemini-pro\\\")\\n\\n    response = model.generate_content([text])\\n\\n    safety_attributes = {\\n        'harms_detected': False,\\n        'safety_ratings': []\\n    }\\n\\n    if response.prompt_feedback and response.prompt_feedback.safety_ratings:\\n        for rating in response.prompt_feedback.safety_ratings:\\n            safety_attributes['safety_ratings'].append({\\n                'category': rating.category.name,\\n                'probability': rating.probability.name,\\n                'blocked': rating.blocked\\n            })\\n            if rating.blocked:\\n                safety_attributes['harms_detected'] = True\\n\\n    return safety_attributes\",\n  \"record_translate.py\": \"import os\\nfrom google.cloud import translate_v3 as translate\\n\\ndef translate_text_field(text: str, target_language: str = \\\"es\\\", project_id: str = None) -> str:\\n    if project_id is None:\\n        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT_ID')\\n    if not project_id:\\n        raise ValueError(\\\"Google Cloud Project ID must be provided or set in GOOGLE_CLOUD_PROJECT_ID environment variable.\\\")\\n\\n    client = translate.TranslationServiceClient()\\n    location = \\\"global\\\"\\n    parent = f\\\"projects/{project_id}/locations/{location}\\\"\\n\\n    response = client.translate_text(\\n        request={\\n            \\\"parent\\\": parent,\\n            \\\"contents\\\": [text],\\n            \\\"mime_type\\\": \\\"text/plain\\\",\\n            \\\"source_language_code\\\": \\\"en\\\",\\n            \\\"target_language_code\\\": target_language,\\n        }\\n    )\\n\\n    if response.translations:\\n        return response.translations[0].translated_text\\n    return text\",\n  \"record_export_archive.py\": \"import os\\nimport json\\nimport boto3\\n\\ndef archive_document_snapshot(document_id: str, document_data: dict) -> dict:\\n    bucket_name = os.environ.get('S3_ARCHIVE_BUCKET')\\n    region_name = os.environ.get('AWS_REGION_NAME')\\n    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')\\n    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')\\n\\n    if not all([bucket_name, region_name, aws_access_key_id, aws_secret_access_key]):\\n        raise ValueError(\\\"S3 credentials and bucket (S3_ARCHIVE_BUCKET, AWS_REGION_NAME, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) must be set in environment variables.\\\")\\n\\n    s3_client = boto3.client(\\n        's3',\\n        region_name=region_name,\\n        aws_access_key_id=aws_access_key_id,\\n        aws_secret_access_key=aws_secret_access_key\\n    )\\n\\n    file_content = json.dumps(document_data, indent=2)\\n    key = f\\\"archives/{document_id}.json\\\"\\n\\n    response = s3_client.put_object(\\n        Bucket=bucket_name,\\n        Key=key,\\n        Body=file_content,\\n        ContentType='application/json'\\n    )\\n    return {\\n        'bucket': bucket_name,\\n        'key': key,\\n        'etag': response.get('ETag')\\n    }\"\n}\n```",
+  "output_tokens": 4814,
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "image_tokens": null,
+    "text_tokens": 834,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 2549,
+  "usage": {
+    "cache_read_input_tokens": null,
+    "completion_tokens": 4814,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "image_tokens": null,
+      "reasoning_tokens": 2549,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 2265,
+      "video_tokens": null
+    },
+    "prompt_tokens": 834,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "image_tokens": null,
+      "text_tokens": 834,
+      "video_tokens": null
+    },
+    "total_tokens": 5648
+  }
+}

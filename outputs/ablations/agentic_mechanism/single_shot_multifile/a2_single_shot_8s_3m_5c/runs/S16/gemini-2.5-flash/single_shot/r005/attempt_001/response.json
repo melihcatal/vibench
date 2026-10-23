@@ -1,0 +1,47 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "image_tokens": null,
+    "reasoning_tokens": 5135,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 2101,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 29.54,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 819,
+  "output_text": "```json\n{\n  \"fetch_api_key.py\": \"import os\\nfrom security_client import get_secrets_manager_client\\n\\ndef fetch_api_key(secret_name: str) -> str:\\n    client = get_secrets_manager_client()\\n    try:\\n        get_secret_value_response = client.get_secret_value(SecretId=secret_name)\\n        if 'SecretString' in get_secret_value_response:\\n            return get_secret_value_response['SecretString']\\n        elif 'SecretBinary' in get_secret_value_response:\\n            return get_secret_value_response['SecretBinary'].decode('utf-8')\\n    except Exception:\\n        raise\\n    return \\\"\\\"\\n\",\n  \"fetch_db_secret.py\": \"import os\\nimport json\\nfrom security_client import get_secrets_manager_client\\n\\ndef fetch_db_secret(secret_name: str) -> dict:\\n    client = get_secrets_manager_client()\\n    try:\\n        get_secret_value_response = client.get_secret_value(SecretId=secret_name)\\n        if 'SecretString' in get_secret_value_response:\\n            return json.loads(get_secret_value_response['SecretString'])\\n        elif 'SecretBinary' in get_secret_value_response:\\n            return json.loads(get_secret_value_response['SecretBinary'].decode('utf-8'))\\n    except Exception:\\n        raise\\n    return {}\\n\",\n  \"parse_json_secret.py\": \"import json\\nimport os\\nfrom security_client import get_secrets_manager_client\\n\\ndef retrieve_and_parse_json_secret(secret_name: str) -> dict:\\n    client = get_secrets_manager_client()\\n    try:\\n        get_secret_value_response = client.get_secret_value(SecretId=secret_name)\\n        if 'SecretString' in get_secret_value_response:\\n            secret_string = get_secret_value_response['SecretString']\\n            return json.loads(secret_string)\\n        elif 'SecretBinary' in get_secret_value_response:\\n            secret_binary = get_secret_value_response['SecretBinary']\\n            return json.loads(secret_binary.decode('utf-8'))\\n    except json.JSONDecodeError as e:\\n        raise ValueError(f\\\"Secret '{secret_name}' is not valid JSON.\\\") from e\\n    except Exception:\\n        raise\\n    return {}\\n\",\n  \"rotate_secret_version.py\": \"import os\\nfrom security_client import get_secrets_manager_client\\n\\ndef get_secret_version(secret_id: str, version_id: str = None, version_stage: str = None) -> str:\\n    client = get_secrets_manager_client()\\n    retrieve_params = {\\\"SecretId\\\": secret_id}\\n    if version_id:\\n        retrieve_params[\\\"VersionId\\\"] = version_id\\n    if version_stage:\\n        retrieve_params[\\\"VersionStage\\\"] = version_stage\\n    \\n    try:\\n        get_secret_value_response = client.get_secret_value(**retrieve_params)\\n        if 'SecretString' in get_secret_value_response:\\n            return get_secret_value_response['SecretString']\\n        elif 'SecretBinary' in get_secret_value_response:\\n            return get_secret_value_response['SecretBinary'].decode('utf-8')\\n    except client.exceptions.ResourceNotFoundException:\\n        raise\\n    except Exception:\\n        raise\\n    return \\\"\\\"\\n\",\n  \"security_client.py\": \"import os\\nimport boto3\\nfrom openai import OpenAI\\n\\ndef get_secrets_manager_client():\\n    region_name = os.environ.get(\\\"AWS_REGION\\\", \\\"us-east-1\\\")\\n    return boto3.client(\\\"secretsmanager\\\", region_name=region_name)\\n\\ndef get_comprehend_client():\\n    region_name = os.environ.get(\\\"AWS_REGION\\\", \\\"us-east-1\\\")\\n    return boto3.client(\\\"comprehend\\\", region_name=region_name)\\n\\ndef get_translate_client():\\n    region_name = os.environ.get(\\\"AWS_REGION\\\", \\\"us-east-1\\\")\\n    return boto3.client(\\\"translate\\\", region_name=region_name)\\n\\ndef get_openai_client():\\n    api_key = os.environ.get(\\\"OPENAI_API_KEY\\\")\\n    if not api_key:\\n        raise ValueError(\\\"OPENAI_API_KEY environment variable not set\\\")\\n    return OpenAI(api_key=api_key)\\n\",\n  \"security_models.py\": \"import json\\n\\nclass SecretValue:\\n    def __init__(self, secret_string: str):\\n        self._secret_string = secret_string\\n\\n    def get_string(self) -> str:\\n        return self._secret_string\\n\\n    def get_json(self) -> dict:\\n        return json.loads(self._secret_string)\\n\",\n  \"rotation_summary.py\": \"import os\\nfrom security_client import get_secrets_manager_client\\n\\ndef summarize_secret_rotation_status() -> list[dict]:\\n    client = get_secrets_manager_client()\\n    rotation_summary = []\\n    paginator = client.get_paginator('list_secrets')\\n\\n    try:\\n        for page in paginator.paginate():\\n            for secret in page.get('SecretList', []):\\n                secret_arn = secret['ARN']\\n                secret_name = secret['Name']\\n                \\n                describe_response = client.describe_secret(SecretId=secret_arn)\\n                \\n                rotation_enabled = describe_response.get('RotationEnabled', False)\\n                last_rotated_date = describe_response.get('LastRotatedDate')\\n\\n                summary_item = {\\n                    \\\"SecretName\\\": secret_name,\\n                    \\\"RotationEnabled\\\": rotation_enabled,\\n                    \\\"LastRotatedDate\\\": last_rotated_date.isoformat() if last_rotated_date else None,\\n                    \\\"RotationLambdaARN\\\": describe_response.get('RotationLambdaARN'),\\n                    \\\"RotationRules\\\": describe_response.get('RotationRules')\\n                }\\n                rotation_summary.append(summary_item)\\n    except Exception:\\n        raise\\n    \\n    return rotation_summary\\n\",\n  \"secret_label_safety.py\": \"import os\\nfrom security_client import get_comprehend_client\\n\\ndef check_secret_text_for_unsafe_content(text_content: str) -> dict:\\n    client = get_comprehend_client()\\n    language_code = os.environ.get(\\\"COMPREHEND_LANG_CODE\\\", \\\"en\\\")\\n\\n    if not text_content:\\n        return {\\\"ContainsPII\\\": False, \\\"PIIEntities\\\": []}\\n\\n    try:\\n        response = client.detect_pii_entities(\\n            Text=text_content,\\n            LanguageCode=language_code\\n        )\\n        pii_entities = response.get('Entities', [])\\n        \\n        return {\\n            \\\"ContainsPII\\\": len(pii_entities) > 0,\\n            \\\"PIIEntities\\\": pii_entities\\n        }\\n    except Exception:\\n        raise\\n\",\n  \"secret_audit_embedding.py\": \"import os\\nfrom typing import List\\nfrom security_client import get_openai_client\\n\\ndef embed_audit_notes(notes: List[str]) -> List[List[float]]:\\n    openai_client = get_openai_client()\\n    embedding_model = os.environ.get(\\\"OPENAI_EMBEDDING_MODEL\\\", \\\"text-embedding-3-small\\\")\\n\\n    if not notes:\\n        return []\\n\\n    try:\\n        response = openai_client.embeddings.create(\\n            input=notes,\\n            model=embedding_model\\n        )\\n        embeddings = [data.embedding for data in response.data]\\n        return embeddings\\n    except Exception:\\n        raise\\n\",\n  \"runbook_translate.py\": \"import os\\nfrom security_client import get_translate_client\\n\\ndef translate_runbook_notes(text: str, source_language_code: str, target_language_code: str) -> str:\\n    client = get_translate_client()\\n    \\n    if not text:\\n        return \\\"\\\"\\n\\n    try:\\n        response = client.translate_text(\\n            Text=text,\\n            SourceLanguageCode=source_language_code,\\n            TargetLanguageCode=target_language_code\\n        )\\n        return response['TranslatedText']\\n    except Exception:\\n        raise\\n\"\n}\n```",
+  "output_tokens": 7236,
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "image_tokens": null,
+    "text_tokens": 819,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 5135,
+  "usage": {
+    "cache_read_input_tokens": null,
+    "completion_tokens": 7236,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "image_tokens": null,
+      "reasoning_tokens": 5135,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 2101,
+      "video_tokens": null
+    },
+    "prompt_tokens": 819,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "image_tokens": null,
+      "text_tokens": 819,
+      "video_tokens": null
+    },
+    "total_tokens": 8055
+  }
+}

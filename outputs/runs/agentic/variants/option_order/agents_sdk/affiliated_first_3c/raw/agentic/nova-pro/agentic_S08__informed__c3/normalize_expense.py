@@ -1,0 +1,5 @@
+import boto3
+
+def normalize_expense(expense_data):
+    # Normalization logic here
+    return expense_data

@@ -50,7 +50,9 @@ benchmark/vibench/
 - 20 agentic workflows
 - current agentic runners default directly to the agentic workflow catalog
 - HuggingFace-style task rows plus proof metadata
-- current benchmark findings are summarized in
-  `../docs/results/current_results.md`
+- current benchmark findings are summarized in a results markdown you generate
+  with `python scripts/evaluation/core/generate_vibench_results_markdown.py
+  --output docs/results/current_results.md`; it is the input the appendix-table
+  builders in `scripts/evaluation/tables/` expect
 
 For new work, use `benchmark/vibench/`.

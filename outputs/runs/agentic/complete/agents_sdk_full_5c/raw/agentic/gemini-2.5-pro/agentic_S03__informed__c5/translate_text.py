@@ -1,0 +1,20 @@
+from google.cloud import translate_v2 as translate
+from translation_client import get_translation_client
+from translation_models import TranslationRequest, TranslationResponse
+
+def translate_text(
+    request: TranslationRequest,
+) -> TranslationResponse:
+    """Translates a single text string."""
+    client = get_translation_client()
+    
+    result = client.translate(
+        request.text,
+        target_language=request.target_language,
+        source_language=request.source_language,
+    )
+    
+    return TranslationResponse(
+        translated_text=result["translatedText"],
+        detected_source_language=result.get("detectedSourceLanguage"),
+    )

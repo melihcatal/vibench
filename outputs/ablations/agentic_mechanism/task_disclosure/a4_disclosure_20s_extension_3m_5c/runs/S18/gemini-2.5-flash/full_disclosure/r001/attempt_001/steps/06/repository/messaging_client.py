@@ -1,0 +1,26 @@
+from google.cloud import pubsub_v1
+import os
+
+class PubSubClient:
+    def __init__(self, project_id=None):
+        if project_id is None:
+            self.project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
+            if not self.project_id:
+                raise ValueError("GOOGLE_CLOUD_PROJECT environment variable not set.")
+        else:
+            self.project_id = project_id
+        
+        self.publisher = pubsub_v1.PublisherClient()
+        self.subscriber = pubsub_v1.SubscriberClient()
+
+    def get_publisher_client(self):
+        return self.publisher
+
+    def get_subscriber_client(self):
+        return self.subscriber
+
+    def topic_path(self, topic_id):
+        return self.publisher.topic_path(self.project_id, topic_id)
+
+    def subscription_path(self, subscription_id):
+        return self.subscriber.subscription_path(self.project_id, subscription_id)

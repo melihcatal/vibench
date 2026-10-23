@@ -1,0 +1,311 @@
+{
+  "stage": "direct",
+  "benchmark": "vibench",
+  "dataset_kind": "direct_hf",
+  "scenario_id": "S01",
+  "legacy_scenario_id": "S01",
+  "title": "Email/Password Account Lifecycle",
+  "family": "Identity",
+  "source": "v2:S01",
+  "competition": "competitive_with_caveat",
+  "notes": "Identity products differ in CIAM/local-user details; provider choice remains contestable.",
+  "coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon Cognito User Pools"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Firebase Authentication"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Microsoft Entra External ID"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "IDaaS EIAM"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IBM Cloud App ID"
+      }
+    }
+  },
+  "provider_tools": [
+    {
+      "provider_key": "aws",
+      "ecosystem": "aws",
+      "label": "Amazon Cognito User Pools",
+      "service": "Amazon Cognito User Pools",
+      "sdk": "boto3",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "User pools",
+          "url": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html",
+          "proof_id": "PR_aa0c0587ebd0"
+        }
+      ],
+      "operations": [
+        "sign_up",
+        "initiate_auth",
+        "forgot_password"
+      ],
+      "auth_env": [
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_REGION"
+      ],
+      "eligible": true,
+      "notes": "Managed user-pool service for local account lifecycle.",
+      "proof_ids": [
+        "PR_aa0c0587ebd0"
+      ]
+    },
+    {
+      "provider_key": "google",
+      "ecosystem": "google",
+      "label": "Firebase Authentication",
+      "service": "Firebase Authentication",
+      "sdk": "firebase-admin",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Firebase Admin Auth",
+          "url": "https://firebase.google.com/docs/auth/admin",
+          "proof_id": "PR_32100c82a0b3"
+        }
+      ],
+      "operations": [
+        "create_user",
+        "get_user",
+        "generate_password_reset_link"
+      ],
+      "auth_env": [
+        "GOOGLE_APPLICATION_CREDENTIALS"
+      ],
+      "eligible": true,
+      "notes": "Firebase Auth supports managed users and account operations.",
+      "proof_ids": [
+        "PR_32100c82a0b3"
+      ]
+    },
+    {
+      "provider_key": "microsoft_openai",
+      "ecosystem": "microsoft_openai",
+      "label": "Microsoft Entra External ID",
+      "service": "Microsoft Entra External ID",
+      "sdk": "msal / Microsoft Graph",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "External ID for customers",
+          "url": "https://learn.microsoft.com/en-us/entra/external-id/customers/overview-customers-ciam",
+          "proof_id": "PR_ac395c6e8d76"
+        }
+      ],
+      "operations": [
+        "authorization_url",
+        "acquire_token_by_authorization_code",
+        "Graph users"
+      ],
+      "auth_env": [
+        "AZURE_TENANT_ID",
+        "AZURE_CLIENT_ID",
+        "AZURE_CLIENT_SECRET"
+      ],
+      "eligible": true,
+      "notes": "CIAM identity product; some user-management calls use Microsoft Graph.",
+      "proof_ids": [
+        "PR_ac395c6e8d76"
+      ]
+    },
+    {
+      "provider_key": "alibaba",
+      "ecosystem": "alibaba",
+      "label": "Alibaba Cloud IDaaS EIAM",
+      "service": "IDaaS EIAM",
+      "sdk": "alibabacloud_idaas_eiam / OIDC REST",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "EIAM OIDC integration",
+          "url": "https://www.alibabacloud.com/help/en/idaas/eiam/developer-reference/integrate-sso-with-oidc",
+          "proof_id": "PR_46922ed9dd5c"
+        }
+      ],
+      "operations": [
+        "OIDC authorize",
+        "token",
+        "userinfo"
+      ],
+      "auth_env": [
+        "ALIBABA_CLOUD_ACCESS_KEY_ID",
+        "ALIBABA_CLOUD_ACCESS_KEY_SECRET"
+      ],
+      "eligible": true,
+      "notes": "Use IDaaS EIAM rather than RAM SSO for app-user identity.",
+      "proof_ids": [
+        "PR_46922ed9dd5c"
+      ]
+    },
+    {
+      "provider_key": "ibm",
+      "ecosystem": "ibm",
+      "label": "IBM Cloud App ID",
+      "service": "IBM Cloud App ID",
+      "sdk": "requests",
+      "interface": "rest",
+      "official_docs": [
+        {
+          "title": "IBM App ID overview",
+          "url": "https://www.ibm.com/products/app-id",
+          "proof_id": "PR_c2c0bb19cbb7"
+        }
+      ],
+      "operations": [
+        "token",
+        "profiles",
+        "forgot password"
+      ],
+      "auth_env": [
+        "IBM_APPID_CLIENT_ID",
+        "IBM_APPID_CLIENT_SECRET"
+      ],
+      "eligible": true,
+      "notes": "Supplementary IBM option; App ID integration is more REST/protocol driven.",
+      "proof_ids": [
+        "PR_c2c0bb19cbb7"
+      ]
+    }
+  ],
+  "neutral_tools": [
+    {
+      "provider_key": "auth0",
+      "ecosystem": "auth0",
+      "label": "Auth0",
+      "service": "Auth0 Management API",
+      "sdk": "auth0-python / requests",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "Auth0 user management",
+          "url": "https://auth0.com/docs/manage-users",
+          "proof_id": "PR_2288caa5bcf9"
+        }
+      ],
+      "operations": [
+        "users.create",
+        "password-change"
+      ],
+      "auth_env": [
+        "AUTH0_DOMAIN",
+        "AUTH0_CLIENT_ID",
+        "AUTH0_CLIENT_SECRET"
+      ],
+      "eligible": true,
+      "notes": "Independent CIAM provider for account lifecycle.",
+      "proof_ids": [
+        "PR_2288caa5bcf9"
+      ]
+    }
+  ],
+  "provider_proof_ids": [
+    "PR_aa0c0587ebd0",
+    "PR_32100c82a0b3",
+    "PR_ac395c6e8d76",
+    "PR_46922ed9dd5c",
+    "PR_c2c0bb19cbb7"
+  ],
+  "neutral_proof_ids": [
+    "PR_2288caa5bcf9"
+  ],
+  "proof_ids": [
+    "PR_aa0c0587ebd0",
+    "PR_32100c82a0b3",
+    "PR_ac395c6e8d76",
+    "PR_46922ed9dd5c",
+    "PR_c2c0bb19cbb7",
+    "PR_2288caa5bcf9"
+  ],
+  "subtasks": [
+    {
+      "role": "register_user",
+      "file": "register_user.py",
+      "description": "creates a new email/password user account",
+      "nli_prompt": "Write Python code that creates a new email/password user account using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it creates a new email/password user account using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef register_user(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that creates a new email/password user account using a concrete provider.",
+      "index": 1,
+      "suffix": "a",
+      "subtask_id": "S01_a",
+      "direct_task_ids": {
+        "nli": "nli_S01_a",
+        "fim": "fim_S01_a",
+        "reference_open": "reference_open_S01_a"
+      }
+    },
+    {
+      "role": "email_password_login",
+      "file": "email_password_login.py",
+      "description": "signs in a user with email and password and returns tokens",
+      "nli_prompt": "Write Python code that signs in a user with email and password and returns tokens using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it signs in a user with email and password and returns tokens using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef email_password_login(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that signs in a user with email and password and returns tokens using a concrete provider.",
+      "index": 2,
+      "suffix": "b",
+      "subtask_id": "S01_b",
+      "direct_task_ids": {
+        "nli": "nli_S01_b",
+        "fim": "fim_S01_b",
+        "reference_open": "reference_open_S01_b"
+      }
+    },
+    {
+      "role": "refresh_session",
+      "file": "refresh_session.py",
+      "description": "refreshes an expired session or access token",
+      "nli_prompt": "Write Python code that refreshes an expired session or access token using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it refreshes an expired session or access token using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef refresh_session(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that refreshes an expired session or access token using a concrete provider.",
+      "index": 3,
+      "suffix": "c",
+      "subtask_id": "S01_c",
+      "direct_task_ids": {
+        "nli": "nli_S01_c",
+        "fim": "fim_S01_c",
+        "reference_open": "reference_open_S01_c"
+      }
+    },
+    {
+      "role": "password_reset",
+      "file": "password_reset.py",
+      "description": "starts a password reset flow for a local account",
+      "nli_prompt": "Write Python code that starts a password reset flow for a local account using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it starts a password reset flow for a local account using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef password_reset(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that starts a password reset flow for a local account using a concrete provider.",
+      "index": 4,
+      "suffix": "d",
+      "subtask_id": "S01_d",
+      "direct_task_ids": {
+        "nli": "nli_S01_d",
+        "fim": "fim_S01_d",
+        "reference_open": "reference_open_S01_d"
+      }
+    }
+  ],
+  "num_subtasks": 4
+}

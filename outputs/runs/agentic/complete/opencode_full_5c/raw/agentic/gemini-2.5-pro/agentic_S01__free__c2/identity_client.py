@@ -1,0 +1,16 @@
+import os
+import pyrebase
+
+
+def get_auth_client():
+    config = {
+        "apiKey": os.environ.get("FIREBASE_API_KEY"),
+        "authDomain": os.environ.get("FIREBASE_AUTH_DOMAIN"),
+        "projectId": os.environ.get("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.environ.get("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.environ.get("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.environ.get("FIREBASE_APP_ID"),
+        "databaseURL": f"https://{os.environ.get('FIREBASE_PROJECT_ID')}.firebaseio.com",
+    }
+    firebase = pyrebase.initialize_app(config)
+    return firebase.auth()

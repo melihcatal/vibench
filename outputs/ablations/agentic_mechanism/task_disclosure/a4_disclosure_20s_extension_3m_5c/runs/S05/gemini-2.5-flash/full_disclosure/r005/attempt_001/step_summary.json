@@ -1,0 +1,507 @@
+[
+  {
+    "audit": {
+      "created": [
+        "stream_microphone.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "stream_microphone.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:04.852394+00:00",
+    "prompt_verified": true,
+    "requested_file": "stream_microphone.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 8.635810374980792,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862097907,\"sessionID\":\"ses_f43e7d11effeqzyAVFx36xxVrU\",\"part\":{\"id\":\"prt_0bc1833f0001TOL2qfmx5fIOQG\",\"messageID\":\"msg_0bc182f5e001TbG2swFNJuiHFW\",\"sessionID\":\"ses_f43e7d11effeqzyAVFx36xxVrU\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862103085,\"sessionID\":\"ses_f43e7d11effeqzyAVFx36xxVrU\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"fLGwtJGQC40HY4tZ\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"stream_microphone.py\",\"content\":\"import pyaudio\\nfrom six.moves import queue\\n\\nfrom google.cloud import speech\\n\\n# Audio recording parameters\\nRATE = 16000\\nCHUNK = int(RATE / 10)  # 100ms\\n\\n\\nclass MicrophoneStream:\\n    \\\"\\\"\\\"Opens a recording stream as a generator yielding the audio chunks.\\\"\\\"\\\"\\n\\n    def __init__(self, rate, chunk):\\n        self._rate = rate\\n        self._chunk = chunk\\n\\n        # Create a thread-safe buffer of audio data\\n        self._buff = queue.Queue()\\n        self.closed = True\\n\\n    def __enter__(self):\\n        self._audio_interface = pyaudio.PyAudio()\\n        self._audio_stream = self._audio_interface.open(\\n            format=pyaudio.paInt16,\\n            channels=1,\\n            rate=self._rate,\\n            input=True,\\n            frames_per_buffer=self._chunk,\\n            stream_callback=self._fill_buffer,\\n        )\\n\\n        self.closed = False\\n\\n        return self\\n\\n    def __exit__(self, type, value, traceback):\\n        self._audio_stream.stop_stream()\\n        self._audio_stream.close()\\n        self.closed = True\\n        # Signal the generator to terminate\\n        self._buff.put(None)\\n        self._audio_interface.terminate()\\n\\n    def _fill_buffer(self, in_data, frame_count, time_info, status_flags):\\n        \\\"\\\"\\\"Continuously collect data from the audio stream, into the buffer.\\\"\\\"\\\"\\n        self._buff.put(in_data)\\n        return None, pyaudio.paContinue\\n\\n    def generator(self):\\n        while not self.closed:\\n            # Use a blocking get() to ensure there's audio data in the queue.\\n            chunk = self._buff.get()\\n            if chunk is None:\\n                return\\n            data = [chunk]\\n\\n            # Now consume whatever other data s in the queue.\\n            while True:\\n                try:\\n                    chunk = self._buff.get(block=False)\\n                    if chunk is None:\\n                        return\\n                    data.append(chunk)\\n                except queue.Empty:\\n                    break\\n\\n            yield b\\\"\\\".join(data)\\n\\n\\ndef stream_microphone_audio():\\n    \\\"\\\"\\\"Streams audio from the microphone to the Google Cloud Speech-to-Text API and yields interim transcripts.\\\"\\\"\\\"\\n\\n    client = speech.SpeechClient()\\n    config = speech.RecognitionConfig(\\n        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,\\n        sample_rate_hertz=RATE,\\n        language_code=\\\"en-US\\\",\\n    )\\n    streaming_config = speech.StreamingRecognitionConfig(\\n        config=config, interim_results=True\\n    )\\n\\n    with MicrophoneStream(RATE, CHUNK) as stream:\\n        audio_generator = stream.generator()\\n        requests = (\\n            speech.StreamingRecognizeRequest(audio_content=content)\\n            for content in audio_generator\\n        )\\n\\n        responses = client.streaming_recognize(streaming_config, requests)\\n\\n        # Now, print the transcripts of each response.\\n        for response in responses:\\n            if not response.results:\\n                continue\\n\\n            result = response.results[0]\\n            if not result.alternatives:\\n                continue\\n\\n            # The `overwrite_results` field is True for interim results, False for final results.\\n            if result.is_final:\\n                print(\\\"Final: {}\\\".format(result.alternatives[0].transcript))\\n            else:\\n                print(\\\"Interim: {}\\\".format(result.alternatives[0].transcript))\\n                yield result.alternatives[0].transcript\\n\\nif __name__ == \\\"__main__\\\":\\n    stream_microphone_audio()\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/stream_microphone.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/stream_microphone.py\",\"time\":{\"start\":1789862103067,\"end\":1789862103073}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9ExNVA28DQpvTfsjdiiC1z5xan3bqdu8t+6HjAsnUh7cKZgFpFH0TdgKc6Ysi7rqt4wNpYLcm4fJbqFRsDaHJvxN5BQtfGM1PGQ5tybX3X2UpOh0CShhgcm/MD0Zjc++vRX4CURuSaX18TBdJ38u4m1pZqzksQFEzV6HUqsooRlsMgKDToSQ6SAr/AQFpFH0Tp4625jH2d4cdZk70JQbxBx3SWkfRQr/3DZGsQgGH89+juZ+9CwmVSdNmOm5/bc87mXEu36jgmrisbnHe8U86X4j6fxbP6emz+wtC82G7wkh5+o+8hhhEn12KhpaY3KtBZ5YGp8JliIK0mKK4v9PA7WIDo4HK1qOa7vhgeT+fhWbjt9TAq+Rmi/x9jU14UiFSZQHEWSkfpLBXOufER+M+N23TvQTQ7hOVLig+y8lDMv8OASSnvs6Ex0D0BmpnshiASv1mQYzYFUlMSbhGfIJ1hSTI2bZWAOur3Loe+uJzukAMa6VS996JfC/+s19cVBzaG2BidXOVPdQHHQrxAQFpFH0TQ4v8mKXfo+eh3XoB6bMzlxrMK8Jh0T+T31HfDLqNLzdVY9mfhjYAJcCnwwVU+PVLobCgFLc6hD8kKpY0o8g+sC425A5icW2xFG8clH4N1iDMvvGFgw9XuHZ0+pZjkpadQCwqAyqW/0oT7mIMn/tugkfPPPq0TEqdAH+9VDI2IVrrOlosjRmIq/DCNz9ySDzcRq+rHW0Y7lGO72afxNs9QY+zD01rWo2Wjbo6NwXRTjmdddMwAFbrt0BWZPdFlZCGQm7IRMMSav5OEgo68mFZ1WL8AmEpY3CleWvh+YzStqXuWpkfX91zAdtqMKcK4wEBaRR9E8QwwIyjJaZedM+BZocjZKbxQL5wKpqRxvXfFVjMTOdovSo8P710XwtczfxADp3thMyrIDu0XuIFGQ90l5/BChq1A7uJrG05LHqs3mXkdDUxJPQBfTOY7n0TFxIfhJjEj/aUBsqE7Z7OTo+g7iI1zAvEsAewjdYWnItCHxoRMikyfOIXm/HNA07va+Xo88//jgNEnN8z2qEQTIREnnr6lC4U0+K3pVjLendrjHNfimPYAMp3WIuNIBe4weoRyIIDGd9P8sEEU4BXNdYpO9hEjVHZXBcXlRMWkp0rAmNoXQrsAQFpFH0TepoX/ryAtutcvKnenpVA6M0KSsY7rakxmXL7vkPjXBm2Ldd7UyAkZGZgwFyMp/Qg4GSWFK+ylPJnioTeuBbinC3whd2qg4/54h79smMZAuH+xmx4Qtb7vOov9AQUJ1P5Y7QJLiJNCeomTzld2857Ybt8Km+8Pmna1giDekVoQSHj7OM7qqSrzoNPB85qgr1LwD3RRFevpSG+DdTiBL9lCdfSWdKK2SgV44R5HLNdD/FU0qRuvNPJfPKhrElRVigbdlOf1y5xX2f7eOgtB7/w/PkX84lAYdgtVV2+04T8UtT6FyLRz+HpCvQBAWkUfRNEwblF0K8sGlT++bk2RgZELu1H6jy6sbuAGTCNF9px6pLyMA0FbBm7KpOfLsxrCP8CXsQsAVStvcrwLofCLHkni82JWvw7o3REnlrDY5LBXb6Fwk7Fco91ikMqClYTy0aB8OLrK2X1UpKd0mtBYWdzzsaCSTuIvo1zyNLpU8jrhtyaichp7IX3hE0j3QL8Ehr0ZeKrbhfJnwanwc3ZhlmZJaBu/4gKt1cYevTH43Ht+hsxXphac14u84wUDLeRdfd4XpPU3MJcc2FVhQyQTt88f44IBAlOU4XuQe85+EYoRti7jup6oWVIJ48Q93I1bAowAWkUfROVuy+WLRNQeDl4kA+suHhKdfkTjbxJfyIZTmu9EHuQ8tu8v7QiTit6SXXq\"}},\"id\":\"prt_0bc184816001RP59Qj3bumB4Ms\",\"sessionID\":\"ses_f43e7d11effeqzyAVFx36xxVrU\",\"messageID\":\"msg_0bc182f5e001TbG2swFNJuiHFW\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862103085,\"sessionID\":\"ses_f43e7d11effeqzyAVFx36xxVrU\",\"part\":{\"id\":\"prt_0bc184823001Z35jSpNznMLz1k\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc182f5e001TbG2swFNJuiHFW\",\"sessionID\":\"ses_f43e7d11effeqzyAVFx36xxVrU\",\"type\":\"step-finish\",\"tokens\":{\"total\":7114,\"input\":5894,\"output\":950,\"reasoning\":270,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0048182}}\n{\"type\":\"step_start\",\"timestamp\":1789862104281,\"sessionID\":\"ses_f43e7d11effeqzyAVFx36xxVrU\",\"part\":{\"id\":\"prt_0bc184cd6001kxd7c6SgJrNdjv\",\"messageID\":\"msg_0bc1848280016fvIMJnGxRs8w4\",\"sessionID\":\"ses_f43e7d11effeqzyAVFx36xxVrU\",\"type\":\"step-start\"}}\n"
+    },
+    "session_id": "ses_f43e7d11effeqzyAVFx36xxVrU",
+    "started": "2026-09-19T23:54:56.191325+00:00",
+    "step": 1,
+    "user_message_count": 1
+  },
+  {
+    "audit": {
+      "created": [
+        "stream_chunks.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "stream_chunks.py": "551d638be8498c8e4042795dbe5f6d87c63e1c95a26cbdb7546aba729bed2ea5",
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "stream_chunks.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:07.786587+00:00",
+    "prompt_verified": true,
+    "requested_file": "stream_chunks.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 2.9013408749597147,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862106360,\"sessionID\":\"ses_f43e7af5effeNRnV2bbHzcSReg\",\"part\":{\"id\":\"prt_0bc1854f5001m38RNmuVz608n8\",\"messageID\":\"msg_0bc1850af0014CSHelK0QRrvG2\",\"sessionID\":\"ses_f43e7af5effeNRnV2bbHzcSReg\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862107367,\"sessionID\":\"ses_f43e7af5effeNRnV2bbHzcSReg\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"ITjiIALYTrFRNr5K\",\"state\":{\"status\":\"completed\",\"input\":{\"content\":\"\\nfrom google.cloud import speech\\n\\nasync def stream_audio_chunks(audio_source):\\n    \\\"\\\"\\\"\\n    Streams audio chunks from an asynchronous audio source.\\n\\n    Args:\\n        audio_source: An asynchronous generator or iterable that yields audio bytes.\\n\\n    Yields:\\n        bytes: Audio chunks.\\n    \\\"\\\"\\\"\\n    async for chunk in audio_source:\\n        yield chunk\\n\\n\",\"filePath\":\"stream_chunks.py\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/stream_chunks.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/stream_chunks.py\",\"time\":{\"start\":1789862107355,\"end\":1789862107359}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E5KktUM/r5Jo81eV3lwqpVXuY5sx6xV3NT8xYrXouVAKdwFpFH0TSQ19P8z4EMzjmf9LmVfkrMYi8T/Df4UjspROEBhl9GmalU3uoBuW1Pfsw4wH8pgX9cyKKtMO2mdynnjrqGW1m58QC2daNYnw5oMkPyA2EQ7QQ8UpyZZd6ShWQ4cMl5NaQzgczEDkBZJ4A0Cbu+bNT2fZCocCAWkUfRMeuvu6rRCSLsEWYs8oTD6ud4pJnqLlKAC92R0RMd2gm8rmxLp1pxEeImQgpCJY8jjulp2pBA/gbqPK227Xk88QSYDfXnlUBBWocr+DJRenwihgwfwB/F3msydbghefev4jbHYSM1vD8wCLF5VLS57iMt8CYdOrg/ZK8c2tMaka8cUMSpVFsIH+BXPWuMkht2PX9XVm71bEAMoHsZ8y4S8JOvdpeAM62uEmquCu1AK9LpZdqdy31j+vLFC1qTex23u56VtA0yXoI9d2Faw5HsmqIv5Wdf9efB/19oscEM/vGPARNkUucQfnp3p7XT+ujY5FQIBr60LqKJ3RxcXEz8so7zIK2wEBaRR9E5SyNdm3hZQrLCSS0mC1sJfc7qMiJE2KZReu33G+fSEXB5rLL4yggm1Zaa5NfSjsTb9TcDD1KCyXRmaB6DTgtxi1arYzOCeqKH7VwfFA9kr5TgghmHigw35DfnxahItQv8Oax9aRiCJLuTGg2c6LR1Hr8ThSfdQ2MBiz4c1euKj2WU7dAYxOxM2r5KuqPUd40M37kOBQRWPbTuy+vP7lmP0XERN1qGYanPwCRlksTigx+pmKazG8dQlRxSiMXmHrYT+cZHh715XTlzB2Vb9jdFJHbsYXf3kKsQEBaRR9E6oDHsozRfQDeU9H853UuVyvpm3PfDmtcfTWM/+hInkmJqdm126bxLqjjsVOvgfH9vXOrS/6vWKSOeGJNzbomKuTQggrsmkD7OB1Nz3UzQAz9xapzT2nzPya/C2CD/YByXRJkFsuCC/p2Ixw3/FBu7dVM5g2kXZFa6pzTq2KJn1O1goF8JKwGcToogzgBbdVr/18ULO4QIK0pKxMWE5sU7ns7mrn/R+Gn2J9cp0=\"}},\"id\":\"prt_0bc1858d8001g6ba06oT1R8oxh\",\"sessionID\":\"ses_f43e7af5effeNRnV2bbHzcSReg\",\"messageID\":\"msg_0bc1850af0014CSHelK0QRrvG2\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862107367,\"sessionID\":\"ses_f43e7af5effeNRnV2bbHzcSReg\",\"part\":{\"id\":\"prt_0bc1858e0001y5Qu3grmWz8iMN\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc1850af0014CSHelK0QRrvG2\",\"sessionID\":\"ses_f43e7af5effeNRnV2bbHzcSReg\",\"type\":\"step-finish\",\"tokens\":{\"total\":6171,\"input\":5894,\"output\":117,\"reasoning\":160,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0024607}}\n"
+    },
+    "session_id": "ses_f43e7af5effeNRnV2bbHzcSReg",
+    "started": "2026-09-19T23:55:04.857370+00:00",
+    "step": 2,
+    "user_message_count": 1
+  },
+  {
+    "audit": {
+      "created": [
+        "partial_results.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "partial_results.py": "96dfa8776c0ed6e4e5a4c0f158edefbd5f61352628cd32c89f2fc0f2f9e1cdc3",
+        "stream_chunks.py": "551d638be8498c8e4042795dbe5f6d87c63e1c95a26cbdb7546aba729bed2ea5",
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "partial_results.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:11.679762+00:00",
+    "prompt_verified": true,
+    "requested_file": "partial_results.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 3.848874041927047,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862109414,\"sessionID\":\"ses_f43e7a3c7ffe6wvb2GtfUvzYl0\",\"part\":{\"id\":\"prt_0bc1860e4001T57H3YVxFqtyaM\",\"messageID\":\"msg_0bc185c4d001eDB1IoR3I6e5jH\",\"sessionID\":\"ses_f43e7a3c7ffe6wvb2GtfUvzYl0\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862111277,\"sessionID\":\"ses_f43e7a3c7ffe6wvb2GtfUvzYl0\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"rye7VRrMeWY6O2Pp\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"partial_results.py\",\"content\":\"import asyncio\\nimport os\\nfrom google.cloud import speech\\n\\nasync def handle_streaming_responses(responses):\\n    \\\"\\\"\\\"\\n    Handles partial and final streaming recognition events from Google Cloud Speech-to-Text.\\n    \\\"\\\"\\\"\\n    async for response in responses:\\n        if not response.results:\\n            continue\\n\\n        result = response.results[0]\\n        if not result.alternatives:\\n            continue\\n\\n        transcript = result.alternatives[0].transcript\\n\\n        if result.is_final:\\n            print(f\\\"Final Transcript: {transcript}\\\")\\n        else:\\n            print(f\\\"Partial Transcript: {transcript}\\\")\\n\\ndef get_speech_client():\\n    \\\"\\\"\\\"\\n    Returns a Google Cloud SpeechClient.\\n    Ensure GOOGLE_APPLICATION_CREDENTIALS environment variable is set or\\n    provide credentials directly.\\n    \\\"\\\"\\\"\\n    # This explicitly identifies Google Cloud as the provider.\\n    # For production, ensure GOOGLE_APPLICATION_CREDENTIALS is set\\n    # or pass credentials directly to speech.SpeechClient.\\n    return speech.SpeechClient()\\n\\nasync def main():\\n    # This is a placeholder for demonstration.\\n    # In a real application, you would integrate this with an audio stream.\\n    print(\\\"This script is a module for handling speech recognition events.\\\")\\n    print(\\\"It uses Google Cloud Speech-to-Text.\\\")\\n    print(\\\"To use it, you would typically pass the responses from a streaming\\\")\\n    print(\\\"recognition session to the 'handle_streaming_responses' function.\\\")\\n\\nif __name__ == \\\"__main__\\\":\\n    asyncio.run(main())\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/partial_results.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/partial_results.py\",\"time\":{\"start\":1789862111268,\"end\":1789862111270}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E/6ANaSzGuVEyQCtcrkredhMJPwlR1ocvW0p7hWz+uMKeAFpFH0Ty+JcaA/hnnG4jRkVr/5JJxa5uH9uOPUlJV6XE8wkEnqEG9YgA2QBh+bWXSewe24t0pqXDO792v9yj5jkP9UlGh2Jr81VBOCxvgypbkBss9o3/uZiMQmWCvoMG5HBrJlrW3fI2GAUZGcvOFSjRU+bTOOzVAqOAgFpFH0Ty6hAxkf3U1uiDvpWKrWen3lGI3pahHbk82jAkql0c9tYcJeMSbP2pv7wio8CuAaAaobyepttIWyFDuqeMC0G0bp1eG0RIxpcZE/AalD0OFCBmvQ0EM/0T/e+VYBH41KaSGf2qqqfVBUYjIClDzXDTKaL72EkpgEzU4kQK9bjUIUQ6I2rRi60fIgcaN69f44VQSn0WyOXKinPrHj3BeTNDxEmv5uKnixGvtUOidY5RpYmVHVpBRrG1bMx++kgaejmGO7ZoQIsLtMrsOmcvUYcxsgDaLmOVQLzSPB55LiJQEFOP3y5WZiqy3M2TXjuB2UN/XVq5pn2dtdRPyvoTwwVfNZpFLZjK39MEwroAQFpFH0TK0T3WQuQWgDzlPFqxRZ8iZZpnN514CzP7ppQHVRb5wSjtTCzbIHjRgEPjSt38aUxZvZHHWqinF66BfNSxsOCUWJiJA0Cax6p+yxlrhGk3BIPtdLMPt3bX0UsHC6msyLtbDjC4mAqo+IdFzQy+wFDbjmqterV/4Pydm3lnKtWsLSSZkAi8+dEgoKd940Vyb3uZy3AB0kU3izg7nH1a6MsZ/GZxqbFNp7qiVtdzPIpAVaW2CQrwdFfVdDIt1bj1P+rEGnffM0X6UEqj23qWpdTMUSlTRPTMYhn4y0ntSQO6Vf38UQ=\"}},\"id\":\"prt_0bc186822001BdEDU2H2GqirjB\",\"sessionID\":\"ses_f43e7a3c7ffe6wvb2GtfUvzYl0\",\"messageID\":\"msg_0bc185c4d001eDB1IoR3I6e5jH\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862111277,\"sessionID\":\"ses_f43e7a3c7ffe6wvb2GtfUvzYl0\",\"part\":{\"id\":\"prt_0bc186827001CxUoAl8jvzR9v2\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc185c4d001eDB1IoR3I6e5jH\",\"sessionID\":\"ses_f43e7a3c7ffe6wvb2GtfUvzYl0\",\"type\":\"step-finish\",\"tokens\":{\"total\":6420,\"input\":5894,\"output\":416,\"reasoning\":110,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0030832}}\n"
+    },
+    "session_id": "ses_f43e7a3c7ffe6wvb2GtfUvzYl0",
+    "started": "2026-09-19T23:55:07.793857+00:00",
+    "step": 3,
+    "user_message_count": 1
+  },
+  {
+    "audit": {
+      "created": [
+        "stream_with_language.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "partial_results.py": "96dfa8776c0ed6e4e5a4c0f158edefbd5f61352628cd32c89f2fc0f2f9e1cdc3",
+        "stream_chunks.py": "551d638be8498c8e4042795dbe5f6d87c63e1c95a26cbdb7546aba729bed2ea5",
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0",
+        "stream_with_language.py": "5910174030d355e36b588c4761a5c7e74587d515557f252b18e33b864bf3b3cd"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "stream_with_language.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:15.314176+00:00",
+    "prompt_verified": true,
+    "requested_file": "stream_with_language.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 3.582538124988787,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862113154,\"sessionID\":\"ses_f43e794b8ffeQ7ev8N6eOb7JPg\",\"part\":{\"id\":\"prt_0bc186f7f0013JFZpfwmeCy3Uq\",\"messageID\":\"msg_0bc186b54001IY8ydWQyDul8oO\",\"sessionID\":\"ses_f43e794b8ffeQ7ev8N6eOb7JPg\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862114880,\"sessionID\":\"ses_f43e794b8ffeQ7ev8N6eOb7JPg\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"OEODSOg74dKlIjr3\",\"state\":{\"status\":\"completed\",\"input\":{\"content\":\"import asyncio\\n\\nfrom google.cloud import speech_v1p1beta1 as speech\\nfrom google.cloud.speech_v1p1beta1 import enums\\nfrom google.cloud.speech_v1p1beta1 import types\\n\\n\\nasync def stream_with_language(\\n    audio_chunks,\\n    language_code: str = \\\"en-US\\\",\\n    enable_automatic_punctuation: bool = True,\\n):\\n    \\\"\\\"\\\"Starts a streaming recognizer with language and punctuation settings.\\\"\\\"\\\"\\n\\n    client = speech.SpeechClient()\\n\\n    config = types.RecognitionConfig(\\n        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,\\n        sample_rate_hertz=16000,\\n        language_code=language_code,\\n        enable_automatic_punctuation=enable_automatic_punctuation,\\n    )\\n    streaming_config = types.StreamingRecognitionConfig(config=config, interim_results=True)\\n\\n    async def request_generator():\\n        yield types.StreamingRecognizeRequest(streaming_config=streaming_config)\\n        async for chunk in audio_chunks:\\n            yield types.StreamingRecognizeRequest(audio_content=chunk)\\n\\n    responses = client.streaming_recognize(request_generator())\\n\\n    async for response in responses:\\n        yield response\\n\",\"filePath\":\"stream_with_language.py\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/stream_with_language.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/stream_with_language.py\",\"time\":{\"start\":1789862114868,\"end\":1789862114871}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E2ByKCwTrSUqz06yDoaT0tHTlPJ6IxDG+ZAg8LScvN8KYwFpFH0Tua6jN9BNZken70px//pR0Gh9JmTlQo2jcZc/dWO7uZHllKDuzXDMPOOODwQzl+EYXXaBMmz1+/NJIc+EBAewsfHPreR7zoaGoAc8Z/2q3ZEmiVgEg1zlIHikV+LikwqCAgFpFH0T9yeMfs6W4C5R20fwjiN5rCAanisIAt1v7nHKeXfKj8nuq53ZKux4dehgIwrRk4gSU3ynrysrZ8seALoiGjqZ7ZlWJu5X1Ck0m1w1icOLqpPMcxz/cazhjMa2rHFBQfXYvePVohEJWihiQFLO021iR220340DUs19skbrrFFG6yU3uSZ1XpPvX26brwqQm1ZxJcqIOPxUVkJT8KUTb92llw8gYbPeGI03atcITYYrs2f6gUsLekb1o0ykTAgT6A8DnPzx+rrlzPKpTyWYmHD0+IE4gSFom+9yHbC5DR3CUrRlw2MrDLlBTwX86tAGnXPqIWIWaOUAjZdHKFxGPArLAQFpFH0T4EBL4At6vrnD2TehCXuGJUpcXfZ53jabpAHC0ohVzBlDu6BXszXxkVrcYKlbhSgrvSHooDWjoO0cVnk/kSY5tzn+4QWgGy7vhlNG0ibR/ZNxemS9YApalmgXArT/K6v82V2bCvkEPHktonbSYnlsrXJ4oK1Oq3/X9GHTWNof4+bSqgh76YXasb/DJBlnUR1xuXzfN/rewuaX3WTZrg0DdZCv2Iej4p+SZ9zDJYUshikCXhV3TfOBqCpcLrF5K2lPI1s7VrHGCowCAWkUfROpoEPV93hqvnoAqELc/EBrXETo14pSRnu7MMl/CVqJd0AfYZ1lJn8Lb7OGg5cvs+4igf9Y0wIm54TDPjMyFjkrnPF2tF7gpZvnHk7KdQP95AfJ4eVerRuP6M5fKyU4rQUfzKa1tswmMKmBMA/kK6rAknveayzW3wYgA5AKpd3xkdJASjpvkGCAj7HTlbfODcHh82YW034nH7Ew3Ly0POeqzz87DJOAMjkVZZP3sOOQzYaB83nRFvQpPCGg0Et2dQByp3UP8U9ivi4VQCCRmoQpsDMnv6wdpu1i9gbZWwly86/S5RuMpUU2HKGDgHzLxewA7/e9LrdHTwGrJ9vREqHfvIJoj+e9HQotAWkUfRM5+2/jdC7RhYEAG2gOIXVg2t7pgYQFzPpNdR3OuHl7O9nd+pGi2gsg\"}},\"id\":\"prt_0bc187632001W5bXSHeQzVC7It\",\"sessionID\":\"ses_f43e794b8ffeQ7ev8N6eOb7JPg\",\"messageID\":\"msg_0bc186b54001IY8ydWQyDul8oO\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862114880,\"sessionID\":\"ses_f43e794b8ffeQ7ev8N6eOb7JPg\",\"part\":{\"id\":\"prt_0bc1876380010e37FvfO564YmL\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc186b54001IY8ydWQyDul8oO\",\"sessionID\":\"ses_f43e794b8ffeQ7ev8N6eOb7JPg\",\"type\":\"step-finish\",\"tokens\":{\"total\":6404,\"input\":5899,\"output\":334,\"reasoning\":171,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0030322}}\n"
+    },
+    "session_id": "ses_f43e794b8ffeQ7ev8N6eOb7JPg",
+    "started": "2026-09-19T23:55:11.685298+00:00",
+    "step": 4,
+    "user_message_count": 1
+  },
+  {
+    "audit": {
+      "created": [
+        "speech_client.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "partial_results.py": "96dfa8776c0ed6e4e5a4c0f158edefbd5f61352628cd32c89f2fc0f2f9e1cdc3",
+        "speech_client.py": "8998557c76a3b1f42a8d22cce7f7bcb3be9deb61c9830f60262efca1878bd73e",
+        "stream_chunks.py": "551d638be8498c8e4042795dbe5f6d87c63e1c95a26cbdb7546aba729bed2ea5",
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0",
+        "stream_with_language.py": "5910174030d355e36b588c4761a5c7e74587d515557f252b18e33b864bf3b3cd"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "speech_client.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:21.004374+00:00",
+    "prompt_verified": true,
+    "requested_file": "speech_client.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 5.624523249920458,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862116730,\"sessionID\":\"ses_f43e78675ffeaVhNoXZzfvqn2T\",\"part\":{\"id\":\"prt_0bc187d75001DljL7gO7j2YDON\",\"messageID\":\"msg_0bc187998001I2WtsrHaTO63MK\",\"sessionID\":\"ses_f43e78675ffeaVhNoXZzfvqn2T\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862119820,\"sessionID\":\"ses_f43e78675ffeaVhNoXZzfvqn2T\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"gnUHqFhDNs1bcnPP\",\"state\":{\"status\":\"completed\",\"input\":{\"content\":\"import collections\\nimport queue\\nimport threading\\n\\nfrom google.cloud import speech\\n\\n# Audio recording parameters\\nRATE = 16000\\nCHUNK = int(RATE / 10)  # 100ms\\n\\nclass StreamClient:\\n    \\\"\\\"\\\"\\n    Client for Google Cloud Speech-to-Text streaming recognition.\\n    \\\"\\\"\\\"\\n\\n    def __init__(self, language_code: str = \\\"en-US\\\"):\\n        self.language_code = language_code\\n        self.client = speech.SpeechClient()\\n        self.buff = queue.Queue()\\n        self.closed = True\\n\\n    def __enter__(self):\\n        self.closed = False\\n        return self\\n\\n    def __exit__(self, type, value, traceback):\\n        self.closed = True\\n        self.buff.put(None)\\n\\n    def _generator(self):\\n        while not self.closed:\\n            chunk = self.buff.get()\\n            if chunk is None:\\n                return\\n            data = [chunk]\\n            while True:\\n                try:\\n                    chunk = self.buff.get(block=False)\\n                    if chunk is None:\\n                        break\\n                    data.append(chunk)\\n                except queue.Empty:\\n                    break\\n            yield b\\\"\\\".join(data)\\n\\n    def listen_stream(self):\\n        config = speech.RecognitionConfig(\\n            encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,\\n            sample_rate_hertz=RATE,\\n            language_code=self.language_code,\\n        )\\n        streaming_config = speech.StreamingRecognitionConfig(\\n            config=config, interim_results=True\\n        )\\n\\n        requests = (\\n            speech.StreamingRecognizeRequest(audio_content=content)\\n            for content in self._generator()\\n        )\\n        responses = self.client.streaming_recognize(streaming_config, requests)\\n        return responses\\n\\n    def put(self, audio_chunk: bytes):\\n        self.buff.put(audio_chunk)\\n\",\"filePath\":\"speech_client.py\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/speech_client.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/speech_client.py\",\"time\":{\"start\":1789862119811,\"end\":1789862119813}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E6ifJWZEXDGUrGAKoJZu99T8SCIz9xtRIpLCgfWmiQAKYAFpFH0TAq5dLg9a0srdk7R1ZAKDQ/EiqlCIf/r6Ii72g6BExzOSNDxFD2ZtqPmvqyzgCjISZzL+OwCFZUtpKaW7rGzhfFESj/+WzSxBgaf4TvMwXJXYOg2q5ACUnNKW/AqPAgFpFH0TriewXkvq7/V41uFwr+qGMTINYrGwu5gkNG/7qdek5JWmnsjo4sV/1rrSZ3QtxwC5dxnRdXgHptX2c2RqKPHlFZHOeBEiEH9coqSs8VB2IOR5/r4CRAVfwfSjtJtZ1ZsQ7lRvd5xISJVGGvZZ4MD/PEZ+RGHeXUbzewbBEozg9w1qsggAFHhjRHve67jF7CLiwPpNjZNlZW71ifyihdFBokXs5GiWtV7NP/zGdSm17FN3RwHkIk/Bp7ZHDEGT/yKRM2ZjSnsGqnmEKm8MUTM9amoqeaMYui6TwFiB06ThrKs6nbTuynDES5TYm8UwsNwhXbNyOnd9j+lP/UDiCc9nBtSLAW2+8K0E0O4K2wEBaRR9E58hA8cNhxAetZf0m1OxbK0zbpKkosy78GBsmH5CMTO9RrnFRV4DKYUj/waBBF+i4/uV5+Eeg0ti9Xgz7aRavqCotNojdh+kEo7VtUHEau66jGAjLl1JGONCNo5Bo0XHE/AXpLZKWMDQEYAOd/+gSGWiQxm563hRKaXcV3r9/0oGVuzpewKQynR9touqPacyuDL7srfBUcZ4NRtMijd8Dy79TCJkhO7Nu9DIUuYr/6HLIJpDi7L8cbSbfC/fLa9IvBQflBMD29kyQ8qX3DdSI66F5GwT+r0KmAIBaRR9EzSbCfA+1pwDps5iD9lPyv9tiaFas80p99A6aL2xzSH4ld2hqLBC3Wz1a0sccja4fg1nxFIgO0akfi4uQ8pgN0ZICH7ykU6cbvLrkQnO4eoJcHLCHsBmAZAYGpS+kJ7DEUDf5Olxie/e3eg9f14e4ggWftNlk9HC1L9PvU1ulstlQR9Hkm+CyTwuaEZNtT4KEMj1xmpyiksOe35BX1xe21OaudBTTv2xbkII3d7Wg06pZJqsWDDehIap9sprpCkpyeLDWuxQMvzdd4Q/LXoBjDUstUhe6U8ZCNt2NCAu9Kb46PQm0z44/PGUGBoPOqTcDMiucuKKl/xNJfrf4fOhQ6JClQcdb68rulquV6LKWms8aiULCvUBAWkUfRPYNhhEjdAvw4wu6jzjELcOaRQTRQha2gQWu6ez3+59+Tgt+f14WOVwAbhNev7aC3cuQo0nk25zfPPWXfzm4zlgq0QXRwYFrnn2BaQ1JMXfToJCF4WQiUaTBk6ucFLVLp0lMDX+N6WNyg2ivR5KMsF6rhTP+I8d/EkMXXd5f6eOz97rLcoNvpd5NrmKDhrn562k4eO9mRL45hZpDsoKYKgy4ZriZcQNj89CVb4ePxVSg4K5NlkLo6ZSbZJZKMp80/Sll0byIssCGj0GxwW1N5uRNu8kUVQA/7BID4M+kpAyohM2WM6OTstmidI11REAquQ=\"}},\"id\":\"prt_0bc188981001iLEX3d65A6lXWd\",\"sessionID\":\"ses_f43e78675ffeaVhNoXZzfvqn2T\",\"messageID\":\"msg_0bc187998001I2WtsrHaTO63MK\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862119820,\"sessionID\":\"ses_f43e78675ffeaVhNoXZzfvqn2T\",\"part\":{\"id\":\"prt_0bc188986001ATxmggyUWKTTO7\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc187998001I2WtsrHaTO63MK\",\"sessionID\":\"ses_f43e78675ffeaVhNoXZzfvqn2T\",\"type\":\"step-finish\",\"tokens\":{\"total\":6616,\"input\":157,\"output\":512,\"reasoning\":217,\"cache\":{\"write\":0,\"read\":5730}},\"cost\":0.0020415}}\n{\"type\":\"step_start\",\"timestamp\":1789862120911,\"sessionID\":\"ses_f43e78675ffeaVhNoXZzfvqn2T\",\"part\":{\"id\":\"prt_0bc188dcc001PGJO8T3iZrJChw\",\"messageID\":\"msg_0bc188989001MIUOTnwlm3J3zZ\",\"sessionID\":\"ses_f43e78675ffeaVhNoXZzfvqn2T\",\"type\":\"step-start\"}}\n"
+    },
+    "session_id": "ses_f43e78675ffeaVhNoXZzfvqn2T",
+    "started": "2026-09-19T23:55:15.320310+00:00",
+    "step": 5,
+    "user_message_count": 1
+  },
+  {
+    "audit": {
+      "created": [
+        "speech_models.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "partial_results.py": "96dfa8776c0ed6e4e5a4c0f158edefbd5f61352628cd32c89f2fc0f2f9e1cdc3",
+        "speech_client.py": "8998557c76a3b1f42a8d22cce7f7bcb3be9deb61c9830f60262efca1878bd73e",
+        "speech_models.py": "53ba05d0c5ecd9dcffb22fdca2dea1c3a72ba1106da1bf5d09a7b65a0bd412ce",
+        "stream_chunks.py": "551d638be8498c8e4042795dbe5f6d87c63e1c95a26cbdb7546aba729bed2ea5",
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0",
+        "stream_with_language.py": "5910174030d355e36b588c4761a5c7e74587d515557f252b18e33b864bf3b3cd"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "speech_models.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:25.946527+00:00",
+    "prompt_verified": true,
+    "requested_file": "speech_models.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 4.867221084074117,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862122486,\"sessionID\":\"ses_f43e77040ffetayzg24IHohLSE\",\"part\":{\"id\":\"prt_0bc1893f40019soaLlPX5r6bfm\",\"messageID\":\"msg_0bc188fcd0017oX396Ji0ZAFKp\",\"sessionID\":\"ses_f43e77040ffetayzg24IHohLSE\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862124254,\"sessionID\":\"ses_f43e77040ffetayzg24IHohLSE\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"br4jKQKWqxaE31Bq\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"speech_models.py\",\"content\":\"\\nimport dataclasses\\nfrom typing import List, Optional\\n\\n@dataclasses.dataclass\\nclass RecognitionConfig:\\n    encoding: str = \\\"LINEAR16\\\"\\n    sample_rate_hertz: int = 16000\\n    language_code: str = \\\"en-US\\\"\\n    max_alternatives: int = 1\\n    enable_automatic_punctuation: bool = False\\n\\n@dataclasses.dataclass\\nclass StreamingRecognitionConfig:\\n    config: RecognitionConfig = dataclasses.field(default_factory=RecognitionConfig)\\n    interim_results: bool = True\\n\\n@dataclasses.dataclass\\nclass StreamingRecognizeRequest:\\n    audio_content: Optional[bytes] = None\\n    streaming_config: Optional[StreamingRecognitionConfig] = None\\n\\n@dataclasses.dataclass\\nclass SpeechRecognitionAlternative:\\n    transcript: str\\n    confidence: float = 0.0\\n\\n@dataclasses.dataclass\\nclass SpeechRecognitionResult:\\n    alternatives: List[SpeechRecognitionAlternative]\\n    is_final: bool\\n\\n@dataclasses.dataclass\\nclass StreamingRecognizeResponse:\\n    results: List[SpeechRecognitionResult]\\n    end_of_stream: bool = False\\n\\ndef normalize_transcript(transcript: str) -> str:\\n    \\\"\\\"\\\"Normalizes the transcript text.\\\"\\\"\\\"\\n    # Example normalization: convert to lowercase and remove extra spaces\\n    return \\\" \\\".join(transcript.lower().split())\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/speech_models.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/speech_models.py\",\"time\":{\"start\":1789862124240,\"end\":1789862124247}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E0xu5BPd1SZeM3dGLmqgk9RBrAmQmKQZx70KxoFy8DkKbQFpFH0T0YmXSEWkq9WKLixVngmPrKIr5VFYMELl9gemGQ98i+hcGbR/r7rZKLrz5rMG8PKDeTCSWI860TdCPdUqg0+mt17gLFWijcH38RDp9FwpUF0l8/JY8e1+Ehtiqqrmp0sf2ONRkd04gIMKhAIBaRR9E6AjWzbHHvkD+fJ78Xkp+uV0NwOqtsBWXK4iIxTYV3UJUsCUhbYYcMoAdZMowfnoLylOo22XSifBis2q245qSI0hljGBj/fZgX1l2BSBtxj/EUZ53uF/+JXIpt9Fd6eB3YtwFP+UW5bxN3XEKuDovucEyAdG6IWwEL2JOiE0dsfcQ8QZfyRDJBdsSfUu5PsLnj2dkalzYxhTOcn1UKjLNsOK7+/wDqjQpB0MXC+MzFo6jGSfslEFmgXPFWJ0EfiTv54N2n+CRPxHhHS2DDzh+EGPMAVY6Nxc362Ii41hEoCQI5HDJIzW4eS3Vc1B/3CKhFPsivSwIXoW0PY9bfGTowrwAQFpFH0TCTG9C1LXlNYEMKV+VxEqMlLX1cz/Q7EvOgS79mM7B49J2I/X9j7tWMDsH2WytopZVdO3LJS/3hV3yZZS2r2autAGAkO17vrE/K6jmSVhEgSvf+4DsLNpLKm9IZqv98zG2qp/PqyutfIfcxJtBHsmt09n0qR8zN37iZQidr09J/rK/hRwz6bVBRV5ZeLTxBP9wC0lZdEr8VHOzdHYAX+06iqePXgXHSe1dv5sGWjT6y/xYGemwBXOyjaCM+FmYIeOSHEPcYg1S0V+YLnH20zsSNlqiMkb+gYh6E8uEoi45MnCOSQ6k4zIVlfs4g==\"}},\"id\":\"prt_0bc189acd001jgfUoVVpafBUWl\",\"sessionID\":\"ses_f43e77040ffetayzg24IHohLSE\",\"messageID\":\"msg_0bc188fcd0017oX396Ji0ZAFKp\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862124254,\"sessionID\":\"ses_f43e77040ffetayzg24IHohLSE\",\"part\":{\"id\":\"prt_0bc189ad8001LX0cV2dkKrJ9yj\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc188fcd0017oX396Ji0ZAFKp\",\"sessionID\":\"ses_f43e77040ffetayzg24IHohLSE\",\"type\":\"step-finish\",\"tokens\":{\"total\":6368,\"input\":5889,\"output\":368,\"reasoning\":111,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0029642}}\n{\"type\":\"step_start\",\"timestamp\":1789862125442,\"sessionID\":\"ses_f43e77040ffetayzg24IHohLSE\",\"part\":{\"id\":\"prt_0bc189f7d001MNwKk8XpKXu80b\",\"messageID\":\"msg_0bc189ada001YTaq1qVqspo74t\",\"sessionID\":\"ses_f43e77040ffetayzg24IHohLSE\",\"type\":\"step-start\"}}\n"
+    },
+    "session_id": "ses_f43e77040ffetayzg24IHohLSE",
+    "started": "2026-09-19T23:55:21.011174+00:00",
+    "step": 6,
+    "user_message_count": 1
+  },
+  {
+    "audit": {
+      "created": [
+        "live_caption_translate.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "live_caption_translate.py": "a3c858610b4fa8dafeffc7cf028c4c4aabef172caf932afa32fd8cc02f704a59",
+        "partial_results.py": "96dfa8776c0ed6e4e5a4c0f158edefbd5f61352628cd32c89f2fc0f2f9e1cdc3",
+        "speech_client.py": "8998557c76a3b1f42a8d22cce7f7bcb3be9deb61c9830f60262efca1878bd73e",
+        "speech_models.py": "53ba05d0c5ecd9dcffb22fdca2dea1c3a72ba1106da1bf5d09a7b65a0bd412ce",
+        "stream_chunks.py": "551d638be8498c8e4042795dbe5f6d87c63e1c95a26cbdb7546aba729bed2ea5",
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0",
+        "stream_with_language.py": "5910174030d355e36b588c4761a5c7e74587d515557f252b18e33b864bf3b3cd"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "live_caption_translate.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:30.034401+00:00",
+    "prompt_verified": true,
+    "requested_file": "live_caption_translate.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 3.812535792007111,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862127845,\"sessionID\":\"ses_f43e75b9fffetPlvS2u4MBHVLM\",\"part\":{\"id\":\"prt_0bc18a8da001UOieO1lLVYszml\",\"messageID\":\"msg_0bc18a471001nCuh9CXBp9EooF\",\"sessionID\":\"ses_f43e75b9fffetPlvS2u4MBHVLM\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862129632,\"sessionID\":\"ses_f43e75b9fffetPlvS2u4MBHVLM\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"NUUcobfP6vgYJiAM\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"live_caption_translate.py\",\"content\":\"from google.cloud import translate_v3\\n\\ndef translate_caption(text: str, target_language: str) -> str:\\n    \\\"\\\"\\\"Translates live caption text into another language using Google Cloud Translation.\\n\\n    Args:\\n        text: The caption text to translate.\\n        target_language: The language to translate the text into (e.g., \\\"es\\\" for Spanish).\\n\\n    Returns:\\n        The translated text.\\n    \\\"\\\"\\\"\\n    client = translate_v3.TranslationServiceClient()\\n    parent = f\\\"projects/your-project-id\\\"  # Replace with your Google Cloud Project ID\\n\\n    response = client.translate_text(\\n        request={\\n            \\\"parent\\\": parent,\\n            \\\"contents\\\": [text],\\n            \\\"target_language_code\\\": target_language,\\n        }\\n    )\\n\\n    if response.translations:\\n        return response.translations[0].translated_text\\n    return text\\n\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/live_caption_translate.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/live_caption_translate.py\",\"time\":{\"start\":1789862129616,\"end\":1789862129624}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9EycWYDiLqQ6UGc4G+DUpfDWWyVEWe7ghWpdQWrwyds0KcAFpFH0TyoDc3N9nbPqqTGKKpKJmRooi20GfBO/+iy2uN4GL20FJoOI/EDsgMe5RFmB/4MnEFWXO181lX409H/c2rZu1dFHCC+cwyTro33w9rZnOE1YVfKJcD5KjKnaP2/kZ0TEhZt1NSRHddc5sTLUKogIBaRR9E7VcSArDhnZsNGMjSn0zNmar1GoI9NigclkLn8pkkIT31ToPYcY/h0CtqDaT18WomDLproSMsmeW3mgq7wGAoUQvfWTbWfh/ejRBY6+NWY0A4ZqDLTzIVl3XcO1nJF+07beKtuWI6oBODeBtkvWN8jVMo2pDVbYlmjlJQd6DID5NkHGv8txUX1FkdDaXWhMJzbbB0SudJLZA0oauXSwtUl7CAAOgK88gIyXJ5TF5oY9/MxnyvorcrvWVULLl+ergxFKomfiHbQ9FGw6N0ZktvCIbyPIV71crM1Fd7PJ0HKO0Y66+lxtP/so0LxTSydZ2M86LhC0Lamko8ui6QtDbUsTDq/zaDUuXouduWBIPV1bpaszFS1tuzOpXm5lV6wrkAQFpFH0TSXCYosMLvKG8nYjJZFLBiXuR9dbEpqjpCAUG3TRCrMWZzHZiKk6flWwrbURQ4r+BHsDxHe9jyI3sf/DiwqA8AOb6A0UJZ0bWO5JDVRbTAnboDrfYornDYVmB6NjgUueS9/4cJiPMbEKGyzzsbR+mVMdDBxGIIDEtup0O5+Xbhgj5WG6qMQK0OyL2OXIiD3BbhOJh9KzHC3cAfKqUoUxPvaRsL5314afJerwPn5WvPNlaOI/o0jq0ZmJbjdWMxFEJe0zbeoibDz1nMRroNtOQIYsVFC1S9VAHQAvtR7jYGgrXAQFpFH0TheOLW3PXanXFK/SunMDaz+Wiu8cCUQ9mS/TGRcNLB6tNhWgwvUVRP5xfK/N+CMbUo2yrHFltxoIvkvwTzMxdVh8ihXo2t45yCsKch9Rz4kmJB78HzmjW2fDlN4nigfMNnTV+gpaiGO9Ii9znrKc1kggW7bHiHfEF1DsdXRk5Bd59WKmD3h9mweLbMhH8jvM7yjjU5TV9ts4WIf8ddp/uISaeymoja/JCwgeo8u/T3Us3cb4eoDHw9mhHw90mX4X9G5zkV0OkHhBvsyBSwaFGWl6WCjwBaRR9E5qfQ9nzdkxXDtH7sOScUVVS84vilgRSp0uiqIm2+qkqKqc8UVMSFPMk0Emm1ftfVgx3rIlnFFE=\"}},\"id\":\"prt_0bc18afcb001bf0ohYVh0EeeHX\",\"sessionID\":\"ses_f43e75b9fffetPlvS2u4MBHVLM\",\"messageID\":\"msg_0bc18a471001nCuh9CXBp9EooF\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862129632,\"sessionID\":\"ses_f43e75b9fffetPlvS2u4MBHVLM\",\"part\":{\"id\":\"prt_0bc18afd9001Zb2ebq3EFFq23Q\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc18a471001nCuh9CXBp9EooF\",\"sessionID\":\"ses_f43e75b9fffetPlvS2u4MBHVLM\",\"type\":\"step-finish\",\"tokens\":{\"total\":6306,\"input\":5895,\"output\":242,\"reasoning\":169,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.002796}}\n"
+    },
+    "session_id": "ses_f43e75b9fffetPlvS2u4MBHVLM",
+    "started": "2026-09-19T23:55:26.146184+00:00",
+    "step": 7,
+    "user_message_count": 1
+  },
+  {
+    "audit": {
+      "created": [
+        "live_caption_safety.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "live_caption_safety.py": "2e0b45c4ae562628edc9c7cd89ebbbe36ec136af71f1da6e236194afbab16a93",
+        "live_caption_translate.py": "a3c858610b4fa8dafeffc7cf028c4c4aabef172caf932afa32fd8cc02f704a59",
+        "partial_results.py": "96dfa8776c0ed6e4e5a4c0f158edefbd5f61352628cd32c89f2fc0f2f9e1cdc3",
+        "speech_client.py": "8998557c76a3b1f42a8d22cce7f7bcb3be9deb61c9830f60262efca1878bd73e",
+        "speech_models.py": "53ba05d0c5ecd9dcffb22fdca2dea1c3a72ba1106da1bf5d09a7b65a0bd412ce",
+        "stream_chunks.py": "551d638be8498c8e4042795dbe5f6d87c63e1c95a26cbdb7546aba729bed2ea5",
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0",
+        "stream_with_language.py": "5910174030d355e36b588c4761a5c7e74587d515557f252b18e33b864bf3b3cd"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "live_caption_safety.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:35.268114+00:00",
+    "prompt_verified": true,
+    "requested_file": "live_caption_safety.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 5.145842083031312,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862131663,\"sessionID\":\"ses_f43e74c98ffehuoTxhv7E0QYY8\",\"part\":{\"id\":\"prt_0bc18b7cb001DMXpFM6FfAnV2v\",\"messageID\":\"msg_0bc18b37b001KMEM40hCdFRiwo\",\"sessionID\":\"ses_f43e74c98ffehuoTxhv7E0QYY8\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862133415,\"sessionID\":\"ses_f43e74c98ffehuoTxhv7E0QYY8\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"UNsmeEsSBjqmFjXb\",\"state\":{\"status\":\"completed\",\"input\":{\"content\":\"\\nimport os\\nfrom google.cloud import language_v1\\n\\ndef check_unsafe_content(text: str):\\n    \\\"\\\"\\\"\\n    Checks live transcript text for unsafe content using Google Cloud Natural Language API.\\n\\n    Args:\\n        text: The live transcript text to check.\\n\\n    Returns:\\n        A dictionary containing the safety analysis results.\\n    \\\"\\\"\\\"\\n    client = language_v1.LanguageServiceClient()\\n    document = language_v1.Document(content=text, type_=language_v1.Document.Type.PLAIN_TEXT)\\n\\n    # Perform content moderation\\n    # The moderateText method is part of the Natural Language API's moderation features\\n    # and helps identify categories of potentially unsafe content.\\n    response = client.moderate_text(document=document)\\n\\n    result = {}\\n    for category in response.moderation_categories:\\n        result[category.name] = category.score\\n\\n    return result\\n\\n\",\"filePath\":\"live_caption_safety.py\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/live_caption_safety.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/live_caption_safety.py\",\"time\":{\"start\":1789862133403,\"end\":1789862133407}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E+edv29FaZF40GdPGKSoUDXHqMjQeWQBqE5uyLs8N1IKYgFpFH0TWgNQMo+PYGegncCRQzDRXRz2P6K5HkkXRfDDFo2GictJwankdDOPCDi3hGqR6W9G4yR4yDcJnqwugZUqH8szI4gVBC+Q7iWBAWgfJB1F7ynkiiVCNseYyg1axJbKCpMCAWkUfROpmiPjbYtCWEpyIWXmX3wVi5XvMtls1ejs5jFbGXtlT1n2UQT8IVYTr9R+LY/QWIp3wwb8o1Jjv2Ozg8z3lqer+emV7rpAAPs4/8mgNa+AkjhVrYGHZSIl3PPKz38aHb4tswaQl7wLlaTQgA/YIeFbeX+5+Bt1JvyQVmKZDAj6Fsq9HCXQc3Q5h5nl2p0is6i7GK9GdZ9ECWSIGbYdBcgOchu9Sc1hwBq4qbFRcLNKwRgAzRol6FPH2H9yzaDUhkTN4gSy7mm1NRvLhihaniw0WhY0Pyfj3scet8mnZyU+7fQiOVg4XEOlsCmLxHLwu3n/WTqmRasE/FJ5mt/AVEh5GkmG9ep/E7AaeLykc6AK0wEBaRR9E7tnB8BVrR2O5RIarmTdT3rNnJqV7NH/uMRxeyuMMzLAlJxucE7j/01x07DsOPZc3DLIRBs2ehGuN43CPp0fRwYLof6PRrkIEEHjghtFnQ7rcG2rW477QzqmsNt/F6wXEQgvUCQQAS30jWXm+rkSBYa7uCeHrxVSCzHOEIG2XK3vHv2bSSVA920lghRRBGvLNKIsr3qfO8s68LiGUPnPuOLEj2zpqwV6h74KA5HoZ7b0rpt7/bXLHIvQJO29mvzlba1oCwj8Nmfd39Dz0Y3hCvABAWkUfRO8kanqjGXA9MMeDSWr1ZcH3LHJhHn5pWjXvzVzOXBHcl/kFS9dVghkogk9CbfWmUSgbBrrqsXd3e/A9KFTFq93oz6gQKyFrH2SyFOv0zB6ULTzJen7IpczSB0zkFZDRk3Qsgi7IGpqh/yCSVLJm2z186eVy7gdCzTE9iFghDlhrBRDnEZb2u+kiVmu/KQJO8V+uPf0ljMZ98DhocTVcnO3RUNd+1vNCljmP2wuHnMAfvuMBg7YtjFwGVWI8tyUfDU7plJupA4I8jjHgTtpbS7TagysBbP9r4+lkeVSen25PYIW5K35iQefjHZwCj0BaRR9E06n8JbD4Et7qCl+FUfJm2exBBNjaHyciI9b/I4E8hF+EFZfz5VONCMSrGKgNC5TJFLQ5utAsEBm\"}},\"id\":\"prt_0bc18be97001j5w3D6T3nVITL7\",\"sessionID\":\"ses_f43e74c98ffehuoTxhv7E0QYY8\",\"messageID\":\"msg_0bc18b37b001KMEM40hCdFRiwo\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862133415,\"sessionID\":\"ses_f43e74c98ffehuoTxhv7E0QYY8\",\"part\":{\"id\":\"prt_0bc18bea00011KnMNxRQh68V1a\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc18b37b001KMEM40hCdFRiwo\",\"sessionID\":\"ses_f43e74c98ffehuoTxhv7E0QYY8\",\"type\":\"step-finish\",\"tokens\":{\"total\":6313,\"input\":5896,\"output\":246,\"reasoning\":171,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0028113}}\n{\"type\":\"step_start\",\"timestamp\":1789862134564,\"sessionID\":\"ses_f43e74c98ffehuoTxhv7E0QYY8\",\"part\":{\"id\":\"prt_0bc18c321001eaQExFtnlrmyc3\",\"messageID\":\"msg_0bc18bea3001GcynAup574nA9b\",\"sessionID\":\"ses_f43e74c98ffehuoTxhv7E0QYY8\",\"type\":\"step-start\"}}\n"
+    },
+    "session_id": "ses_f43e74c98ffehuoTxhv7E0QYY8",
+    "started": "2026-09-19T23:55:30.042315+00:00",
+    "step": 8,
+    "user_message_count": 1
+  },
+  {
+    "audit": {
+      "created": [
+        "meeting_summary.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "live_caption_safety.py": "2e0b45c4ae562628edc9c7cd89ebbbe36ec136af71f1da6e236194afbab16a93",
+        "live_caption_translate.py": "a3c858610b4fa8dafeffc7cf028c4c4aabef172caf932afa32fd8cc02f704a59",
+        "meeting_summary.py": "1bc05f21ed27dd0a8648aedd15fa1fe4861a9e61c1192b374cb3fff0e86a745e",
+        "partial_results.py": "96dfa8776c0ed6e4e5a4c0f158edefbd5f61352628cd32c89f2fc0f2f9e1cdc3",
+        "speech_client.py": "8998557c76a3b1f42a8d22cce7f7bcb3be9deb61c9830f60262efca1878bd73e",
+        "speech_models.py": "53ba05d0c5ecd9dcffb22fdca2dea1c3a72ba1106da1bf5d09a7b65a0bd412ce",
+        "stream_chunks.py": "551d638be8498c8e4042795dbe5f6d87c63e1c95a26cbdb7546aba729bed2ea5",
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0",
+        "stream_with_language.py": "5910174030d355e36b588c4761a5c7e74587d515557f252b18e33b864bf3b3cd"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "meeting_summary.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:41.070710+00:00",
+    "prompt_verified": true,
+    "requested_file": "meeting_summary.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 5.700695666950196,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862137054,\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"part\":{\"id\":\"prt_0bc18ccdc001rvo5FEKHPwkY9E\",\"messageID\":\"msg_0bc18c7a8001WPEyjdTcpfa6yL\",\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862139134,\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"bmFESq6wrcQcVq94\",\"state\":{\"status\":\"completed\",\"input\":{\"content\":\"from google.cloud import aiplatform\\n\\ndef summarize_meeting_chunk(transcript_chunk: str) -> str:\\n    \\\"\\\"\\\"\\n    Summarizes a live meeting transcript chunk using Google Cloud's Generative AI (Vertex AI).\\n\\n    Args:\\n        transcript_chunk: The chunk of transcript text to summarize.\\n\\n    Returns:\\n        A summarized version of the transcript chunk.\\n    \\\"\\\"\\\"\\n    aiplatform.init(project=\\\"your-gcp-project-id\\\", location=\\\"us-central1\\\") # Replace with your GCP project ID and desired location\\n    \\n    # Using a text-bison model for summarization\\n    parameters = {\\n        \\\"temperature\\\": 0.2,\\n        \\\"max_output_tokens\\\": 200,\\n        \\\"top_p\\\": 0.95,\\n        \\\"top_k\\\": 40\\n    }\\n    \\n    model = aiplatform.preview.language_models.TextGenerationModel.from_pretrained(\\\"text-bison\\\")\\n    \\n    prompt = f\\\"Summarize the following meeting transcript chunk:\\n\\n{transcript_chunk}\\\\nSummary:\\\"\\n    \\n    response = model.predict(prompt, **parameters)\\n    \\n    return response.text\\n\",\"filePath\":\"meeting_summary.py\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/meeting_summary.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/meeting_summary.py\",\"time\":{\"start\":1789862139124,\"end\":1789862139128}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9Ewz0moPsNn6jyi4CrdeD4/6cFJftGIXrnlPVnKKk3A0KZAFpFH0Ti6c+zdvumGspetNYqz4mlQqeTs8qNGg0XULpUJre+69VZSAwv+9652XeocMAz4BYy5qu59TXhUyJY4SIqBx890L+KVtCFGMjtTbEDMgkm+ISslRitK27Ny7bke8Jjm4KgAIBaRR9E7hc/ypvp6Z87tD/cVU19Y0t2QtSZdcXb+XD9COY1RfPbwKhn6J2qgzyDmphbgHNRea7yke0yQ4IzSJsuRW6tCw/yPY2cGl6E6T6/ye8++wCg9msnAY2eudmSdxQ8uOPdR+qbdPwK9Eckohon7qTxMyAcf8fTRPnFiWvp1Osel1Zlpofklf6LqioIZDIiXR5qu47wxYnVLOu3ocxWzXS/bYDsI8AIhHTsRqLZVGtjLjHUCGv+gVCOIFQRjI97i+v1cdmtKS5VRkOmyf3pHDEuJa+uXN7dfOiPV92srzDeg1cG8F+bQZ4k3AeTdjh14CWSf5eZyrar5FXI//UCs4BAWkUfRPi8mj91ofWoY8m7/EJBrrZAksEl9ikvXagMoPtNo7ThD2m+8L25djF1UoGWFU+8TokwKYWFbCIH+uXRARGTtycQS0G28cx2fYcAoALiPhOLwKYfhcCQtfnsOZH4OscK9/O1SRgHdl+sL6udKFsIOimQTmbOLoKPGpYiES5P0GrB1JTzb4b9BH5Kda5WlZgubrIza8kQd+zZ39mL2PBrn97SOwd5S7GI53BYAtUDSNWy2jkZWingRkSm1uGbIYQkjTuESXxv7AGpWkK4QEBaRR9E3/zhMZpn6T6QOIXiBl6OuaWhHI/2HoggCOcz6LcgEHK4SjntBQHGPbl9QziOxrjYbwn+5p+OA1A4SBshmVlVz9UDaDUr/flDzl/0xYTncwQ7lmhvJgD8Xhe/tligWUrlfq0OuV9qW4QiCZ1QY5Grfe7Cv/QqhTiK8HpalzDfbC5HnBOVXIvhx14Tvg6iCNBEfP8CTHyPWlUPMIeMSiWtrdLrmOuYXyGSsAeeLHmy0fTLFSGPca1De88te/QWU5q/L8Srs1iv7hjruh/niFEK6ctZQdsnPWH9jF1Z50KzgEBaRR9Ez0qdDKjzNuK7Q8Ob8Al9WLWNfXJv4BOOX+PnIYiewA7mP9BAz54kPoScVPz0Frm9dTlQlmSAHi6gve0aHErZMA2WZ9tBxoqpj8LVpf9vnSXqDIoCqmcAMAjlEHBRdArkRx+1fM2ZKpVV92Ps0FPnA9y0qwNA3UCIAtRFLlxpPz7fNtADh6RHkvD3wA45MUEXAMaOdCdRQ1Mv42Dy/j1efWg0oni1WoG5FeoBEFmLBSS8jIyJCUKeBLxy2MIjghLvWlG0uQ8nLrU1A==\"}},\"id\":\"prt_0bc18d4f20018bv5EKQ71syjUr\",\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"messageID\":\"msg_0bc18c7a8001WPEyjdTcpfa6yL\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862139134,\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"part\":{\"id\":\"prt_0bc18d4f8001YK5K4h4oJz70WW\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc18c7a8001WPEyjdTcpfa6yL\",\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"type\":\"step-finish\",\"tokens\":{\"total\":6398,\"input\":5893,\"output\":308,\"reasoning\":197,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0030304}}\n{\"type\":\"step_start\",\"timestamp\":1789862140322,\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"part\":{\"id\":\"prt_0bc18d9a0001D69371kXT4MKIG\",\"messageID\":\"msg_0bc18d4fb001GI745rKR1BmlON\",\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"type\":\"step-start\"}}\n{\"type\":\"text\",\"timestamp\":1789862140974,\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"part\":{\"id\":\"prt_0bc18dc26001SsLSM2hPMv6Tkn\",\"messageID\":\"msg_0bc18d4fb001GI745rKR1BmlON\",\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"type\":\"text\",\"text\":\"The `meeting_summary.py` file has been created.\",\"time\":{\"start\":1789862140966,\"end\":1789862140967},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiIBaRR9E/PYMaZt7SBWyr5ZBNdd+R8SNvxGVNOAeSX2yyTPCmgBaRR9E/Dq3PUyr9iIOwuChw9z44mx3YdD1YZfdy7biJHhKPnWtlH3QmWRVdEiwstSuqUxJsDrr1Lfr16BQV2X+rPTRcqsCk7P56Y6S8wGuyYO11T3GOVSCwBRpWz8/slM+AJCxsGXMAr1AQFpFH0T4OVi08x7Cla3cOCMvbdmyVLTvMPcdPLb24ll3mI1BN0oO6fjiYqjm+r2Ks0hcUxIZ3bTwCP9ajIly9umVSemx1At6M7ZCET+aDQmlab8O+RpS1af8CH29vN+46fh4gizwXngkkCIdBDNMiYXPzTEGWgIoCc/gqPTCYAT2hDM7/GIUq33zFAdnbSpeudhyGCI6OvTV1lAbAdYp39DcMp07S6VzOJRdtdSYdQSLRTg/LgLZsQKX8cDRzO767d2UMj3rqSjA5WaDM3SjCql7KsnxGCS67rC7Pv+QFY/prv0E4kTVjNnLzqsEO1mImdCpsdtCtsBAWkUfRND6T/xKeWZWNMIRSKf6njyI82faLYv4ixW/PICjuZWQ2daZ86Ow3QcjHCQnhZo2a8nBk9tCoA8nwZiY3f8PspRY0MdcfDGe8VaXhg6UkIQzc71ECw3B2iOIEbnLAU5JNKUKU4WrGVqQufuhxDXtjlc02dFfn8FzD/0gXP2J6wYfjLcg/KP31gA1mU/qrCjLPkVhz0ZvWfJESzlPa0u67+55hkvElmmNvYH7oqBCcYWO3DOvLTPCLLPHv3/eL+7Mjz9mCTemYHA4GYsJZImRFieXOb854SNCnIBaRR9Eyei2Mhs/jg223sLCT6+2X9RVJETndXgzVAz1vqFlaSdhrhTUJEINOlAZy4++NEISsC7gaGWEriFrZ/KwT5X7O4149dIMdA77KPJswDKi6Ye2Tq9fZ17gLe18dAu1ne493IU5hJFe6OMRlTeS84=\"}}}}\n{\"type\":\"step_finish\",\"timestamp\":1789862140974,\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"part\":{\"id\":\"prt_0bc18dc28001IJXHsD2JrIA6Nj\",\"reason\":\"stop\",\"messageID\":\"msg_0bc18d4fb001GI745rKR1BmlON\",\"sessionID\":\"ses_f43e73866ffetJDrVi0nXF6u32\",\"type\":\"step-finish\",\"tokens\":{\"total\":6718,\"input\":689,\"output\":11,\"reasoning\":137,\"cache\":{\"write\":0,\"read\":5881}},\"cost\":0.00075313}}\n"
+    },
+    "session_id": "ses_f43e73866ffetJDrVi0nXF6u32",
+    "started": "2026-09-19T23:55:35.280617+00:00",
+    "step": 9,
+    "user_message_count": 1
+  },
+  {
+    "audit": {
+      "created": [
+        "caption_embedding.py"
+      ],
+      "deleted": [],
+      "file_sha256": {
+        "caption_embedding.py": "d45f6fafdff6576c6ee1eb846bfd99c1e65289c1b211333b5f689767e4762a00",
+        "live_caption_safety.py": "2e0b45c4ae562628edc9c7cd89ebbbe36ec136af71f1da6e236194afbab16a93",
+        "live_caption_translate.py": "a3c858610b4fa8dafeffc7cf028c4c4aabef172caf932afa32fd8cc02f704a59",
+        "meeting_summary.py": "1bc05f21ed27dd0a8648aedd15fa1fe4861a9e61c1192b374cb3fff0e86a745e",
+        "partial_results.py": "96dfa8776c0ed6e4e5a4c0f158edefbd5f61352628cd32c89f2fc0f2f9e1cdc3",
+        "speech_client.py": "8998557c76a3b1f42a8d22cce7f7bcb3be9deb61c9830f60262efca1878bd73e",
+        "speech_models.py": "53ba05d0c5ecd9dcffb22fdca2dea1c3a72ba1106da1bf5d09a7b65a0bd412ce",
+        "stream_chunks.py": "551d638be8498c8e4042795dbe5f6d87c63e1c95a26cbdb7546aba729bed2ea5",
+        "stream_microphone.py": "d465342387ece53452793693ad6a21806538a69bbcb57b3393d4c4c6a95d8bf0",
+        "stream_with_language.py": "5910174030d355e36b588c4761a5c7e74587d515557f252b18e33b864bf3b3cd"
+      },
+      "future_files_present": [],
+      "missing_local_imports": {},
+      "off_target_changes": [],
+      "requested_file": "caption_embedding.py",
+      "requested_file_present": true,
+      "revised": [],
+      "symlinks": [],
+      "unexpected_python_files": []
+    },
+    "finished": "2026-09-19T23:55:44.762883+00:00",
+    "prompt_verified": true,
+    "requested_file": "caption_embedding.py",
+    "response": {
+      "command": [
+        "opencode",
+        "run",
+        "--attach",
+        "http://127.0.0.1:59880",
+        "--format",
+        "json",
+        "-m",
+        "google/gemini-2.5-flash",
+        "--agent",
+        "vibench",
+        "<prompt_text>"
+      ],
+      "elapsed_seconds": 3.5891958330757916,
+      "error": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862142737,\"sessionID\":\"ses_f43e721ccffewgxA3TVzHf7BXl\",\"part\":{\"id\":\"prt_0bc18e30f001E7uezBUnLxCWh6\",\"messageID\":\"msg_0bc18de42001dc6fqaTgCVvOuz\",\"sessionID\":\"ses_f43e721ccffewgxA3TVzHf7BXl\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789862144292,\"sessionID\":\"ses_f43e721ccffewgxA3TVzHf7BXl\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"gu7x16LTU4gI8Sd3\",\"state\":{\"status\":\"completed\",\"input\":{\"content\":\"import os\\nfrom openai import OpenAI\\n\\ndef embed_caption_chunks(caption_chunks: list[str]) -> list[list[float]]:\\n    \\\"\\\"\\\"\\n    Embeds caption chunks using OpenAI's embedding model for semantic meeting search.\\n\\n    Args:\\n        caption_chunks: A list of strings, where each string is a caption chunk.\\n\\n    Returns:\\n        A list of lists of floats, where each inner list is the embedding for a caption chunk.\\n    \\\"\\\"\\\"\\n    api_key = os.getenv(\\\"OPENAI_API_KEY\\\")\\n    if not api_key:\\n        raise ValueError(\\\"OPENAI_API_KEY environment variable not set.\\\")\\n\\n    client = OpenAI(api_key=api_key)\\n    model_name = \\\"text-embedding-ada-002\\\"\\n\\n    embeddings = []\\n    for chunk in caption_chunks:\\n        response = client.embeddings.create(\\n            input=[chunk],\\n            model=model_name\\n        )\\n        embeddings.append(response.data[0].embedding)\\n\\n    return embeddings\\n\",\"filePath\":\"caption_embedding.py\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/caption_embedding.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-swtd2gnz/caption_embedding.py\",\"time\":{\"start\":1789862144283,\"end\":1789862144286}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E4ARhiCrzB76VV7V7DdxgZujrzz0JAxNQBCyjaH0HP4KZgFpFH0TI8O8OCjl3vG8PHcLwYQgV0YW5iInXM7Iai5KKgOuTWcWqrTgUWLPHg1uRMVxgt//vKvQ6FXuKv9cpA+3lkJpcTDB+yyvjjaiHIwcT5+4ZwERlZZpbzSGaRrRyND6YQ6glgqMAgFpFH0TGMQIduOaW3E9cfTDpbiqEq/GGHv0wJu96pA5K9qpBDMqcc1nz6TvLPssO47nL74dDXB6MO1NJGcn4mwhTQZvptCpkYpCxV28oDmeCKCbIuozgfDWYa59Dxd989VU6TL0kP8b+UDKJxye9woJ5442YocWLHLVIECgwRhqiU4ANTGJiJrqeKLOQeM/S9k2FmZDHk4xH2CLFXMMaeWVZkB7jXuElo3MWja2Rvloq2o88qwilL4n+TemAN7rvjaI1zOrrfb3DVjeRt9o1BbHg+uTQiWYgYcnIFzNWTtGELJUEZR+UpzQOdcXxX49PZ85JTc+Y8E298kTprSx9pPYQ4F9Kl9s+kw7XUgKzQEBaRR9E5yU7U4qTXNroUtxf3ZuuUTFV+scTxFVcwI3DOd+0CJPRHwUQabDubNFNiHwWzecbpl0HwsbTGIMgwnBzxijBrcT4UvmCYfmAFSJF8FIApVoZtn/lE39dAeBTk+n3VkzphyJYPk63xec7SG80mh6dWxVuVNN+0uJps64n2o8iYeBbXmLM1wzC2H+whz5jDnF7LTfF+PAhK3b/BEi//rfx1WwZr2r+LLfJ4LtwCE0BOQ6jIQIQfdls6RwQwiHfceV1EkwwS7JpxVlCo4CAWkUfRNgc+mFBh3LSrgRMviajCeNZ2I/3/cjrT0kP0wLwohGKnMvtj+2TSsdJjjYio6oTmOte4fP9biTeyBuCB/x/yhE2uMfrzhrmJVDHjiBTzT9AFAR6UusOsn52giMLL/qXsOtO79Iz3XOfF57T6VtApPakgthYDXLtDGudr61+U7m1g6U8SIrmb6QF/KrD4MiyPTDyLNrc8wqYYWaLRJBx4I3InTBbzeYtTIecpERxfcMDeVzBBRihSZN8ZCMNVFQj8WVN+Y1zAU/VxGB4JqzajI17BTR2h176XRJJVH9Mz0zv7KgDDU/QYuNVlLpQXTyv/rRAvx5QL7Z1RtAxUnSvF+DdZDv9fxT2DzYCiIBaRR9E7Xf9y1OlSYR3HGPg7/30nA7F4ay/yuDErny9t5c\"}},\"id\":\"prt_0bc18e919001qrPfqMudE8dn2V\",\"sessionID\":\"ses_f43e721ccffewgxA3TVzHf7BXl\",\"messageID\":\"msg_0bc18de42001dc6fqaTgCVvOuz\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862144292,\"sessionID\":\"ses_f43e721ccffewgxA3TVzHf7BXl\",\"part\":{\"id\":\"prt_0bc18e91e001v3I2sEWL7su9gh\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc18de42001dc6fqaTgCVvOuz\",\"sessionID\":\"ses_f43e721ccffewgxA3TVzHf7BXl\",\"type\":\"step-finish\",\"tokens\":{\"total\":6337,\"input\":164,\"output\":277,\"reasoning\":166,\"cache\":{\"write\":0,\"read\":5730}},\"cost\":0.0013286}}\n"
+    },
+    "session_id": "ses_f43e721ccffewgxA3TVzHf7BXl",
+    "started": "2026-09-19T23:55:41.080199+00:00",
+    "step": 10,
+    "user_message_count": 1
+  }
+]

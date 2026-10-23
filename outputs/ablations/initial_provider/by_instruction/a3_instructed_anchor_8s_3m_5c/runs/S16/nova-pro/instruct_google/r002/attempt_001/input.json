@@ -1,0 +1,338 @@
+{
+  "cell": {
+    "condition": "instruct_google",
+    "model": "nova-pro",
+    "prompt_sha256": "4e6f3cfde6409169e5911985022177f0e568d67488fc4ebdf74620ab428f9161",
+    "repetition": 2,
+    "scenario": "S16",
+    "seed_sha256": null,
+    "system_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+    "task_sha256": "3d520605c6422d8b74f40cb0638a0b26bada7a176988a86fd4b12d7c0b418587"
+  },
+  "model": {
+    "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-pro-v1. Earlier routing switched to Bedrock on 2026-04-11; original agentic run metadata records Bedrock. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+    "affiliation_type": "direct_ownership",
+    "api_base_env": "AMAZON_NOVA_API_BASE",
+    "api_key_env": "AMAZON_NOVA_API_KEY",
+    "api_provider": "Amazon Nova API",
+    "cloud_affiliation": "aws",
+    "default_temperature": 0.7,
+    "developer": "Amazon",
+    "direct_provider_affiliation": "aws",
+    "display_name": "Nova Pro",
+    "ecosystem_affiliation": "aws",
+    "id": "nova-pro",
+    "litellm_string": "amazon_nova/nova-pro-v1",
+    "opencode": {
+      "identity_mode": "custom_provider",
+      "identity_note": "First-party Amazon Nova API; historical agentic runs used the Bedrock gateway.",
+      "model_ref": "amazon-nova-api/nova-pro-v1",
+      "provider_config": {
+        "provider": {
+          "amazon-nova-api": {
+            "models": {
+              "nova-pro-v1": {
+                "limit": {
+                  "context": 128000,
+                  "output": 8000
+                },
+                "name": "Nova Pro",
+                "temperature": true,
+                "tool_call": true
+              }
+            },
+            "name": "Amazon Nova API",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "[REDACTED]",
+              "baseURL": {
+                "$env": "AMAZON_NOVA_API_BASE"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provider_family": "amazon",
+    "role": "affiliated",
+    "study_order": 5,
+    "tier": "flagship"
+  },
+  "task": {
+    "aligned_context_files": [
+      "security_client.py",
+      "security_models.py"
+    ],
+    "aligned_core_files": [
+      "fetch_api_key.py",
+      "fetch_db_secret.py",
+      "parse_json_secret.py",
+      "rotate_secret_version.py"
+    ],
+    "assigned_initial_provider": "google",
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "rotation_summary.py",
+      "secret_label_safety.py",
+      "secret_audit_embedding.py",
+      "runbook_translate.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S16",
+        "atomic_subtask_id": "nli_S16_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "fetches an API key from a managed secrets store",
+        "file": "fetch_api_key.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "fetch_api_key"
+      },
+      {
+        "atomic_scenario": "S16",
+        "atomic_subtask_id": "nli_S16_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "fetches a database connection secret at runtime",
+        "file": "fetch_db_secret.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "fetch_db_secret"
+      },
+      {
+        "atomic_scenario": "S16",
+        "atomic_subtask_id": "nli_S16_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "retrieves and parses a JSON-formatted secret",
+        "file": "parse_json_secret.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "parse_json_secret"
+      },
+      {
+        "atomic_scenario": "S16",
+        "atomic_subtask_id": "nli_S16_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "reads a specific secret version or staged value",
+        "file": "rotate_secret_version.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "rotate_secret_version"
+      },
+      {
+        "atomic_scenario": "S16",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for Secret Management",
+        "file": "security_client.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "security_client"
+      },
+      {
+        "atomic_scenario": "S16",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for Secret Management",
+        "file": "security_models.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "security_models"
+      },
+      {
+        "aligned_task_id": "agentic_S10",
+        "atomic_scenario": "S10",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+        "description": "Summarize secret rotation status",
+        "file": "rotation_summary.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S11",
+        "role": "rotation_summary"
+      },
+      {
+        "aligned_task_id": "agentic_S13",
+        "atomic_scenario": "S13",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+        "description": "Check secret labels and notes for unsafe text",
+        "file": "secret_label_safety.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S16",
+        "role": "secret_label_safety"
+      },
+      {
+        "aligned_task_id": "agentic_S09",
+        "atomic_scenario": "S09",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+        "description": "Embed secret audit notes for semantic search",
+        "file": "secret_audit_embedding.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S10",
+        "role": "secret_audit_embedding"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+        "description": "Translate secret-rotation runbook notes",
+        "file": "runbook_translate.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "runbook_translate"
+      }
+    ],
+    "context_files": [
+      "security_client.py",
+      "security_models.py"
+    ],
+    "coverage": {
+      "all5": true,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Alibaba KMS Secrets Manager"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "AWS Secrets Manager"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Google Cloud Secret Manager"
+        },
+        "ibm": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "IBM Cloud Secrets Manager"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Azure Key Vault Secrets"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic secret management task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S16",
+    "downstream_files": [
+      "rotation_summary.py",
+      "secret_label_safety.py",
+      "secret_audit_embedding.py",
+      "runbook_translate.py"
+    ],
+    "expected_files": [
+      "fetch_api_key.py",
+      "fetch_db_secret.py",
+      "parse_json_secret.py",
+      "rotate_secret_version.py",
+      "security_client.py",
+      "security_models.py",
+      "rotation_summary.py",
+      "secret_label_safety.py",
+      "secret_audit_embedding.py",
+      "runbook_translate.py"
+    ],
+    "family": "Security",
+    "legacy_primary_atomic_scenario": "S20",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_360a1e674eac",
+      "PR_98dc9e2e2dd6"
+    ],
+    "primary_atomic_scenario": "S16",
+    "primary_component_file": "fetch_api_key.py",
+    "primary_component_role": "fetch_api_key",
+    "proof_ids": [
+      "PR_54d40cfefff6",
+      "PR_749a1d544406",
+      "PR_92547f62d118",
+      "PR_05ea08291569",
+      "PR_e09f831a7219",
+      "PR_360a1e674eac",
+      "PR_98dc9e2e2dd6"
+    ],
+    "provider_proof_ids": [
+      "PR_54d40cfefff6",
+      "PR_749a1d544406",
+      "PR_92547f62d118",
+      "PR_05ea08291569",
+      "PR_e09f831a7219"
+    ],
+    "scored_files": [
+      "fetch_api_key.py",
+      "fetch_db_secret.py",
+      "parse_json_secret.py",
+      "rotate_secret_version.py",
+      "rotation_summary.py",
+      "secret_label_safety.py",
+      "secret_audit_embedding.py",
+      "runbook_translate.py"
+    ],
+    "seed_files": [],
+    "task_id": "agentic_S16",
+    "title": "Agentic S16 - Secret Management"
+  }
+}

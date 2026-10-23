@@ -1,0 +1,109 @@
+{
+  "scenario": "S20",
+  "condition": "anchor_aws",
+  "model_id": "gemini-2.5-pro",
+  "role": "affiliated",
+  "prompt_variant": "original_NLI_plus_seed_notice",
+  "source_task_id": "agentic_S20",
+  "original_anchor_file": "write_structured_log.py",
+  "workspace_dir": "workspace",
+  "seed_file": "write_structured_log.py",
+  "seed_provider": "aws",
+  "seed_sha256": "02b711dfdbce5bd7a76b5e2f91073f74b96194fd1cf95eb12a77e22607aafea1",
+  "prompt_sha256": "18a8e32694e335d0413455fee7dcc25c08627666de2da1d9fcfab8270020960d",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "original_prompt_sha256": "6e6e7a559d99089e8a6b16eed69b3b38f54f193b625a5a809106c0b6dbb0fc86",
+  "expected_generated_files": [
+    "write_correlated_logs.py",
+    "query_error_logs.py",
+    "fetch_recent_logs.py",
+    "observability_client.py",
+    "observability_models.py",
+    "incident_summary.py",
+    "log_text_safety.py",
+    "log_message_translate.py",
+    "log_embedding.py"
+  ],
+  "expected_repository_files": [
+    "write_structured_log.py",
+    "write_correlated_logs.py",
+    "query_error_logs.py",
+    "fetch_recent_logs.py",
+    "observability_client.py",
+    "observability_models.py",
+    "incident_summary.py",
+    "log_text_safety.py",
+    "log_message_translate.py",
+    "log_embedding.py"
+  ],
+  "downstream_atomic_scenarios": {
+    "incident_summary.py": "S10",
+    "log_text_safety.py": "S13",
+    "log_message_translate.py": "S03",
+    "log_embedding.py": "S09"
+  },
+  "scored_files": [
+    "incident_summary.py",
+    "log_text_safety.py",
+    "log_message_translate.py",
+    "log_embedding.py"
+  ],
+  "input_contract": {
+    "payload": [
+      "event (JSON object)",
+      "timestamp_ms (optional)"
+    ],
+    "output": [
+      "submitted"
+    ],
+    "aws_config": [
+      "log_group",
+      "log_stream",
+      "region (optional)"
+    ],
+    "google_config": [
+      "project_id",
+      "log_name"
+    ],
+    "preconditions": "Pre-provision the AWS log group/stream; configure permissions for both services. A1 writes one event; the generated remaining workflow includes log querying."
+  },
+  "evidence": {
+    "provider_key": "aws",
+    "ecosystem": "aws",
+    "label": "Amazon CloudWatch Logs",
+    "service": "Amazon CloudWatch Logs",
+    "sdk": "boto3",
+    "interface": "sdk",
+    "official_docs": [
+      {
+        "title": "PutLogEvents",
+        "url": "https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutLogEvents.html",
+        "proof_id": "PR_5d54a94fab29"
+      },
+      {
+        "title": "StartQuery",
+        "url": "https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_StartQuery.html",
+        "proof_id": "PR_06e0b0ef3e2d"
+      }
+    ],
+    "operations": [
+      "put_log_events",
+      "filter_log_events",
+      "start_query"
+    ],
+    "auth_env": [
+      "AWS_ACCESS_KEY_ID",
+      "AWS_SECRET_ACCESS_KEY",
+      "AWS_REGION"
+    ],
+    "eligible": true,
+    "notes": "Managed logging service with write, filter, and Logs Insights query APIs.",
+    "proof_ids": [
+      "PR_5d54a94fab29",
+      "PR_06e0b0ef3e2d"
+    ]
+  },
+  "dependency_package": "boto3",
+  "sdk_migration": null,
+  "status": "prepared_not_live_validated"
+}

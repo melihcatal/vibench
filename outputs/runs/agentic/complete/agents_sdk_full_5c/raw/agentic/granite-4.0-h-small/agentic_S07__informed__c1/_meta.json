@@ -1,0 +1,610 @@
+{
+  "task_id": "agentic_S07",
+  "modality": "agentic",
+  "benchmark": "vibench",
+  "task_mode": "unified",
+  "primary_atomic_scenario": "S07",
+  "primary_component_role": "extract_text",
+  "primary_component_file": "extract_text.py",
+  "task_family": "Document AI",
+  "evidence_id": null,
+  "paired_with": null,
+  "seed_condition_id": null,
+  "seed_policy": null,
+  "seed_anchor_role": null,
+  "seed_anchor_provider": null,
+  "seed_anchor_ecosystem": null,
+  "variant": "informed",
+  "model_id": "granite-4.0-h-small",
+  "model_litellm_string": "watsonx/ibm/granite-4-h-small",
+  "model_provider": "IBM watsonx.ai",
+  "model_api_key_env": "WATSONX_API_KEY",
+  "model_affiliation": "ibm",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "ibm",
+  "model_direct_provider_affiliation": "ibm",
+  "model_ecosystem_affiliation": "ibm",
+  "direct_provider_affiliation": "ibm",
+  "provider_family": "ibm",
+  "ecosystem_affiliation": "ibm",
+  "completion_index": 1,
+  "timestamp": "2026-04-18T09:43:13.024555+00:00",
+  "prompt_text": "Build the service integrations for a realistic ocr and layout extraction task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] extract_text.py - extracts plain text from a scanned document image\n2. [SAME-SCENARIO] extract_layout.py - extracts blocks, lines, tables, or layout elements from a document\n3. [SAME-SCENARIO] extract_tables.py - extracts table cells and row structure from a document\n4. [SAME-SCENARIO] extract_key_values.py - extracts key-value pairs from a form-like document\n\nLocal helper files:\n\n5. [HELPER] document_client.py - Provide local configuration and client helper utilities for OCR and Layout Extraction\n6. [HELPER] document_models.py - Define local request, response, and normalization helpers for OCR and Layout Extraction\n\nLater-step scored files:\n\n7. [LATER-STEP] ocr_translate.py - Translate extracted OCR text\n8. [LATER-STEP] ocr_safety.py - Check extracted document text for unsafe content\n9. [LATER-STEP] document_field_extraction.py - Extract structured fields from OCR-normalized document text\n10. [LATER-STEP] ocr_embedding.py - Embed extracted document sections for semantic retrieval\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nOCR and Layout Extraction same-scenario files:\n- Amazon Textract: service=Amazon Textract; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Cloud OCR: service=Alibaba Cloud OCR; sdk=alibabacloud_ocr_api; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Azure Document Intelligence: service=Azure AI Document Intelligence; sdk=azure-ai-documentintelligence; interface=sdk; auth=AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n- Google Document AI: service=Google Document AI; sdk=google-cloud-documentai; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Mindee: service=Mindee Document OCR; sdk=mindee; interface=sdk; auth=MINDEE_API_KEY\n\nGeneral Text Translation later-step files:\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n\nText Content Safety later-step files:\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n\nStructured Document Extraction later-step files:\n- Mindee: service=Mindee Invoice OCR; sdk=mindee; interface=sdk; auth=MINDEE_API_KEY\n- Document AI Invoice Parser: service=Google Document AI processors; sdk=google-cloud-documentai; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Textract AnalyzeExpense: service=Amazon Textract AnalyzeExpense; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba OCR invoice recognition: service=Alibaba Cloud OCR invoice recognition; sdk=alibabacloud_ocr_api; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Azure DI prebuilt invoice: service=Azure Document Intelligence prebuilt invoice; sdk=azure-ai-documentintelligence; interface=sdk; auth=AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n\nDirect Embeddings API later-step files:\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY",
+  "prompt_sha256": "ceaf6b3bdb72fd0a02b1bd540607b17a89ceb8e298279420225ec63d1ea42abd",
+  "system_prompt": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/agentic_system_prompt.txt",
+  "agent_user_prompt": "Build the service integrations for a realistic ocr and layout extraction task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] extract_text.py - extracts plain text from a scanned document image\n2. [SAME-SCENARIO] extract_layout.py - extracts blocks, lines, tables, or layout elements from a document\n3. [SAME-SCENARIO] extract_tables.py - extracts table cells and row structure from a document\n4. [SAME-SCENARIO] extract_key_values.py - extracts key-value pairs from a form-like document\n\nLocal helper files:\n\n5. [HELPER] document_client.py - Provide local configuration and client helper utilities for OCR and Layout Extraction\n6. [HELPER] document_models.py - Define local request, response, and normalization helpers for OCR and Layout Extraction\n\nLater-step scored files:\n\n7. [LATER-STEP] ocr_translate.py - Translate extracted OCR text\n8. [LATER-STEP] ocr_safety.py - Check extracted document text for unsafe content\n9. [LATER-STEP] document_field_extraction.py - Extract structured fields from OCR-normalized document text\n10. [LATER-STEP] ocr_embedding.py - Embed extracted document sections for semantic retrieval\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nOCR and Layout Extraction same-scenario files:\n- Amazon Textract: service=Amazon Textract; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Cloud OCR: service=Alibaba Cloud OCR; sdk=alibabacloud_ocr_api; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Azure Document Intelligence: service=Azure AI Document Intelligence; sdk=azure-ai-documentintelligence; interface=sdk; auth=AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n- Google Document AI: service=Google Document AI; sdk=google-cloud-documentai; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Mindee: service=Mindee Document OCR; sdk=mindee; interface=sdk; auth=MINDEE_API_KEY\n\nGeneral Text Translation later-step files:\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n\nText Content Safety later-step files:\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n\nStructured Document Extraction later-step files:\n- Mindee: service=Mindee Invoice OCR; sdk=mindee; interface=sdk; auth=MINDEE_API_KEY\n- Document AI Invoice Parser: service=Google Document AI processors; sdk=google-cloud-documentai; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Textract AnalyzeExpense: service=Amazon Textract AnalyzeExpense; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba OCR invoice recognition: service=Alibaba Cloud OCR invoice recognition; sdk=alibabacloud_ocr_api; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Azure DI prebuilt invoice: service=Azure Document Intelligence prebuilt invoice; sdk=azure-ai-documentintelligence; interface=sdk; auth=AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n\nDirect Embeddings API later-step files:\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY\n\nExpected files that must be written with write_file:\n\n- extract_text.py\n- extract_layout.py\n- extract_tables.py\n- extract_key_values.py\n- document_client.py\n- document_models.py\n- ocr_translate.py\n- ocr_safety.py\n- document_field_extraction.py\n- ocr_embedding.py\n\nUse write_file for each expected file before producing the final answer.",
+  "agent_user_prompt_sha256": "4eb73702a9fae01f990fcae2ab231699c62a7bb85406ad9a4f06105b30ba0b34",
+  "agent_instructions": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.\n\nTool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "agent_instructions_sha256": "ca69981834e8c12ccff2525631ec4bd7e01135067a146f05b0859757d7f582c0",
+  "agent_tool_instruction": "Tool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": null,
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": null,
+    "reasoning_effort_source": "provider_default",
+    "reasoning_effort_sent_to_api": null,
+    "reasoning_effort_sent_source": "provider_default",
+    "parallel_tool_calls": null,
+    "tool_choice": null
+  },
+  "model_settings": {
+    "temperature": null,
+    "top_p": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "tool_choice": null,
+    "parallel_tool_calls": null,
+    "truncation": null,
+    "max_tokens": null,
+    "reasoning": null,
+    "verbosity": null,
+    "metadata": null,
+    "store": null,
+    "prompt_cache_retention": null,
+    "include_usage": null,
+    "response_include": null,
+    "top_logprobs": null,
+    "extra_query": null,
+    "extra_body": null,
+    "extra_headers": null,
+    "extra_args": null,
+    "retry": null
+  },
+  "seed_files": [],
+  "expected_files": [
+    "extract_text.py",
+    "extract_layout.py",
+    "extract_tables.py",
+    "extract_key_values.py",
+    "document_client.py",
+    "document_models.py",
+    "ocr_translate.py",
+    "ocr_safety.py",
+    "document_field_extraction.py",
+    "ocr_embedding.py"
+  ],
+  "scored_files": [
+    "extract_text.py",
+    "extract_layout.py",
+    "extract_tables.py",
+    "extract_key_values.py",
+    "ocr_translate.py",
+    "ocr_safety.py",
+    "document_field_extraction.py",
+    "ocr_embedding.py"
+  ],
+  "context_files": [
+    "document_client.py",
+    "document_models.py"
+  ],
+  "files_found": {
+    "extract_text.py": true,
+    "extract_layout.py": true,
+    "extract_tables.py": true,
+    "extract_key_values.py": true,
+    "document_client.py": true,
+    "document_models.py": true,
+    "ocr_translate.py": true,
+    "ocr_safety.py": true,
+    "document_field_extraction.py": true,
+    "ocr_embedding.py": true
+  },
+  "components": [
+    {
+      "role": "extract_text",
+      "file": "extract_text.py",
+      "atomic_scenario": "S07",
+      "description": "extracts plain text from a scanned document image",
+      "atomic_subtask_index": 1,
+      "atomic_subtask_id": "nli_S07_a",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": true,
+      "coupling_expectation": "primary_anchor",
+      "dependency_reason": "This is the first aligned-core file in the workflow.",
+      "is_seeded": false
+    },
+    {
+      "role": "extract_layout",
+      "file": "extract_layout.py",
+      "atomic_scenario": "S07",
+      "description": "extracts blocks, lines, tables, or layout elements from a document",
+      "atomic_subtask_index": 2,
+      "atomic_subtask_id": "nli_S07_b",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "extract_tables",
+      "file": "extract_tables.py",
+      "atomic_scenario": "S07",
+      "description": "extracts table cells and row structure from a document",
+      "atomic_subtask_index": 3,
+      "atomic_subtask_id": "nli_S07_c",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "extract_key_values",
+      "file": "extract_key_values.py",
+      "atomic_scenario": "S07",
+      "description": "extracts key-value pairs from a form-like document",
+      "atomic_subtask_index": 4,
+      "atomic_subtask_id": "nli_S07_d",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "document_client",
+      "file": "document_client.py",
+      "atomic_scenario": "S07",
+      "description": "Provide local configuration and client helper utilities for OCR and Layout Extraction",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "document_models",
+      "file": "document_models.py",
+      "atomic_scenario": "S07",
+      "description": "Define local request, response, and normalization helpers for OCR and Layout Extraction",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "ocr_translate",
+      "file": "ocr_translate.py",
+      "atomic_scenario": "S03",
+      "aligned_task_id": "agentic_S03",
+      "legacy_atomic_scenario": "S03",
+      "description": "Translate extracted OCR text",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "ocr_safety",
+      "file": "ocr_safety.py",
+      "atomic_scenario": "S13",
+      "aligned_task_id": "agentic_S13",
+      "legacy_atomic_scenario": "S16",
+      "description": "Check extracted document text for unsafe content",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "document_field_extraction",
+      "file": "document_field_extraction.py",
+      "atomic_scenario": "S08",
+      "aligned_task_id": "agentic_S08",
+      "legacy_atomic_scenario": "S09",
+      "description": "Extract structured fields from OCR-normalized document text",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "compatible_but_independent",
+      "dependency_reason": "This extension step uses outputs from the primary Document AI workflow.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "ocr_embedding",
+      "file": "ocr_embedding.py",
+      "atomic_scenario": "S09",
+      "aligned_task_id": "agentic_S09",
+      "legacy_atomic_scenario": "S10",
+      "description": "Embed extracted document sections for semantic retrieval",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    }
+  ],
+  "elapsed_seconds": 36.56,
+  "agentic_runner": "litellm_openai_agents",
+  "agentic_system_prompt_mode": "openai_agents_litellm_write_file_tool",
+  "agentic_identity_mode": "litellm_exact_or_provider_route",
+  "agentic_identity_note": "OpenAI Agents SDK LitellmModel routes directly through LiteLLM; no OpenCode provider transform is used.",
+  "litellm_model": "watsonx/ibm/granite-4-h-small",
+  "litellm_base_url": null,
+  "agent_name": "vibench_file_writer",
+  "agents_sdk_exit_code": 0,
+  "agents_sdk_stdout_tail": "Documents processed.",
+  "agents_sdk_stderr_tail": "",
+  "tool_calls": [
+    {
+      "path": "extract_text.py",
+      "normalized_path": "extract_text.py",
+      "content_sha256": "068be860c6304ca5d58dd746a1b362f3d0aad7882549b51cb80406e84ea86c58",
+      "content_length": 1022,
+      "accepted": true,
+      "message": "Wrote extract_text.py.",
+      "timestamp": "2026-04-18T09:42:41.528886+00:00"
+    },
+    {
+      "path": "extract_layout.py",
+      "normalized_path": "extract_layout.py",
+      "content_sha256": "a2e212d9bc5a43dc6537384803a801d32196c005193301a968b78c35629e627f",
+      "content_length": 1304,
+      "accepted": true,
+      "message": "Wrote extract_layout.py.",
+      "timestamp": "2026-04-18T09:42:44.436228+00:00"
+    },
+    {
+      "path": "extract_tables.py",
+      "normalized_path": "extract_tables.py",
+      "content_sha256": "c4489951585d4ed33f32f901f70516ffc69e1ee81cda8e539cb57a5f9ff8f704",
+      "content_length": 1368,
+      "accepted": true,
+      "message": "Wrote extract_tables.py.",
+      "timestamp": "2026-04-18T09:42:47.552188+00:00"
+    },
+    {
+      "path": "extract_key_values.py",
+      "normalized_path": "extract_key_values.py",
+      "content_sha256": "5a2cd9814a0d677f180431172e3722b646ea0f8a46ee14e428c0cbf432f3edb6",
+      "content_length": 1399,
+      "accepted": true,
+      "message": "Wrote extract_key_values.py.",
+      "timestamp": "2026-04-18T09:42:50.970389+00:00"
+    },
+    {
+      "path": "document_client.py",
+      "normalized_path": "document_client.py",
+      "content_sha256": "fa70b7f43ffd62ce3d220e0f5d08e206a9ba10b26f81b0b402fac6a8238dcbba",
+      "content_length": 2657,
+      "accepted": true,
+      "message": "Wrote document_client.py.",
+      "timestamp": "2026-04-18T09:42:56.458472+00:00"
+    },
+    {
+      "path": "document_models.py",
+      "normalized_path": "document_models.py",
+      "content_sha256": "c4521d243b4d9ec6147db4b334c55ed4a13724e88c8a26b455ebe2badf1eea9e",
+      "content_length": 1414,
+      "accepted": true,
+      "message": "Wrote document_models.py.",
+      "timestamp": "2026-04-18T09:43:00.235018+00:00"
+    },
+    {
+      "path": "ocr_translate.py",
+      "normalized_path": "ocr_translate.py",
+      "content_sha256": "09dee2b5031f121da55f562e3e7cdab9197b77acf5fb2b8bbf8d13ac62205801",
+      "content_length": 716,
+      "accepted": true,
+      "message": "Wrote ocr_translate.py.",
+      "timestamp": "2026-04-18T09:43:02.295560+00:00"
+    },
+    {
+      "path": "ocr_safety.py",
+      "normalized_path": "ocr_safety.py",
+      "content_sha256": "de127ff2cad9d3efb4092ce8c0cdb31b8a41c5f2b1640c5c5eda8f218c8d0320",
+      "content_length": 740,
+      "accepted": true,
+      "message": "Wrote ocr_safety.py.",
+      "timestamp": "2026-04-18T09:43:04.596724+00:00"
+    },
+    {
+      "path": "document_field_extraction.py",
+      "normalized_path": "document_field_extraction.py",
+      "content_sha256": "26d58bcc326429dcbbaf8bc5f857b882ee89f62272ec28bf6673cc220ff3cabe",
+      "content_length": 1686,
+      "accepted": true,
+      "message": "Wrote document_field_extraction.py.",
+      "timestamp": "2026-04-18T09:43:08.851390+00:00"
+    },
+    {
+      "path": "ocr_embedding.py",
+      "normalized_path": "ocr_embedding.py",
+      "content_sha256": "ef5e41f091a8403edf9873d4a2e33699c50550d03dbf1befc229d0a030cfa1e6",
+      "content_length": 719,
+      "accepted": true,
+      "message": "Wrote ocr_embedding.py.",
+      "timestamp": "2026-04-18T09:43:12.464241+00:00"
+    }
+  ],
+  "tool_call_count": 10,
+  "accepted_tool_call_count": 10,
+  "run_result": {
+    "final_output": "Documents processed.",
+    "raw_response_count": 12,
+    "raw_responses": [
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2058,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 289,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 2347,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2372,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 269,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 2641,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2656,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 325,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 2981,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 3000,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 338,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 3338,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 3357,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 358,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 3715,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 3735,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 626,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 4361,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4380,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 406,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 4786,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4805,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 203,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 5008,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 5028,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 233,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 5261,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 5282,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 466,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 5748,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 5768,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 218,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 5986,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 6008,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 4,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 6012,
+          "request_usage_entries": []
+        }
+      }
+    ],
+    "new_item_count": 23,
+    "max_turns": 30
+  },
+  "generation_warning": null,
+  "error": null
+}

@@ -1,0 +1,351 @@
+{
+  "stage": "direct",
+  "benchmark": "vibench",
+  "dataset_kind": "direct_hf",
+  "scenario_id": "S20",
+  "legacy_scenario_id": "S24",
+  "title": "Managed Log Query / Log Ingestion",
+  "family": "Observability",
+  "source": "v3:S24",
+  "competition": "competitive_with_caveat",
+  "notes": "Logging is strong on code-first write and query operations, but storage and query surfaces differ more than metrics. Keep the row at structured writes and filtered retrieval.",
+  "coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon CloudWatch Logs"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Cloud Logging"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Azure Monitor Logs / Logs Ingestion API"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Simple Log Service"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IBM Cloud Logs"
+      }
+    }
+  },
+  "provider_tools": [
+    {
+      "provider_key": "aws",
+      "ecosystem": "aws",
+      "label": "Amazon CloudWatch Logs",
+      "service": "Amazon CloudWatch Logs",
+      "sdk": "boto3",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "PutLogEvents",
+          "url": "https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutLogEvents.html",
+          "proof_id": "PR_5d54a94fab29"
+        },
+        {
+          "title": "StartQuery",
+          "url": "https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_StartQuery.html",
+          "proof_id": "PR_06e0b0ef3e2d"
+        }
+      ],
+      "operations": [
+        "put_log_events",
+        "filter_log_events",
+        "start_query"
+      ],
+      "auth_env": [
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_REGION"
+      ],
+      "eligible": true,
+      "notes": "Managed logging service with write, filter, and Logs Insights query APIs.",
+      "proof_ids": [
+        "PR_5d54a94fab29",
+        "PR_06e0b0ef3e2d"
+      ]
+    },
+    {
+      "provider_key": "google",
+      "ecosystem": "google",
+      "label": "Google Cloud Logging",
+      "service": "Cloud Logging",
+      "sdk": "google-cloud-logging",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "entries.write",
+          "url": "https://cloud.google.com/logging/docs/reference/v2/rest/v2/entries/write",
+          "proof_id": "PR_ba854f19798b"
+        },
+        {
+          "title": "entries.list",
+          "url": "https://cloud.google.com/logging/docs/reference/v2/rest/v2/entries/list",
+          "proof_id": "PR_5286642b770b"
+        }
+      ],
+      "operations": [
+        "entries.write",
+        "entries.list"
+      ],
+      "auth_env": [
+        "GOOGLE_APPLICATION_CREDENTIALS"
+      ],
+      "eligible": true,
+      "notes": "Managed logging platform for structured writes and filtered retrieval.",
+      "proof_ids": [
+        "PR_ba854f19798b",
+        "PR_5286642b770b"
+      ]
+    },
+    {
+      "provider_key": "microsoft_openai",
+      "ecosystem": "microsoft_openai",
+      "label": "Azure Monitor Logs",
+      "service": "Azure Monitor Logs / Logs Ingestion API",
+      "sdk": "azure-monitor-ingestion / azure-monitor-query",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "Logs Ingestion API",
+          "url": "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/custom-logs-overview",
+          "proof_id": "PR_530c71397283"
+        },
+        {
+          "title": "Log Analytics API overview",
+          "url": "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/api/overview",
+          "proof_id": "PR_677f1d231a98"
+        }
+      ],
+      "operations": [
+        "upload",
+        "query_workspace",
+        "query_resource"
+      ],
+      "auth_env": [
+        "AZURE_TENANT_ID",
+        "AZURE_CLIENT_ID",
+        "AZURE_CLIENT_SECRET"
+      ],
+      "eligible": true,
+      "notes": "Managed log ingestion and query path via Data Collection Rules and Log Analytics.",
+      "proof_ids": [
+        "PR_530c71397283",
+        "PR_677f1d231a98"
+      ]
+    },
+    {
+      "provider_key": "alibaba",
+      "ecosystem": "alibaba",
+      "label": "Alibaba Simple Log Service",
+      "service": "Simple Log Service",
+      "sdk": "aliyun-log-python-sdk",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "PutLogs",
+          "url": "https://www.alibabacloud.com/help/doc-detail/2847535.html",
+          "proof_id": "PR_14c2788ddfa9"
+        },
+        {
+          "title": "GetLogs",
+          "url": "https://www.alibabacloud.com/help/doc-detail/2771313.html",
+          "proof_id": "PR_8efc69007cfd"
+        }
+      ],
+      "operations": [
+        "PutLogs",
+        "GetLogs",
+        "GetLogsV2"
+      ],
+      "auth_env": [
+        "ALIBABA_CLOUD_ACCESS_KEY_ID",
+        "ALIBABA_CLOUD_ACCESS_KEY_SECRET",
+        "ALIBABA_SLS_ENDPOINT"
+      ],
+      "eligible": true,
+      "notes": "Managed logging service with explicit write and time-bounded query APIs.",
+      "proof_ids": [
+        "PR_14c2788ddfa9",
+        "PR_8efc69007cfd"
+      ]
+    },
+    {
+      "provider_key": "ibm",
+      "ecosystem": "ibm",
+      "label": "IBM Cloud Logs",
+      "service": "IBM Cloud Logs",
+      "sdk": "requests",
+      "interface": "rest",
+      "official_docs": [
+        {
+          "title": "IBM Cloud Logs",
+          "url": "https://www.ibm.com/products/cloud-logs",
+          "proof_id": "PR_c7cff8b70712"
+        }
+      ],
+      "operations": [
+        "POST /logs/v1/singles",
+        "query data",
+        "DataPrime filters"
+      ],
+      "auth_env": [
+        "IBM_CLOUD_API_KEY",
+        "IBM_LOGS_INSTANCE_ID",
+        "IBM_LOGS_REGION"
+      ],
+      "eligible": true,
+      "notes": "Managed logging service with REST ingestion and DataPrime/Lucene query surfaces.",
+      "proof_ids": [
+        "PR_c7cff8b70712"
+      ]
+    }
+  ],
+  "neutral_tools": [
+    {
+      "provider_key": "datadog",
+      "ecosystem": "datadog",
+      "label": "Datadog",
+      "service": "Datadog Logs API",
+      "sdk": "requests",
+      "interface": "rest",
+      "official_docs": [
+        {
+          "title": "Logs Search API guide",
+          "url": "https://docs.datadoghq.com/logs/guide/access-your-log-data-programmatically/",
+          "proof_id": "PR_dd31eeb18fb3"
+        },
+        {
+          "title": "Logs API",
+          "url": "https://docs.datadoghq.com/api/latest/logs/",
+          "proof_id": "PR_668a85006037"
+        }
+      ],
+      "operations": [
+        "submit logs",
+        "search logs"
+      ],
+      "auth_env": [
+        "DD_API_KEY",
+        "DD_APP_KEY"
+      ],
+      "eligible": true,
+      "notes": "Independent managed logging platform.",
+      "proof_ids": [
+        "PR_dd31eeb18fb3",
+        "PR_668a85006037"
+      ]
+    }
+  ],
+  "provider_proof_ids": [
+    "PR_5d54a94fab29",
+    "PR_06e0b0ef3e2d",
+    "PR_ba854f19798b",
+    "PR_5286642b770b",
+    "PR_530c71397283",
+    "PR_677f1d231a98",
+    "PR_14c2788ddfa9",
+    "PR_8efc69007cfd",
+    "PR_c7cff8b70712"
+  ],
+  "neutral_proof_ids": [
+    "PR_dd31eeb18fb3",
+    "PR_668a85006037"
+  ],
+  "proof_ids": [
+    "PR_5d54a94fab29",
+    "PR_06e0b0ef3e2d",
+    "PR_ba854f19798b",
+    "PR_5286642b770b",
+    "PR_530c71397283",
+    "PR_677f1d231a98",
+    "PR_14c2788ddfa9",
+    "PR_8efc69007cfd",
+    "PR_c7cff8b70712",
+    "PR_dd31eeb18fb3",
+    "PR_668a85006037"
+  ],
+  "subtasks": [
+    {
+      "role": "write_structured_log",
+      "file": "write_structured_log.py",
+      "description": "writes a structured JSON log event to a managed logging service",
+      "nli_prompt": "Write Python code that writes a structured JSON log event to a managed logging service using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it writes a structured JSON log event to a managed logging service using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef write_structured_log(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that writes a structured JSON log event to a managed logging service using a concrete provider.",
+      "index": 1,
+      "suffix": "a",
+      "subtask_id": "S20_a",
+      "direct_task_ids": {
+        "nli": "nli_S20_a",
+        "fim": "fim_S20_a",
+        "reference_open": "reference_open_S20_a"
+      }
+    },
+    {
+      "role": "write_correlated_logs",
+      "file": "write_correlated_logs.py",
+      "description": "writes application log events that include a shared request or correlation identifier",
+      "nli_prompt": "Write Python code that writes application log events that include a shared request or correlation identifier using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it writes application log events that include a shared request or correlation identifier using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef write_correlated_logs(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that writes application log events that include a shared request or correlation identifier using a concrete provider.",
+      "index": 2,
+      "suffix": "b",
+      "subtask_id": "S20_b",
+      "direct_task_ids": {
+        "nli": "nli_S20_b",
+        "fim": "fim_S20_b",
+        "reference_open": "reference_open_S20_b"
+      }
+    },
+    {
+      "role": "query_error_logs",
+      "file": "query_error_logs.py",
+      "description": "queries recent error log entries filtered by severity and time range",
+      "nli_prompt": "Write Python code that queries recent error log entries filtered by severity and time range using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it queries recent error log entries filtered by severity and time range using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef query_error_logs(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that queries recent error log entries filtered by severity and time range using a concrete provider.",
+      "index": 3,
+      "suffix": "c",
+      "subtask_id": "S20_c",
+      "direct_task_ids": {
+        "nli": "nli_S20_c",
+        "fim": "fim_S20_c",
+        "reference_open": "reference_open_S20_c"
+      }
+    },
+    {
+      "role": "fetch_recent_logs",
+      "file": "fetch_recent_logs.py",
+      "description": "retrieves recent log results filtered by field values and time range",
+      "nli_prompt": "Write Python code that retrieves recent log results filtered by field values and time range using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it retrieves recent log results filtered by field values and time range using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef fetch_recent_logs(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that retrieves recent log results filtered by field values and time range using a concrete provider.",
+      "index": 4,
+      "suffix": "d",
+      "subtask_id": "S20_d",
+      "direct_task_ids": {
+        "nli": "nli_S20_d",
+        "fim": "fim_S20_d",
+        "reference_open": "reference_open_S20_d"
+      }
+    }
+  ],
+  "num_subtasks": 4
+}

@@ -46,8 +46,8 @@ SNAPSHOT_QUALITY = GENERATED_DIR / "provider_doc_snapshot_quality.json"
 SNAPSHOT_QUALITY_SUMMARY = GENERATED_DIR / "provider_doc_snapshot_quality_summary.json"
 SNAPSHOT_ROOT = EVIDENCE_DIR
 EXPLORER_BENCHMARK = BASE_DIR / "vibench-explorer" / "data" / "benchmark.json"
-DIRECT_RUN_RESULTS = BASE_DIR / "outputs" / "runs" / "direct" / "complete" / "full_5c" / "labeled"
-AGENTIC_RESULTS = BASE_DIR / "outputs" / "runs" / "agentic" / "complete" / "opencode_full_5c" / "labeled" / "agentic" / "results.json"
+DIRECT_RUN_RESULTS = BASE_DIR.parent / "outputs" / "runs" / "direct" / "complete" / "full_5c" / "labeled"
+AGENTIC_RESULTS = BASE_DIR.parent / "outputs" / "runs" / "agentic" / "complete" / "opencode_full_5c" / "labeled" / "agentic" / "results.json"
 
 
 def _load_json(path: Path):

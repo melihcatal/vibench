@@ -1,0 +1,22 @@
+{
+  "command": [
+    "opencode",
+    "run",
+    "--attach",
+    "http://127.0.0.1:65506",
+    "--format",
+    "json",
+    "-m",
+    "openai/gpt-5.4-mini",
+    "--agent",
+    "vibench",
+    "--variant",
+    "none",
+    "<prompt_text>"
+  ],
+  "elapsed_seconds": 3.722098750062287,
+  "error": null,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "{\"type\":\"step_start\",\"timestamp\":1789888751251,\"sessionID\":\"ses_f42511b79ffeSFf922YsMoCFp2\",\"part\":{\"id\":\"prt_0bdaee692001DeJcxeb6UmDj96\",\"messageID\":\"msg_0bdaee495001Y9U3M7gI8TZchw\",\"sessionID\":\"ses_f42511b79ffeSFf922YsMoCFp2\",\"type\":\"step-start\"}}\n{\"type\":\"text\",\"timestamp\":1789888753954,\"sessionID\":\"ses_f42511b79ffeSFf922YsMoCFp2\",\"part\":{\"id\":\"prt_0bdaee6f3001qBO59eMaqk3t6M\",\"messageID\":\"msg_0bdaee495001Y9U3M7gI8TZchw\",\"sessionID\":\"ses_f42511b79ffeSFf922YsMoCFp2\",\"type\":\"text\",\"text\":\"from __future__ import annotations\\n\\nimport base64\\nimport json\\nimport os\\nfrom dataclasses import dataclass\\nfrom typing import Any, Dict, Optional\\n\\nimport boto3\\nfrom botocore.exceptions import BotoCoreError, ClientError\\n\\n\\n@dataclass\\nclass DecryptPayloadResult:\\n    plaintext: bytes\\n    key_id: Optional[str] = None\\n    encryption_algorithm: Optional[str] = None\\n    request_id: Optional[str] = None\\n\\n    def to_dict(self) -> Dict[str, Any]:\\n        return {\\n            \\\"plaintext\\\": base64.b64encode(self.plaintext).decode(\\\"utf-8\\\"),\\n            \\\"key_id\\\": self.key_id,\\n            \\\"encryption_algorithm\\\": self.encryption_algorithm,\\n            \\\"request_id\\\": self.request_id,\\n        }\\n\\n\\ndef _decode_ciphertext(ciphertext: str) -> bytes:\\n    try:\\n        return base64.b64decode(ciphertext, validate=True)\\n    except Exception:\\n        return ciphertext.encode(\\\"utf-8\\\")\\n\\n\\ndef decrypt_payload(ciphertext: str, key_id: Optional[str] = None, encryption_context: Optional[Dict[str, str]] = None) -> DecryptPayloadResult:\\n    kms = boto3.client(\\\"kms\\\", region_name=os.getenv(\\\"AWS_REGION\\\") or os.getenv(\\\"AWS_DEFAULT_REGION\\\"))\\n    params: Dict[str, Any] = {\\\"CiphertextBlob\\\": _decode_ciphertext(ciphertext)}\\n    if key_id:\\n        params[\\\"KeyId\\\"] = key_id\\n    if encryption_context:\\n        params[\\\"EncryptionContext\\\"] = encryption_context\\n\\n    try:\\n        response = kms.decrypt(**params)\\n    except (ClientError, BotoCoreError) as exc:\\n        raise RuntimeError(f\\\"AWS KMS decryption failed: {exc}\\\") from exc\\n\\n    plaintext = response[\\\"Plaintext\\\"]\\n    return DecryptPayloadResult(\\n        plaintext=plaintext,\\n        key_id=response.get(\\\"KeyId\\\"),\\n        encryption_algorithm=response.get(\\\"EncryptionAlgorithm\\\"),\\n        request_id=response.get(\\\"ResponseMetadata\\\", {}).get(\\\"RequestId\\\"),\\n    )\\n\\n\\ndef main() -> None:\\n    import argparse\\n\\n    parser = argparse.ArgumentParser(description=\\\"Decrypt a ciphertext payload with AWS KMS\\\")\\n    parser.add_argument(\\\"ciphertext\\\", help=\\\"Ciphertext as base64 or raw text\\\")\\n    parser.add_argument(\\\"--key-id\\\", dest=\\\"key_id\\\")\\n    parser.add_argument(\\\"--encryption-context\\\", dest=\\\"encryption_context\\\", help=\\\"JSON object\\\")\\n    args = parser.parse_args()\\n\\n    encryption_context = json.loads(args.encryption_context) if args.encryption_context else None\\n    result = decrypt_payload(args.ciphertext, key_id=args.key_id, encryption_context=encryption_context)\\n    print(result.to_dict())\\n\\n\\nif __name__ == \\\"__main__\\\":\\n    main()\",\"time\":{\"start\":1789888751347,\"end\":1789888753953},\"metadata\":{\"openai\":{\"itemId\":\"msg_077792781814b2f6016aaf88ef4c5087d2975f768c24a1e81d\",\"phase\":\"final_answer\"}}}}\n"
+}

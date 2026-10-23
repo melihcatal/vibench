@@ -1,0 +1,99 @@
+{
+  "scenario": "S08",
+  "condition": "anchor_aws",
+  "model_id": "gpt-5.4-mini",
+  "role": "affiliated",
+  "prompt_variant": "original_NLI_plus_seed_notice",
+  "source_task_id": "agentic_S08",
+  "original_anchor_file": "extract_invoice_fields.py",
+  "workspace_dir": "workspace",
+  "seed_file": "extract_invoice_fields.py",
+  "seed_provider": "aws",
+  "seed_sha256": "1938c946bc3d540ab34bdbb788c1e3b06521d8c5d8380f7f1f3c389f42074eeb",
+  "prompt_sha256": "4abbfc55aff010e2f63891d4604eca9fb01f87a35b548875ec5da7c603f49769",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "original_prompt_sha256": "92f6f15bcd50bfa3d0fd7ac7dd16bd8503e9eae47ffd7e5c831ed99532cb26bb",
+  "expected_generated_files": [
+    "extract_receipt_fields.py",
+    "normalize_expense.py",
+    "validate_document_fields.py",
+    "document_client.py",
+    "document_models.py",
+    "invoice_summary.py",
+    "vendor_text_safety.py",
+    "invoice_note_translate.py",
+    "expense_record_store.py"
+  ],
+  "expected_repository_files": [
+    "extract_invoice_fields.py",
+    "extract_receipt_fields.py",
+    "normalize_expense.py",
+    "validate_document_fields.py",
+    "document_client.py",
+    "document_models.py",
+    "invoice_summary.py",
+    "vendor_text_safety.py",
+    "invoice_note_translate.py",
+    "expense_record_store.py"
+  ],
+  "downstream_atomic_scenarios": {
+    "invoice_summary.py": "S10",
+    "vendor_text_safety.py": "S13",
+    "invoice_note_translate.py": "S03",
+    "expense_record_store.py": "S15"
+  },
+  "scored_files": [
+    "invoice_summary.py",
+    "vendor_text_safety.py",
+    "invoice_note_translate.py",
+    "expense_record_store.py"
+  ],
+  "input_contract": {
+    "payload": [
+      "document_bytes",
+      "mime_type"
+    ],
+    "output": [
+      "invoices: [{vendor, date, total, line_items: [{description, quantity, amount}]}]"
+    ],
+    "aws_config": [
+      "region (optional)"
+    ],
+    "google_config": [
+      "project_id",
+      "location",
+      "processor_id"
+    ],
+    "preconditions": "Matched single-invoice scan supported by both services; Google processor must be Invoice Parser. Values retain extracted text, absent fields are null; extraction accuracy is not assumed equal."
+  },
+  "evidence": {
+    "provider_key": "aws",
+    "ecosystem": "aws",
+    "label": "Textract AnalyzeExpense",
+    "service": "Amazon Textract AnalyzeExpense",
+    "sdk": "boto3",
+    "interface": "sdk",
+    "official_docs": [
+      {
+        "title": "AnalyzeExpense",
+        "url": "https://docs.aws.amazon.com/textract/latest/dg/API_AnalyzeExpense.html",
+        "proof_id": "PR_ed60e4e4e47f"
+      }
+    ],
+    "operations": [
+      "analyze_expense"
+    ],
+    "auth_env": [
+      "AWS_ACCESS_KEY_ID",
+      "AWS_SECRET_ACCESS_KEY"
+    ],
+    "eligible": true,
+    "notes": "Expense/invoice field extraction.",
+    "proof_ids": [
+      "PR_ed60e4e4e47f"
+    ]
+  },
+  "dependency_package": "boto3",
+  "sdk_migration": null,
+  "status": "prepared_not_live_validated"
+}

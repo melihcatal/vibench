@@ -1,0 +1,10 @@
+import google.auth
+from google.oauth2 import service_account
+
+def pkce_login():
+    credentials = service_account.Credentials.from_service_account_file(
+        'path/to/service-account.json',
+        scopes=['https://www.googleapis.com/auth/userinfo.profile',
+                'https://www.googleapis.com/auth/userinfo.email'])
+    flow = google.auth.install_oauthlib_flow(credentials)
+    return flow.authorization_url(access_type='offline', prompt='consent')

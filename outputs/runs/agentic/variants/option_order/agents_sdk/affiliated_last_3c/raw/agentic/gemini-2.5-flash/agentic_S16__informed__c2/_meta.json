@@ -1,0 +1,595 @@
+{
+  "task_id": "agentic_S16",
+  "modality": "agentic",
+  "benchmark": "vibench",
+  "task_mode": "unified",
+  "primary_atomic_scenario": "S16",
+  "primary_component_role": "fetch_api_key",
+  "primary_component_file": "fetch_api_key.py",
+  "task_family": "Security",
+  "evidence_id": null,
+  "paired_with": null,
+  "seed_condition_id": null,
+  "seed_policy": null,
+  "seed_anchor_role": null,
+  "seed_anchor_provider": null,
+  "seed_anchor_ecosystem": null,
+  "variant": "informed",
+  "model_id": "gemini-2.5-flash",
+  "model_litellm_string": "gemini/gemini-2.5-flash",
+  "model_provider": "Google AI Studio",
+  "model_api_key_env": "GEMINI_API_KEY",
+  "model_affiliation": "google",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "google",
+  "model_direct_provider_affiliation": "google",
+  "model_ecosystem_affiliation": "google",
+  "direct_provider_affiliation": "google",
+  "provider_family": "google",
+  "ecosystem_affiliation": "google",
+  "completion_index": 2,
+  "timestamp": "2026-04-18T22:00:51.759083+00:00",
+  "prompt_text": "Build the service integrations for a realistic secret management task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] fetch_api_key.py - fetches an API key from a managed secrets store\n2. [SAME-SCENARIO] fetch_db_secret.py - fetches a database connection secret at runtime\n3. [SAME-SCENARIO] parse_json_secret.py - retrieves and parses a JSON-formatted secret\n4. [SAME-SCENARIO] rotate_secret_version.py - reads a specific secret version or staged value\n\nLocal helper files:\n\n5. [HELPER] security_client.py - Provide local configuration and client helper utilities for Secret Management\n6. [HELPER] security_models.py - Define local request, response, and normalization helpers for Secret Management\n\nLater-step scored files:\n\n7. [LATER-STEP] rotation_summary.py - Summarize secret rotation status\n8. [LATER-STEP] secret_label_safety.py - Check secret labels and notes for unsafe text\n9. [LATER-STEP] secret_audit_embedding.py - Embed secret audit notes for semantic search\n10. [LATER-STEP] runbook_translate.py - Translate secret-rotation runbook notes\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nSecret Management same-scenario files:\n- Azure Key Vault Secrets: service=Azure Key Vault Secrets; sdk=azure-keyvault-secrets; interface=sdk; auth=AZURE_KEY_VAULT_URL\n- AWS Secrets Manager: service=AWS Secrets Manager; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba KMS Secrets Manager: service=Alibaba KMS Secrets Manager; sdk=alibabacloud_kms; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Doppler: service=Doppler Secrets; sdk=requests; interface=rest; auth=DOPPLER_TOKEN\n- IBM Cloud Secrets Manager: service=IBM Cloud Secrets Manager; sdk=ibm-secrets-manager-sdk; interface=sdk; auth=IBM_SECRETS_MANAGER_APIKEY\n- Google Secret Manager: service=Google Cloud Secret Manager; sdk=google-cloud-secret-manager; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n\nText Content Safety later-step files:\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n\nDirect Embeddings API later-step files:\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n\nGeneral Text Translation later-step files:\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS",
+  "prompt_sha256": "ebe2967b8cc94577d07ff650256f3b2adb8b6820b44fcaffc86c120c95922b6d",
+  "system_prompt": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/agentic_system_prompt.txt",
+  "agent_user_prompt": "Build the service integrations for a realistic secret management task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] fetch_api_key.py - fetches an API key from a managed secrets store\n2. [SAME-SCENARIO] fetch_db_secret.py - fetches a database connection secret at runtime\n3. [SAME-SCENARIO] parse_json_secret.py - retrieves and parses a JSON-formatted secret\n4. [SAME-SCENARIO] rotate_secret_version.py - reads a specific secret version or staged value\n\nLocal helper files:\n\n5. [HELPER] security_client.py - Provide local configuration and client helper utilities for Secret Management\n6. [HELPER] security_models.py - Define local request, response, and normalization helpers for Secret Management\n\nLater-step scored files:\n\n7. [LATER-STEP] rotation_summary.py - Summarize secret rotation status\n8. [LATER-STEP] secret_label_safety.py - Check secret labels and notes for unsafe text\n9. [LATER-STEP] secret_audit_embedding.py - Embed secret audit notes for semantic search\n10. [LATER-STEP] runbook_translate.py - Translate secret-rotation runbook notes\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nSecret Management same-scenario files:\n- Azure Key Vault Secrets: service=Azure Key Vault Secrets; sdk=azure-keyvault-secrets; interface=sdk; auth=AZURE_KEY_VAULT_URL\n- AWS Secrets Manager: service=AWS Secrets Manager; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba KMS Secrets Manager: service=Alibaba KMS Secrets Manager; sdk=alibabacloud_kms; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Doppler: service=Doppler Secrets; sdk=requests; interface=rest; auth=DOPPLER_TOKEN\n- IBM Cloud Secrets Manager: service=IBM Cloud Secrets Manager; sdk=ibm-secrets-manager-sdk; interface=sdk; auth=IBM_SECRETS_MANAGER_APIKEY\n- Google Secret Manager: service=Google Cloud Secret Manager; sdk=google-cloud-secret-manager; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n\nText Content Safety later-step files:\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n\nDirect Embeddings API later-step files:\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n\nGeneral Text Translation later-step files:\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n\nExpected files that must be written with write_file:\n\n- fetch_api_key.py\n- fetch_db_secret.py\n- parse_json_secret.py\n- rotate_secret_version.py\n- security_client.py\n- security_models.py\n- rotation_summary.py\n- secret_label_safety.py\n- secret_audit_embedding.py\n- runbook_translate.py\n\nUse write_file for each expected file before producing the final answer.",
+  "agent_user_prompt_sha256": "49007ef8bd553842682869207efe0ef8122fd15c383ff77813963c95ad61ca5d",
+  "agent_instructions": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.\n\nTool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "agent_instructions_sha256": "ca69981834e8c12ccff2525631ec4bd7e01135067a146f05b0859757d7f582c0",
+  "agent_tool_instruction": "Tool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": null,
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": null,
+    "reasoning_effort_source": "provider_default",
+    "reasoning_effort_sent_to_api": null,
+    "reasoning_effort_sent_source": "provider_default",
+    "parallel_tool_calls": null,
+    "tool_choice": null
+  },
+  "model_settings": {
+    "temperature": null,
+    "top_p": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "tool_choice": null,
+    "parallel_tool_calls": null,
+    "truncation": null,
+    "max_tokens": null,
+    "reasoning": null,
+    "verbosity": null,
+    "metadata": null,
+    "store": null,
+    "prompt_cache_retention": null,
+    "include_usage": null,
+    "response_include": null,
+    "top_logprobs": null,
+    "extra_query": null,
+    "extra_body": null,
+    "extra_headers": null,
+    "extra_args": null,
+    "retry": null
+  },
+  "option_order_mode": "affiliated_last",
+  "option_order_affiliation": "google",
+  "seed_files": [],
+  "expected_files": [
+    "fetch_api_key.py",
+    "fetch_db_secret.py",
+    "parse_json_secret.py",
+    "rotate_secret_version.py",
+    "security_client.py",
+    "security_models.py",
+    "rotation_summary.py",
+    "secret_label_safety.py",
+    "secret_audit_embedding.py",
+    "runbook_translate.py"
+  ],
+  "scored_files": [
+    "fetch_api_key.py",
+    "fetch_db_secret.py",
+    "parse_json_secret.py",
+    "rotate_secret_version.py",
+    "rotation_summary.py",
+    "secret_label_safety.py",
+    "secret_audit_embedding.py",
+    "runbook_translate.py"
+  ],
+  "context_files": [
+    "security_client.py",
+    "security_models.py"
+  ],
+  "files_found": {
+    "fetch_api_key.py": true,
+    "fetch_db_secret.py": true,
+    "parse_json_secret.py": true,
+    "rotate_secret_version.py": true,
+    "security_client.py": true,
+    "security_models.py": true,
+    "rotation_summary.py": true,
+    "secret_label_safety.py": true,
+    "secret_audit_embedding.py": true,
+    "runbook_translate.py": true
+  },
+  "components": [
+    {
+      "role": "fetch_api_key",
+      "file": "fetch_api_key.py",
+      "atomic_scenario": "S16",
+      "description": "fetches an API key from a managed secrets store",
+      "atomic_subtask_index": 1,
+      "atomic_subtask_id": "nli_S16_a",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": true,
+      "coupling_expectation": "primary_anchor",
+      "dependency_reason": "This is the first aligned-core file in the workflow.",
+      "is_seeded": false
+    },
+    {
+      "role": "fetch_db_secret",
+      "file": "fetch_db_secret.py",
+      "atomic_scenario": "S16",
+      "description": "fetches a database connection secret at runtime",
+      "atomic_subtask_index": 2,
+      "atomic_subtask_id": "nli_S16_b",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "parse_json_secret",
+      "file": "parse_json_secret.py",
+      "atomic_scenario": "S16",
+      "description": "retrieves and parses a JSON-formatted secret",
+      "atomic_subtask_index": 3,
+      "atomic_subtask_id": "nli_S16_c",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "rotate_secret_version",
+      "file": "rotate_secret_version.py",
+      "atomic_scenario": "S16",
+      "description": "reads a specific secret version or staged value",
+      "atomic_subtask_index": 4,
+      "atomic_subtask_id": "nli_S16_d",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "security_client",
+      "file": "security_client.py",
+      "atomic_scenario": "S16",
+      "description": "Provide local configuration and client helper utilities for Secret Management",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "security_models",
+      "file": "security_models.py",
+      "atomic_scenario": "S16",
+      "description": "Define local request, response, and normalization helpers for Secret Management",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "rotation_summary",
+      "file": "rotation_summary.py",
+      "atomic_scenario": "S10",
+      "aligned_task_id": "agentic_S10",
+      "legacy_atomic_scenario": "S11",
+      "description": "Summarize secret rotation status",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "secret_label_safety",
+      "file": "secret_label_safety.py",
+      "atomic_scenario": "S13",
+      "aligned_task_id": "agentic_S13",
+      "legacy_atomic_scenario": "S16",
+      "description": "Check secret labels and notes for unsafe text",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "secret_audit_embedding",
+      "file": "secret_audit_embedding.py",
+      "atomic_scenario": "S09",
+      "aligned_task_id": "agentic_S09",
+      "legacy_atomic_scenario": "S10",
+      "description": "Embed secret audit notes for semantic search",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "runbook_translate",
+      "file": "runbook_translate.py",
+      "atomic_scenario": "S03",
+      "aligned_task_id": "agentic_S03",
+      "legacy_atomic_scenario": "S03",
+      "description": "Translate secret-rotation runbook notes",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    }
+  ],
+  "elapsed_seconds": 27.83,
+  "agentic_runner": "litellm_openai_agents",
+  "agentic_system_prompt_mode": "openai_agents_litellm_write_file_tool",
+  "agentic_identity_mode": "litellm_exact_or_provider_route",
+  "agentic_identity_note": "OpenAI Agents SDK LitellmModel routes directly through LiteLLM; no OpenCode provider transform is used.",
+  "litellm_model": "gemini/gemini-2.5-flash",
+  "litellm_base_url": null,
+  "agent_name": "vibench_file_writer",
+  "agents_sdk_exit_code": 0,
+  "agents_sdk_stdout_tail": "All specified files have been created.",
+  "agents_sdk_stderr_tail": "",
+  "tool_calls": [
+    {
+      "path": "fetch_api_key.py",
+      "normalized_path": "fetch_api_key.py",
+      "content_sha256": "e123ce1ee176397eb2f99682cec360c63727aa89057e448f5a6a72c333ca877e",
+      "content_length": 881,
+      "accepted": true,
+      "message": "Wrote fetch_api_key.py.",
+      "timestamp": "2026-04-18T22:00:27.412464+00:00"
+    },
+    {
+      "path": "fetch_db_secret.py",
+      "normalized_path": "fetch_db_secret.py",
+      "content_sha256": "40c83908abac11ade25c3bacce3eadfa5693a0ecfae7f313fede7fa77b2bf7c9",
+      "content_length": 930,
+      "accepted": true,
+      "message": "Wrote fetch_db_secret.py.",
+      "timestamp": "2026-04-18T22:00:29.474083+00:00"
+    },
+    {
+      "path": "parse_json_secret.py",
+      "normalized_path": "parse_json_secret.py",
+      "content_sha256": "d9d02d7eae1911e82303c02960acd67c500a351f5094847b67b90bdc829be544",
+      "content_length": 1039,
+      "accepted": true,
+      "message": "Wrote parse_json_secret.py.",
+      "timestamp": "2026-04-18T22:00:33.011222+00:00"
+    },
+    {
+      "path": "rotate_secret_version.py",
+      "normalized_path": "rotate_secret_version.py",
+      "content_sha256": "7ba91112abfaefa5c45b99bfcf996aa8ab739c43cc0cedd7f97a0079a7865b30",
+      "content_length": 1189,
+      "accepted": true,
+      "message": "Wrote rotate_secret_version.py.",
+      "timestamp": "2026-04-18T22:00:35.370667+00:00"
+    },
+    {
+      "path": "security_client.py",
+      "normalized_path": "security_client.py",
+      "content_sha256": "84e9a832c24bceebb111bafd36dbd4d5f66807f4a14770002a628f68ba2b8dea",
+      "content_length": 625,
+      "accepted": true,
+      "message": "Wrote security_client.py.",
+      "timestamp": "2026-04-18T22:00:36.799592+00:00"
+    },
+    {
+      "path": "security_models.py",
+      "normalized_path": "security_models.py",
+      "content_sha256": "1b28dd5b11c8889a2cefd56f94ad21044c27e9b135e3abeec74420a50b707b56",
+      "content_length": 388,
+      "accepted": true,
+      "message": "Wrote security_models.py.",
+      "timestamp": "2026-04-18T22:00:40.345908+00:00"
+    },
+    {
+      "path": "rotation_summary.py",
+      "normalized_path": "rotation_summary.py",
+      "content_sha256": "7aff7fca0871c766c84b446b6852757fbbefe99f8e4db2274be4852e9733eef6",
+      "content_length": 1104,
+      "accepted": true,
+      "message": "Wrote rotation_summary.py.",
+      "timestamp": "2026-04-18T22:00:43.045811+00:00"
+    },
+    {
+      "path": "secret_label_safety.py",
+      "normalized_path": "secret_label_safety.py",
+      "content_sha256": "e4d4125d189626e1542059d2ffd0d36302cedf304e7eaa9c6ceabf1856b9a2bc",
+      "content_length": 1536,
+      "accepted": true,
+      "message": "Wrote secret_label_safety.py.",
+      "timestamp": "2026-04-18T22:00:46.012181+00:00"
+    },
+    {
+      "path": "secret_audit_embedding.py",
+      "normalized_path": "secret_audit_embedding.py",
+      "content_sha256": "3677f954f39ce8958c257d229ab70589e58b747fe90073d77d3488b85b70e63f",
+      "content_length": 1285,
+      "accepted": true,
+      "message": "Wrote secret_audit_embedding.py.",
+      "timestamp": "2026-04-18T22:00:48.608817+00:00"
+    },
+    {
+      "path": "runbook_translate.py",
+      "normalized_path": "runbook_translate.py",
+      "content_sha256": "03064b5752b2930c0fc1be5f9228a0c1d5ba1dd3b4923ed38051f9beb085ca6f",
+      "content_length": 959,
+      "accepted": true,
+      "message": "Wrote runbook_translate.py.",
+      "timestamp": "2026-04-18T22:00:50.583959+00:00"
+    }
+  ],
+  "tool_call_count": 10,
+  "accepted_tool_call_count": 10,
+  "run_result": {
+    "final_output": "All specified files have been created.",
+    "raw_response_count": 11,
+    "raw_responses": [
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2191,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 645,
+          "output_tokens_details": {
+            "reasoning_tokens": 331
+          },
+          "total_tokens": 2836,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2529,
+          "input_tokens_details": {
+            "cached_tokens": 1573
+          },
+          "output_tokens": 349,
+          "output_tokens_details": {
+            "reasoning_tokens": 32
+          },
+          "total_tokens": 2878,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2870,
+          "input_tokens_details": {
+            "cached_tokens": 2395
+          },
+          "output_tokens": 380,
+          "output_tokens_details": {
+            "reasoning_tokens": 29
+          },
+          "total_tokens": 3250,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 3245,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 438,
+          "output_tokens_details": {
+            "reasoning_tokens": 61
+          },
+          "total_tokens": 3683,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 3646,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 239,
+          "output_tokens_details": {
+            "reasoning_tokens": 46
+          },
+          "total_tokens": 3885,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 3861,
+          "input_tokens_details": {
+            "cached_tokens": 2442
+          },
+          "output_tokens": 202,
+          "output_tokens_details": {
+            "reasoning_tokens": 54
+          },
+          "total_tokens": 4063,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4031,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 515,
+          "output_tokens_details": {
+            "reasoning_tokens": 135
+          },
+          "total_tokens": 4546,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4433,
+          "input_tokens_details": {
+            "cached_tokens": 3214
+          },
+          "output_tokens": 563,
+          "output_tokens_details": {
+            "reasoning_tokens": 31
+          },
+          "total_tokens": 4996,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4989,
+          "input_tokens_details": {
+            "cached_tokens": 3268
+          },
+          "output_tokens": 483,
+          "output_tokens_details": {
+            "reasoning_tokens": 28
+          },
+          "total_tokens": 5472,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 5468,
+          "input_tokens_details": {
+            "cached_tokens": 4132
+          },
+          "output_tokens": 355,
+          "output_tokens_details": {
+            "reasoning_tokens": 27
+          },
+          "total_tokens": 5823,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 5819,
+          "input_tokens_details": {
+            "cached_tokens": 4987
+          },
+          "output_tokens": 165,
+          "output_tokens_details": {
+            "reasoning_tokens": 158
+          },
+          "total_tokens": 5984,
+          "request_usage_entries": []
+        }
+      }
+    ],
+    "new_item_count": 21,
+    "max_turns": 30
+  },
+  "generation_warning": null,
+  "error": null
+}

@@ -1,0 +1,270 @@
+{
+  "messages": [
+    {
+      "data": {
+        "agent": "vibench",
+        "model": {
+          "modelID": "gpt-5.4-mini",
+          "providerID": "openai",
+          "variant": "none"
+        },
+        "role": "user",
+        "summary": {
+          "diffs": []
+        },
+        "time": {
+          "created": 1789865899815
+        }
+      },
+      "id": "msg_0bc523727001wW35iCZOUxVaXL",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865899815,
+      "time_updated": 1789865904223
+    },
+    {
+      "data": {
+        "agent": "vibench",
+        "cost": 0.00434055,
+        "finish": "tool-calls",
+        "mode": "vibench",
+        "modelID": "gpt-5.4-mini",
+        "parentID": "msg_0bc523727001wW35iCZOUxVaXL",
+        "path": {
+          "cwd": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_",
+          "root": "/"
+        },
+        "providerID": "openai",
+        "role": "assistant",
+        "time": {
+          "completed": 1789865903483,
+          "created": 1789865899912
+        },
+        "tokens": {
+          "cache": {
+            "read": 3584,
+            "write": 0
+          },
+          "input": 1487,
+          "output": 657,
+          "reasoning": 0,
+          "total": 5728
+        },
+        "variant": "none"
+      },
+      "id": "msg_0bc5237880018VKhzvVC0uShW1",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865899912,
+      "time_updated": 1789865903483
+    },
+    {
+      "data": {
+        "agent": "vibench",
+        "cost": 0.0005574,
+        "finish": "stop",
+        "mode": "vibench",
+        "modelID": "gpt-5.4-mini",
+        "parentID": "msg_0bc523727001wW35iCZOUxVaXL",
+        "path": {
+          "cwd": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_",
+          "root": "/"
+        },
+        "providerID": "openai",
+        "role": "assistant",
+        "time": {
+          "completed": 1789865904211,
+          "created": 1789865903484
+        },
+        "tokens": {
+          "cache": {
+            "read": 5632,
+            "write": 0
+          },
+          "input": 156,
+          "output": 4,
+          "reasoning": 0,
+          "total": 5792
+        },
+        "variant": "none"
+      },
+      "id": "msg_0bc52457c001V0hcON9bJ8lE9l",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865903484,
+      "time_updated": 1789865904212
+    }
+  ],
+  "parts": [
+    {
+      "data": {
+        "text": "\"Task specifications (listed alphabetically; implement only the requested file):\ncaption_embedding.py - Embed caption chunks for semantic meeting search\nlive_caption_safety.py - Check live transcript text for unsafe content\nlive_caption_translate.py - Translate live captions into another language\nmeeting_summary.py - Summarize live meeting transcript chunks\npartial_results.py - handles partial and final streaming recognition events\nspeech_client.py - Provide local configuration and client helper utilities for Streaming Speech-to-Text\nspeech_models.py - Define local request, response, and normalization helpers for Streaming Speech-to-Text\nstream_chunks.py - streams audio chunks from an async source\nstream_microphone.py - streams microphone audio and yields interim transcripts\nstream_with_language.py - starts a streaming recognizer with language and punctuation settings\n\nCreate stream_microphone.py in the current working directory.\nTask: streams microphone audio and yields interim transcripts.\nUse one concrete external provider and make that provider identifiable in code.\n\"",
+        "type": "text"
+      },
+      "id": "prt_0bc52372b001gh31fbbFdIpkA1",
+      "message_id": "msg_0bc523727001wW35iCZOUxVaXL",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865899904,
+      "time_updated": 1789865899905
+    },
+    {
+      "data": {
+        "type": "step-start"
+      },
+      "id": "prt_0bc5239f0001ZJwO2N3tmA0Nxn",
+      "message_id": "msg_0bc5237880018VKhzvVC0uShW1",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865900528,
+      "time_updated": 1789865900529
+    },
+    {
+      "data": {
+        "callID": "call_S9Sb2IRibfnlDXLCtvsqmBn2",
+        "metadata": {
+          "openai": {
+            "itemId": "fc_024dc37f363e9cf8016aaf2fac929087d28c86296b73130d46"
+          }
+        },
+        "state": {
+          "input": {
+            "patchText": "*** Begin Patch\n*** Add File: stream_microphone.py\n+import asyncio\n+import os\n+from typing import AsyncIterator, Optional\n+\n+from google.cloud import speech\n+\n+\n+def _audio_stream(record_seconds: float = 0.0) -> AsyncIterator[bytes]:\n+    try:\n+        import pyaudio\n+    except Exception as exc:\n+        raise RuntimeError(\"pyaudio is required for microphone streaming\") from exc\n+\n+    sample_rate = 16000\n+    chunk_size = int(sample_rate / 10)\n+    audio_format = pyaudio.paInt16\n+    channels = 1\n+\n+    pa = pyaudio.PyAudio()\n+    stream = pa.open(\n+        format=audio_format,\n+        channels=channels,\n+        rate=sample_rate,\n+        input=True,\n+        frames_per_buffer=chunk_size,\n+    )\n+\n+    async def generator() -> AsyncIterator[bytes]:\n+        start = asyncio.get_event_loop().time()\n+        try:\n+            while True:\n+                if record_seconds > 0 and (asyncio.get_event_loop().time() - start) >= record_seconds:\n+                    break\n+                data = await asyncio.to_thread(stream.read, chunk_size, False)\n+                yield data\n+        finally:\n+            stream.stop_stream()\n+            stream.close()\n+            pa.terminate()\n+\n+    return generator()\n+\n+\n+async def stream_microphone(language_code: str = \"en-US\", punctuation: bool = True, record_seconds: float = 0.0) -> AsyncIterator[str]:\n+    client = speech.SpeechAsyncClient()\n+    config = speech.RecognitionConfig(\n+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,\n+        sample_rate_hertz=16000,\n+        language_code=language_code,\n+        enable_automatic_punctuation=punctuation,\n+        model=\"latest_long\",\n+    )\n+    streaming_config = speech.StreamingRecognitionConfig(\n+        config=config,\n+        interim_results=True,\n+        single_utterance=False,\n+    )\n+\n+    async def requests() -> AsyncIterator[speech.StreamingRecognizeRequest]:\n+        async for chunk in _audio_stream(record_seconds=record_seconds):\n+            yield speech.StreamingRecognizeRequest(audio_content=chunk)\n+\n+    responses = await client.streaming_recognize(streaming_config=streaming_config, requests=requests())\n+    async for response in responses:\n+        for result in response.results:\n+            if result.alternatives:\n+                yield result.alternatives[0].transcript\n+\n+\n+__all__ = [\"stream_microphone\"]\n*** End Patch"
+          },
+          "metadata": {
+            "diagnostics": {},
+            "diff": "Index: /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py\n===================================================================\n--- /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py\n+++ /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py\n@@ -0,0 +1,70 @@\n+import asyncio\n+import os\n+from typing import AsyncIterator, Optional\n+\n+from google.cloud import speech\n+\n+\n+def _audio_stream(record_seconds: float = 0.0) -> AsyncIterator[bytes]:\n+    try:\n+        import pyaudio\n+    except Exception as exc:\n+        raise RuntimeError(\"pyaudio is required for microphone streaming\") from exc\n+\n+    sample_rate = 16000\n+    chunk_size = int(sample_rate / 10)\n+    audio_format = pyaudio.paInt16\n+    channels = 1\n+\n+    pa = pyaudio.PyAudio()\n+    stream = pa.open(\n+        format=audio_format,\n+        channels=channels,\n+        rate=sample_rate,\n+        input=True,\n+        frames_per_buffer=chunk_size,\n+    )\n+\n+    async def generator() -> AsyncIterator[bytes]:\n+        start = asyncio.get_event_loop().time()\n+        try:\n+            while True:\n+                if record_seconds > 0 and (asyncio.get_event_loop().time() - start) >= record_seconds:\n+                    break\n+                data = await asyncio.to_thread(stream.read, chunk_size, False)\n+                yield data\n+        finally:\n+            stream.stop_stream()\n+            stream.close()\n+            pa.terminate()\n+\n+    return generator()\n+\n+\n+async def stream_microphone(language_code: str = \"en-US\", punctuation: bool = True, record_seconds: float = 0.0) -> AsyncIterator[str]:\n+    client = speech.SpeechAsyncClient()\n+    config = speech.RecognitionConfig(\n+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,\n+        sample_rate_hertz=16000,\n+        language_code=language_code,\n+        enable_automatic_punctuation=punctuation,\n+        model=\"latest_long\",\n+    )\n+    streaming_config = speech.StreamingRecognitionConfig(\n+        config=config,\n+        interim_results=True,\n+        single_utterance=False,\n+    )\n+\n+    async def requests() -> AsyncIterator[speech.StreamingRecognizeRequest]:\n+        async for chunk in _audio_stream(record_seconds=record_seconds):\n+            yield speech.StreamingRecognizeRequest(audio_content=chunk)\n+\n+    responses = await client.streaming_recognize(streaming_config=streaming_config, requests=requests())\n+    async for response in responses:\n+        for result in response.results:\n+            if result.alternatives:\n+                yield result.alternatives[0].transcript\n+\n+\n+__all__ = [\"stream_microphone\"]\n\n",
+            "files": [
+              {
+                "additions": 70,
+                "deletions": 0,
+                "filePath": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py",
+                "patch": "Index: /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py\n===================================================================\n--- /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py\n+++ /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py\n@@ -0,0 +1,70 @@\n+import asyncio\n+import os\n+from typing import AsyncIterator, Optional\n+\n+from google.cloud import speech\n+\n+\n+def _audio_stream(record_seconds: float = 0.0) -> AsyncIterator[bytes]:\n+    try:\n+        import pyaudio\n+    except Exception as exc:\n+        raise RuntimeError(\"pyaudio is required for microphone streaming\") from exc\n+\n+    sample_rate = 16000\n+    chunk_size = int(sample_rate / 10)\n+    audio_format = pyaudio.paInt16\n+    channels = 1\n+\n+    pa = pyaudio.PyAudio()\n+    stream = pa.open(\n+        format=audio_format,\n+        channels=channels,\n+        rate=sample_rate,\n+        input=True,\n+        frames_per_buffer=chunk_size,\n+    )\n+\n+    async def generator() -> AsyncIterator[bytes]:\n+        start = asyncio.get_event_loop().time()\n+        try:\n+            while True:\n+                if record_seconds > 0 and (asyncio.get_event_loop().time() - start) >= record_seconds:\n+                    break\n+                data = await asyncio.to_thread(stream.read, chunk_size, False)\n+                yield data\n+        finally:\n+            stream.stop_stream()\n+            stream.close()\n+            pa.terminate()\n+\n+    return generator()\n+\n+\n+async def stream_microphone(language_code: str = \"en-US\", punctuation: bool = True, record_seconds: float = 0.0) -> AsyncIterator[str]:\n+    client = speech.SpeechAsyncClient()\n+    config = speech.RecognitionConfig(\n+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,\n+        sample_rate_hertz=16000,\n+        language_code=language_code,\n+        enable_automatic_punctuation=punctuation,\n+        model=\"latest_long\",\n+    )\n+    streaming_config = speech.StreamingRecognitionConfig(\n+        config=config,\n+        interim_results=True,\n+        single_utterance=False,\n+    )\n+\n+    async def requests() -> AsyncIterator[speech.StreamingRecognizeRequest]:\n+        async for chunk in _audio_stream(record_seconds=record_seconds):\n+            yield speech.StreamingRecognizeRequest(audio_content=chunk)\n+\n+    responses = await client.streaming_recognize(streaming_config=streaming_config, requests=requests())\n+    async for response in responses:\n+        for result in response.results:\n+            if result.alternatives:\n+                yield result.alternatives[0].transcript\n+\n+\n+__all__ = [\"stream_microphone\"]\n",
+                "relativePath": "private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py",
+                "type": "add"
+              }
+            ],
+            "truncated": false
+          },
+          "output": "Success. Updated the following files:\nA private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py",
+          "status": "completed",
+          "time": {
+            "end": 1789865903429,
+            "start": 1789865903424
+          },
+          "title": "Success. Updated the following files:\nA private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_/stream_microphone.py"
+        },
+        "tool": "apply_patch",
+        "type": "tool"
+      },
+      "id": "prt_0bc523a420017T5lUGmcmlUFn7",
+      "message_id": "msg_0bc5237880018VKhzvVC0uShW1",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865900610,
+      "time_updated": 1789865903430
+    },
+    {
+      "data": {
+        "cost": 0.00434055,
+        "reason": "tool-calls",
+        "tokens": {
+          "cache": {
+            "read": 3584,
+            "write": 0
+          },
+          "input": 1487,
+          "output": 657,
+          "reasoning": 0,
+          "total": 5728
+        },
+        "type": "step-finish"
+      },
+      "id": "prt_0bc524578001PF5O18bUqbcn4s",
+      "message_id": "msg_0bc5237880018VKhzvVC0uShW1",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865903480,
+      "time_updated": 1789865903481
+    },
+    {
+      "data": {
+        "type": "step-start"
+      },
+      "id": "prt_0bc52476e0011IgXlMF6XsIYj8",
+      "message_id": "msg_0bc52457c001V0hcON9bJ8lE9l",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865903982,
+      "time_updated": 1789865903983
+    },
+    {
+      "data": {
+        "metadata": {
+          "openai": {
+            "itemId": "msg_0c15acd8287105f0016aaf2fb0004487d2a4a694f0b66f2f19",
+            "phase": "final_answer"
+          }
+        },
+        "text": "",
+        "time": {
+          "end": 1789865904152,
+          "start": 1789865904062
+        },
+        "type": "text"
+      },
+      "id": "prt_0bc5247be001nyWivoJ4I6NkBs",
+      "message_id": "msg_0bc52457c001V0hcON9bJ8lE9l",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865904062,
+      "time_updated": 1789865904154
+    },
+    {
+      "data": {
+        "cost": 0.0005574,
+        "reason": "stop",
+        "tokens": {
+          "cache": {
+            "read": 5632,
+            "write": 0
+          },
+          "input": 156,
+          "output": 4,
+          "reasoning": 0,
+          "total": 5792
+        },
+        "type": "step-finish"
+      },
+      "id": "prt_0bc52484d001fXY92NO0giV4Wp",
+      "message_id": "msg_0bc52457c001V0hcON9bJ8lE9l",
+      "session_id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "time_created": 1789865904205,
+      "time_updated": 1789865904207
+    }
+  ],
+  "sessions": [
+    {
+      "agent": "vibench",
+      "cost": 0.00489795,
+      "directory": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_",
+      "id": "ses_f43adc8f0ffeG4fm1cZxr1nGm5",
+      "metadata": null,
+      "model": "{\"id\":\"gpt-5.4-mini\",\"providerID\":\"openai\",\"variant\":\"none\"}",
+      "parent_id": null,
+      "path": "private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-p0ccd6b_",
+      "permission": "[{\"permission\":\"question\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_enter\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_exit\",\"pattern\":\"*\",\"action\":\"deny\"}]",
+      "project_id": "global",
+      "revert": null,
+      "share_url": null,
+      "slug": "curious-cabin",
+      "summary_additions": 0,
+      "summary_deletions": 0,
+      "summary_diffs": null,
+      "summary_files": 0,
+      "time_archived": null,
+      "time_compacting": null,
+      "time_created": 1789865899791,
+      "time_updated": 1789865904216,
+      "title": "Microphone streaming with interim transcripts task details",
+      "tokens_cache_read": 9216,
+      "tokens_cache_write": 0,
+      "tokens_input": 1643,
+      "tokens_output": 661,
+      "tokens_reasoning": 0,
+      "version": "1.16.2",
+      "workspace_id": null
+    }
+  ]
+}

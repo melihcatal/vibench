@@ -1,0 +1,539 @@
+{
+  "condition": "staged_disclosure",
+  "conversation_mode": "fresh_session_per_file",
+  "elapsed_seconds": 70.88704358309042,
+  "exit_code": 0,
+  "identity_mode": "exact",
+  "identity_note": null,
+  "opencode_model": "google/gemini-2.5-flash",
+  "pilot_step_limit": null,
+  "sampling": {
+    "max_tokens": null,
+    "max_tokens_source": "opencode_model_limit_or_provider_default",
+    "opencode_variant": null,
+    "opencode_variant_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "opencode_variant_global": null,
+    "opencode_variant_policy": "supported_only",
+    "opencode_variant_requested": null,
+    "opencode_variant_sent_source": "provider_default",
+    "opencode_variant_sent_to_opencode": null,
+    "opencode_variant_source": "provider_default",
+    "temperature": null,
+    "temperature_sent_to_opencode": null,
+    "temperature_source": "provider_default",
+    "top_p": null,
+    "top_p_sent_to_opencode": null,
+    "top_p_source": "provider_default"
+  },
+  "steps": [
+    {
+      "audit": {
+        "created": [
+          "stream_microphone.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "stream_microphone.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:55:10.619855+00:00",
+      "prompt_verified": true,
+      "requested_file": "stream_microphone.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 9.013277083984576,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865703375,\"sessionID\":\"ses_f43b0cd92ffeI5W41njuu6yvl5\",\"part\":{\"id\":\"prt_0bc4f37cb001p7Xn0DQpw6vOWZ\",\"messageID\":\"msg_0bc4f32ee001mvA8kw4G4dUrd2\",\"sessionID\":\"ses_f43b0cd92ffeI5W41njuu6yvl5\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865709276,\"sessionID\":\"ses_f43b0cd92ffeI5W41njuu6yvl5\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"8XaceRf8MNmbeuCj\",\"state\":{\"status\":\"completed\",\"input\":{\"content\":\"import pyaudio\\nfrom six.moves import queue\\n\\nfrom google.cloud import speech_v1p1beta1 as speech\\n\\n# Audio recording parameters\\nRATE = 16000\\nCHUNK = int(RATE / 10)  # 100ms\\n\\nclass MicrophoneStream(object):\\n    \\\"\\\"\\\"Opens a recording stream as a generator yielding the audio chunks.\\\"\\\"\\\"\\n    def __init__(self, rate, chunk):\\n        self._rate = rate\\n        self._chunk = chunk\\n\\n        # Create a thread-safe buffer of audio data\\n        self._buff = queue.Queue()\\n        self.closed = True\\n\\n    def __enter__(self):\\n        self._audio_interface = pyaudio.PyAudio()\\n        self._audio_stream = self._audio_interface.open(\\n            format=pyaudio.paInt16,\\n            channels=1,\\n            rate=self._rate,\\n            input=True,\\n            frames_per_buffer=self._chunk,\\n            stream_callback=self._fill_buffer,\\n        )\\n\\n        self.closed = False\\n\\n        return self\\n\\n    def __exit__(self, type, value, traceback):\\n        self._audio_stream.stop_stream()\\n        self._audio_stream.close()\\n        self.closed = True\\n        # Signal the generator to terminate\\n        self._buff.put(None)\\n        self._audio_interface.terminate()\\n\\n    def _fill_buffer(self, in_data, frame_count, time_info, status_flags):\\n        \\\"\\\"\\\"Continuously collect data from the audio stream, into the buffer.\\\"\\\"\\\"\\n        self._buff.put(in_data)\\n        return None, pyaudio.paContinue\\n\\n    def generator(self):\\n        while not self.closed:\\n            # Use a blocking get() to ensure there's at least one chunk of data.\\n            chunk = self._buff.get()\\n            if chunk is None:\\n                return\\n            data = [chunk]\\n\\n            # Now consume whatever else is ready pre-emptively.\\n            while True:\\n                try:\\n                    chunk = self._buff.get(block=False)\\n                    if chunk is None:\\n                        return\\n                    data.append(chunk)\\n                except queue.Empty:\\n                    break\\n\\n            yield b\\\"\\\".join(data)\\n\\ndef listen_print_loop(responses):\\n    \\\"\\\"\\\"Iterates through server responses and prints them.\\n\\n    The responses passed is a generator that will block until a response is provided\\n    by the API. Each utterance is printed iteratively, and the interim results are\\n    shown as \\\"transcript\\\" while the confidence indicates the real-time\\n    confidence for that utterance. We also check for the \\\"is_final\\\" flag to detect\\n    when an utterance is complete.\\n    \\\"\\\"\\\"\\n    num_chars_printed = 0\\n    for response in responses:\\n        if not response.results:\\n            continue\\n\\n        result = response.results[0]\\n        if not result.alternatives:\\n            continue\\n\\n        transcript = result.alternatives[0].transcript\\n\\n        overwrite_chars = \\\" \\\" * (num_chars_printed - len(transcript))\\n\\n        if not result.is_final:\\n            print(\\\"Transcript: \\\" + transcript + overwrite_chars, end=\\\"\\\\r\\\")\\n            num_chars_printed = len(transcript)\\n\\n        else:\\n            print(\\\"Final Transcript: \\\" + transcript + overwrite_chars)\\n            num_chars_printed = 0\\n\\ndef main():\\n    language_code = \\\"en-US\\\"  # a BCP-47 language tag\\n\\n    client = speech.SpeechClient()\\n    config = speech.RecognitionConfig(\\n        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,\\n        sample_rate_hertz=RATE,\\n        language_code=language_code,\\n        interim_results=True,\\n    )\\n\\n    streaming_config = speech.StreamingRecognitionConfig(\\n        config=config,\\n        interim_results=True,\\n    )\\n\\n    with MicrophoneStream(RATE, CHUNK) as stream:\\n        audio_generator = stream.generator()\\n        requests = (\\n            speech.StreamingRecognizeRequest(audio_content=content)\\n            for content in audio_generator\\n        )\\n\\n        responses = client.streaming_recognize(streaming_config, requests)\\n\\n        # Now, create the generator that will yield interim results as they arrive.\\n        listen_print_loop(responses)\\n\\nif __name__ == \\\"__main__\\\":\\n    main()\\n\",\"filePath\":\"stream_microphone.py\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/stream_microphone.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/stream_microphone.py\",\"time\":{\"start\":1789865709254,\"end\":1789865709263}},\"metadata\":{\"google\":{\"thoughtSignature\":\"ClkBaRR9EzpxNodTtDuf2aOrTdUFak1tQEUCHmkTSCAsjyItWKN/tyos7dg7bD2NAtrkz8dHXg/WoG3GvmbU2nMxePtX9WjoWSMaXPAEh9UQxtMUzZmzgZgieAr/AQFpFH0Tij+0U4ueiPm2owfvBDAaMjeNe7QLc5kOI+75ji9e8SCqttKnpnjhzD9iBELbsY16h4pMxeiQUtAz/6gaKQA9jbD4oDaGdWV+jH8Pu2ZN8Ci61Mp5TM1zEHOUS8ZmI10V0wai0sxClRlQBbobJ7Uf73fWDZcI/jx2DuKAarJIauq67tY2rMu2pL6zO+yksG6lHYx9O3Mdu9XXXVURJ40/gbzp9gI0SHU0LNvkrDbHdjvKbVQGhU6E/eg2CtP8S6+KJOOBm0I++hIjMHWczXMdOETgDGFvQPV8PwobvQNb8crmuZrdR26pGPrXxS9rQrA7mv/UcGF2kvkDgwreAQFpFH0T3L2YK+aPyEcXiopOfkHRW/sxhBqBuDLQZc0epowG97am3TcX8RjxNioOH+cBG7WxD5vuVFZangiXRa9RQBz80hrWIYj9lghocQGp9ozcwcdl0K+fFBDPCFLYONOlMxvdO/j+c9Rslus/9GB3jbpnzNzab5sP0iBfRnt7qX5zPOybzpvbQf0GOwxVz+GA4TkiMvSB17iFUT69ayzxLwgUEEuP3ZoBWrYwBRSZJTIvtEwfZSWOV3DD020ES/hLGZXVfaxAji7pKeCgjjYRkuqi8YPtyCIdaohJbgrNAQFpFH0ToujueeRDwxeVFFvIYYgoPzhjSvSiG/MVFDHUjVbJDV99SpSoj9INmAR8pIc3ggeWM1xPeg8B5fBkrqmHTquL2yhDC2SevgmMzToJT6jW1gw4Gxo3smj8XK35xjPBiTe/wlHBDl4iORlE+h4dbxHadr/M5TKIOHVkwxyTi5PVMqGFvEQGNeEL/vTedhhlnDUzMnF3hnF5E4Wo0UPbfLJiybD563OCen8FFxNxA0oS55KJ5U11uTdgQ6cnraLCZ2l5uqwD5SEeqTkK7wEBaRR9E9MtxKJ0Cmz7FKM9AEWfcvHv0ArqyloG17t7x23YjNaLhwnWaD8N2+BuyYBUliyj9S90LTX5yVlSC9292v6+RoNQXs+JI09mG52i7GmIY314RYSs9gWeJy3BJU1Y1GGnZ0IUZKnEIILs/aO0yyd3URAnYJ588b8GVA3honNLOeuepYRVZOwJxQBug/B6T9YBRQCX3BXyvRfwz3l2tw7Jt3EPZ5nviYIEmFObTR/0vgMp/l8a/Vu/UKX8E5CyB567xtdvbDho+DG+hh3MYH2sL7ntxJetqwvDiTHmR7wBjdJlHBcJBFxRDwKPKwpdAWkUfRPstnXV9m+m1E8estsJNFNHz7SSxKJCPPWLGV2xvkKE7MnysNTyi1HZ5R2VzezOtAFT1/pMgLSj5rejfaa1qtpofiOunxCjKZ4PDTvNt+nWF3BHCBMjKC+3\"}},\"id\":\"prt_0bc4f4ebd001JMKfg2fjOkZWZ1\",\"sessionID\":\"ses_f43b0cd92ffeI5W41njuu6yvl5\",\"messageID\":\"msg_0bc4f32ee001mvA8kw4G4dUrd2\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865709276,\"sessionID\":\"ses_f43b0cd92ffeI5W41njuu6yvl5\",\"part\":{\"id\":\"prt_0bc4f4ed1001HvRIRU1xnOvTk2\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc4f32ee001mvA8kw4G4dUrd2\",\"sessionID\":\"ses_f43b0cd92ffeI5W41njuu6yvl5\",\"type\":\"step-finish\",\"tokens\":{\"total\":7070,\"input\":5724,\"output\":1121,\"reasoning\":225,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0050822}}\n{\"type\":\"step_start\",\"timestamp\":1789865710496,\"sessionID\":\"ses_f43b0cd92ffeI5W41njuu6yvl5\",\"part\":{\"id\":\"prt_0bc4f539b0018nHlBsYkCkR9sl\",\"messageID\":\"msg_0bc4f4ed70018SAkhi6f7Sr3Lh\",\"sessionID\":\"ses_f43b0cd92ffeI5W41njuu6yvl5\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43b0cd92ffeI5W41njuu6yvl5",
+      "started": "2026-09-20T00:55:01.578253+00:00",
+      "step": 1,
+      "user_message_count": 1
+    },
+    {
+      "audit": {
+        "created": [
+          "stream_chunks.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "stream_chunks.py": "c2c57d9109d1edec25e0e6c71dcdf865d8cf278a189ea13c4023c4c268f624c1",
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "stream_chunks.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:55:17.580948+00:00",
+      "prompt_verified": true,
+      "requested_file": "stream_chunks.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 6.913525167037733,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865712476,\"sessionID\":\"ses_f43b0aa4effeDVFrA0Hvy1LBj7\",\"part\":{\"id\":\"prt_0bc4f5b5a001kpQgRtsUB6rDj3\",\"messageID\":\"msg_0bc4f55c0001CfMj56gdjE1XB1\",\"sessionID\":\"ses_f43b0aa4effeDVFrA0Hvy1LBj7\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865715556,\"sessionID\":\"ses_f43b0aa4effeDVFrA0Hvy1LBj7\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"7OniwyEsgMH49gOt\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"stream_chunks.py\",\"content\":\"import asyncio\\nfrom google.cloud import speech\\n\\nasync def stream_audio_chunks(audio_chunks_async_generator):\\n    \\\"\\\"\\\"\\n    Streams audio chunks from an async generator to Google Cloud Speech-to-Text.\\n\\n    Args:\\n        audio_chunks_async_generator: An async generator that yields audio chunks (bytes).\\n    \\\"\\\"\\\"\\n    client = speech.SpeechClient()\\n    config = speech.RecognitionConfig(\\n        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,\\n        sample_rate_hertz=16000,\\n        language_code=\\\"en-US\\\",\\n    )\\n    streaming_config = speech.StreamingRecognitionConfig(\\n        config=config,\\n        interim_results=True\\n    )\\n\\n    async def request_generator():\\n        async for chunk in audio_chunks_async_generator:\\n            yield speech.StreamingRecognizeRequest(audio_content=chunk)\\n\\n    # This is a placeholder for actual streaming recognition.\\n    # In a real application, you would iterate over the responses from `client.streaming_recognize`\\n    # and process the transcription results.\\n    print(\\\"Simulating streaming audio to Google Cloud Speech-to-Text...\\\")\\n    # For demonstration, we'll just consume the generator without sending to the actual API for now\\n    # as the actual streaming_recognize expects a synchronous generator\\n    # and requires more elaborate async handling or a separate thread for the API call.\\n    # A full implementation would look like:\\n    # responses = client.streaming_recognize(streaming_config, request_generator())\\n    # async for response in responses:\\n    #     for result in response.results:\\n    #         print(f\\\"Transcript: {result.alternatives[0].transcript}\\\")\\n\\nasync def dummy_audio_generator():\\n    \\\"\\\"\\\"A dummy async generator that yields audio chunks.\\\"\\\"\\\"\\n    for i in range(3):\\n        print(f\\\"Generating dummy audio chunk {i+1}\\\")\\n        yield b\\\"dummy_audio_chunk_\\\" + str(i).encode()\\n        await asyncio.sleep(1)\\n\\nasync def main():\\n    await stream_audio_chunks(dummy_audio_generator())\\n\\nif __name__ == \\\"__main__\\\":\\n    asyncio.run(main())\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/stream_chunks.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/stream_chunks.py\",\"time\":{\"start\":1789865715546,\"end\":1789865715548}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CmMBaRR9E9qcnoVHvud2+LIpwf6wwuhS0qQmp7YEn+WQT8tBc+bT7b5HQLW9VAmsxGQ/oh5pqZZgwUauSiWS/gENK8SFMUf8WWh+b+8HPbK0xn6980sIb8pmnCF6apKd/11MYMwKgwIBaRR9E/u44QpOIMcwSNNUnj56hFVRpD0cCKACpMLrZ7X4M8lVVvrEOOgLaLPUEqL1HOI4OoxJWngcDiy8AsnZKXgN1oWbZWWONjGKknCBfeOrVC0nwZmOIdxAM+XryZemMA2YWaEJD0Mok6lTNiX5mcw3hn+UjO2gHSLRFsO1iS141vavGHCuuZnoAzIn2mwOS2H/l6oBsLrushB1478cAIiUuDUOTyvZ8xMuM0QK78cu0wmP0ga92leJsPNODXouw+1JMu6SP3bpMnvBGlOunxj6OpZX+l01zjfK5HTxMzy6zBzkrqGFB7p2KypSYdZlb8qI+zAtUHDhreZFm7ylMmQBCooCAWkUfRN0OSmsfJV3jth0UA4OvxYMbb03Q7omi+tWy5NwRR7j8Bk9R3W8RBW6cZyeBdMBSVEZNQQ/peIIQG+8lZQzgInOzpBaHkNQY00BEkZpv+wEUSuH38Wj3a1HmZt7kB5D+baUhtL1IBTZvGHALBI7pExR6vk1LivT/izNpiDD56M97R3FBlVs+fpiZg0zgUfWMyuI4Rp2kmQ4RSfGNDZURMKLYPBsZp1KWSJzlntl5RNp7xSMYpOhNLfqywqX1IE+u3UpgJRSRHME8J/KOa9Ipea9G8z7Ar+NfnwYW9m9KEvTxcGGTd7V28T85i/ph7TcltsfHFhTwZi1c4gHgUOT9tZ91XmkeNgKhAIBaRR9E/Ld9ovlCaW7YPUrBZNilkZCH80fpVeXdtEnCIEr8ekSQeob1YHh/2zn8oxxNq8goLBktmkH7Bp4EByAOVsrqxo4s2XlekWmqFNvxl9g+oiWEOEfaT4LrjU0dbABnQnAvpJITYSdUv3BXt9M0VLz0GVEq9gLHkMygghKw+ovXqbDTJ/QJsHb8dzGaF5RXsqa3LJN0F9L2Vi0UcOZ+c+0yxL/09FDVNsmoyJFTb36l/LNxcN1RQuOh2N12HB8RM1+JHeR/JDgdDG05umCUfAcNznd4WvK1Ufzs+fbT1Ix6zTX5+bziaU6UtvegMUxNOmKAU7uOqKcqxeIHTouBkA+xgrQAQFpFH0Ti6anmZXM9Td/HSSqNOWwgXrqR81pHbJJTnp3jXu+7kZsCt9ihve13JTeUEfN1CfV0DuqzegHnIpFrvb2M0q71a0czTwvtfpQPw/B6yMHaD+2IxSBBC/QkPNJNU7LcQ6LzUyi9ybcq8EQDz16t750lM4Uy+GxK5Nc3M6/jyrHaEsWsg2SMU9IEQR3cH4a8x1J2abCcMFPMfxp39kHPPvQGdL0qG/8vpGaE+hHViIeLtsj+EMmAlcawJENGEwMLc4WYK4JNwO12L/MmHAKgwEBaRR9EznwtY+vVP6nVMKcoU5EpRRksDJEOqHPgyHsBUhVVtEGRjy7tAGzBQLN3EICridUmUGCByvIjkfJ9hBTNkL3L2EuAe1s2GG/X7ZDONnHVLXfrjpoTB0aZbMaK2mhsQFM9MvhxQulegNpeYjK8n/Jlz76wR3E8MsdVO85eBYMoA==\"}},\"id\":\"prt_0bc4f67570016s7rb0CjOwA44J\",\"sessionID\":\"ses_f43b0aa4effeDVFrA0Hvy1LBj7\",\"messageID\":\"msg_0bc4f55c0001CfMj56gdjE1XB1\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865715556,\"sessionID\":\"ses_f43b0aa4effeDVFrA0Hvy1LBj7\",\"part\":{\"id\":\"prt_0bc4f675e001Mm2IiWod8pRwIE\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc4f55c0001CfMj56gdjE1XB1\",\"sessionID\":\"ses_f43b0aa4effeDVFrA0Hvy1LBj7\",\"type\":\"step-finish\",\"tokens\":{\"total\":6515,\"input\":5724,\"output\":563,\"reasoning\":228,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0036947}}\n{\"type\":\"step_start\",\"timestamp\":1789865716768,\"sessionID\":\"ses_f43b0aa4effeDVFrA0Hvy1LBj7\",\"part\":{\"id\":\"prt_0bc4f6c1c001Sio7iQOIy4PwZQ\",\"messageID\":\"msg_0bc4f6761001xCGRbIxRM04BiV\",\"sessionID\":\"ses_f43b0aa4effeDVFrA0Hvy1LBj7\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43b0aa4effeDVFrA0Hvy1LBj7",
+      "started": "2026-09-20T00:55:10.627994+00:00",
+      "step": 2,
+      "user_message_count": 1
+    },
+    {
+      "audit": {
+        "created": [
+          "partial_results.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "partial_results.py": "e93e9862109a82a9d89085076a306258b4bca513f02a7f64a6bd8199cb125d2e",
+          "stream_chunks.py": "c2c57d9109d1edec25e0e6c71dcdf865d8cf278a189ea13c4023c4c268f624c1",
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "partial_results.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:55:27.350732+00:00",
+      "prompt_verified": true,
+      "requested_file": "partial_results.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 9.70203250006307,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865719106,\"sessionID\":\"ses_f43b08f21ffeGyUWgnOeUuslvp\",\"part\":{\"id\":\"prt_0bc4f753d001it0cc57SMEF1p1\",\"messageID\":\"msg_0bc4f70ef001Btyy1WVdv18hjl\",\"sessionID\":\"ses_f43b08f21ffeGyUWgnOeUuslvp\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865725525,\"sessionID\":\"ses_f43b08f21ffeGyUWgnOeUuslvp\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"MOV6pr7F21weM38E\",\"state\":{\"status\":\"completed\",\"input\":{\"content\":\"import os\\nimport io\\n\\n# Imports the Google Cloud client library\\nfrom google.cloud import speech_v1p1beta1 as speech\\n\\n# Import the AudioSegment library for processing audio files\\nfrom pydub import AudioSegment\\n\\n# Set the GOOGLE_APPLICATION_CREDENTIALS environment variable\\n# Replace 'path/to/your/credentials.json' with the actual path to your service account key file\\n# os.environ[\\\"GOOGLE_APPLICATION_CREDENTIALS\\\"] = \\\"path/to/your/credentials.json\\\"\\n\\ndef listen_print_loop(responses):\\n    \\\"\\\"\\\"Iterates through server responses and prints them.\\n\\n    The responses passed is a generator that will block until a response is provided\\n    by the API. Each response may contain multiple results, and each result may contain\\n    multiple alternatives that correspond to a portion of the spoken utterance.\\n    Each alternative contains detected words and certain attributes useful for\\n    plotting an animation of speech through time. We print the best alternative for\\n    the audio.\\n    \\\"\\\"\\\"\\n    num_chars_printed = 0\\n    for response in responses:\\n        if not response.results:\\n            continue\\n\\n        result = response.results[0]\\n        if not result.alternatives:\\n            continue\\n\\n        transcript = result.alternatives[0].transcript\\n\\n        overwrite_chars = ' ' * (num_chars_printed - len(transcript))\\n\\n        if not result.is_final:\\n            print(transcript + overwrite_chars, end='\\\\r')\\n            num_chars_printed = len(transcript)\\n        else:\\n            print(transcript + overwrite_chars)\\n            num_chars_printed = 0\\n\\ndef stream_recognize(audio_file_path):\\n    \\\"\\\"\\\"Streams audio from a file to the Google Cloud Speech-to-Text API and\\n    prints partial and final recognition results.\\\"\\\"\\\"\\n\\n    # Load audio file using pydub\\n    audio = AudioSegment.from_file(audio_file_path)\\n    \\n    # Resample to 16kHz if necessary for the API\\n    if audio.frame_rate != 16000:\\n        audio = audio.set_frame_rate(16000)\\n\\n    # Convert audio to raw 16-bit PCM (mono)\\n    audio = audio.set_channels(1)\\n    audio = audio.set_sample_width(2)\\n    \\n    content = audio.raw_data\\n\\n    client = speech.SpeechClient()\\n\\n    # The `encoding` and `sample_rate_hertz` must match the audio file's encoding and\\n    # sample rate.\\n    config = speech.RecognitionConfig(\\n        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,\\n        sample_rate_hertz=16000,\\n        language_code=\\\"en-US\\\",\\n        enable_automatic_punctuation=True,\\n    )\\n    streaming_config = speech.StreamingRecognitionConfig(\\n        config=config, interim_results=True\\n    )\\n\\n    # In practice, stream audio from a microphone or other source\\n    # For this example, we use a file.\\n    requests = (\\n        speech.StreamingRecognizeRequest(audio_content=chunk)\\n        for chunk in _generate_audio_chunks(content, chunk_size=32000) # Adjust chunk_size as needed\\n    )\\n\\n    responses = client.streaming_recognize(streaming_config, requests)\\n\\n    # Now, put the transcription responses to use.\\n    listen_print_loop(responses)\\n\\ndef _generate_audio_chunks(audio_content, chunk_size):\\n    for i in range(0, len(audio_content), chunk_size):\\n        yield audio_content[i : i + chunk_size]\\n\\nif __name__ == \\\"__main__\\\":\\n    # Example usage: Replace 'path/to/your/audio.wav' with an actual audio file\\n    # For a real application, you would typically stream from a microphone.\\n    print(\\\"This script demonstrates streaming recognition with Google Cloud Speech-to-Text.\\\")\\n    print(\\\"Please ensure you have authenticated with Google Cloud (e.g., via GOOGLE_APPLICATION_CREDENTIALS).\\\")\\n    print(\\\"To run this example, you would typically provide a path to an audio file:\\\")\\n    print(\\\"  stream_recognize('path/to/your/audio.wav')\\\")\\n    print(\\\"\\\\nNote: The 'pydub' library requires 'ffmpeg' or 'libav' to be installed.\\\")\\n    print(\\\"       You can install pydub using: pip install pydub\\\")\\n    print(\\\"       You can install ffmpeg using: brew install ffmpeg (macOS) or apt-get install ffmpeg (Debian/Ubuntu)\\\")\\n\",\"filePath\":\"partial_results.py\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/partial_results.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/partial_results.py\",\"time\":{\"start\":1789865725506,\"end\":1789865725517}},\"metadata\":{\"google\":{\"thoughtSignature\":\"ClsBaRR9EyDIF6ERWfEy3YEi4MOweGYUqeZiuzWVez35p/2aXWaQlaP8ZB+u2uJBVIEkoddomV1SLOL6KCeRuitW4lez8Sj1o7g2OwU+NCY2p2GEPnCbkn/H88WTCp0CAWkUfRN/a4Ku5rZmqnC8BtYCDnvAH7UgrGg39c0MuC68p1kpMlT5O1lp4kPH4+Z+7BoW1emNBhWO4HK+2AsJwcglj9WlCuIK0fF2uS2P/jwVH5xEWIvYzWF0AED+ri40I0rD3qAUs31iEUSgQfwx1XM1GZRFMkbSPe/BUEtsK7DKQsajRxRrxQfm9pbVOorJDO8JZAvKPXSVsna06swU1cG3n2w4vbqHFkaAMaT2dLJn/Me6hv1OZMBD1KRCbK9nZVrFpy51tl1yVo4tUySavjCStqtP7DXXAzZPIlJ/4OA660uOlr+HMl+0KRZVGoinSzxkHBkqEsXtvdjFS8ESlQxFOZNikzt+iFa3axqlwJkypjYhsIvGLacGfjlgCu4BAWkUfRPzREZSfK2hUxCQoxIwUWJZTIFkDpOWcQM6nwyTJvuQykEcGM7p/AVGXO/SPbK+XgQshRZO03KiAMFAn709U27BSfw91kDmZPrHIEV80gN3XPLP5Z3t5MaIWKPZH1dNZjX9/VfyYJ/zEARMyVVl9YUb0zzO5j3evHfpCanJg6oe4Er01S7mSCmf4NbbPK+LnWbgsFoXDFn4IC1+7C2WU9QOnjADeDy/uE1BvXlVSj00KsKnPgXBaJCyw9iwZQaZQPHDfKEAicXY7iNbwFR2iiI4tBGq9eCUSjHIaIRLQq/jJRfWYK3SsUSimQqFAgFpFH0Tmm7NMJa3cMQnYrLfKE8agmAH8X2WjuHH19k4kw1fLZ1hD1qtuhrFv4y4FfZ8anIFW7xenjMJnbUs4MWmxEG6fU6yC5ixNF/g9LRDoVF9oUpvf4HEtYbA9xEdyl9IUIxV/F1WbjleVIU895H38YG9g1LJ6iyVBPNyPfh7rKyzAHVGjiWTi18/U1SVTG74Jl4I9BEL7TVPWpCnb/twgnMycHK2gH3qtvGYY7tzinrCX133Ewoxy696WCYaSxNZuZfpyTplLxINksMGgyhT355f2whBwlgJ9MKQKyrGPt9SOP19XyBg+slPkxRUgYiNI2wPqH6e3fxw+sPUol+9LWUvDQpHAWkUfRNJjOuylTFTu7dEgeUaiQYrGwOHHTHe1x2BV+Fm56NEBqMUOhQgLs77RKvmT3QqeJ95KuJfwIxAeMful+T4p2k1EfY=\"}},\"id\":\"prt_0bc4f8e3c001DcLSRpGJx2p6fQ\",\"sessionID\":\"ses_f43b08f21ffeGyUWgnOeUuslvp\",\"messageID\":\"msg_0bc4f70ef001Btyy1WVdv18hjl\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865725525,\"sessionID\":\"ses_f43b08f21ffeGyUWgnOeUuslvp\",\"part\":{\"id\":\"prt_0bc4f8e4f001HmgqG0ORqC7rn8\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc4f70ef001Btyy1WVdv18hjl\",\"sessionID\":\"ses_f43b08f21ffeGyUWgnOeUuslvp\",\"type\":\"step-finish\",\"tokens\":{\"total\":7059,\"input\":5724,\"output\":1166,\"reasoning\":169,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0050547}}\n{\"type\":\"step_start\",\"timestamp\":1789865726872,\"sessionID\":\"ses_f43b08f21ffeGyUWgnOeUuslvp\",\"part\":{\"id\":\"prt_0bc4f9393001ANAXpPh6IjJllS\",\"messageID\":\"msg_0bc4f8e51001ar1tEEfxbRd65Q\",\"sessionID\":\"ses_f43b08f21ffeGyUWgnOeUuslvp\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43b08f21ffeGyUWgnOeUuslvp",
+      "started": "2026-09-20T00:55:17.586975+00:00",
+      "step": 3,
+      "user_message_count": 1
+    },
+    {
+      "audit": {
+        "created": [
+          "stream_with_language.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "partial_results.py": "e93e9862109a82a9d89085076a306258b4bca513f02a7f64a6bd8199cb125d2e",
+          "stream_chunks.py": "c2c57d9109d1edec25e0e6c71dcdf865d8cf278a189ea13c4023c4c268f624c1",
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80",
+          "stream_with_language.py": "3e6745068df2893fe1b082135fb305a088e9754eec46a19ab5f8b2841e8be06a"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "stream_with_language.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:55:33.286519+00:00",
+      "prompt_verified": true,
+      "requested_file": "stream_with_language.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 5.854579541948624,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865729048,\"sessionID\":\"ses_f43b068f8ffe3er1dKA33Bqvgz\",\"part\":{\"id\":\"prt_0bc4f9c12001IxW2sNXT0Iefag\",\"messageID\":\"msg_0bc4f9714001ePqv764uZ4Gbo2\",\"sessionID\":\"ses_f43b068f8ffe3er1dKA33Bqvgz\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865731371,\"sessionID\":\"ses_f43b068f8ffe3er1dKA33Bqvgz\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"HKn1OWAEOA73LreW\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"stream_with_language.py\",\"content\":\"from google.cloud import speech_v1p1beta1 as speech\\nfrom google.cloud.speech_v1p1beta1 import enums\\nfrom google.cloud.speech_v1p1beta1 import types\\n\\ndef stream_recognize_with_language_and_punctuation(\\n    \\n) -> None:\\n    \\\"\\\"\\\"Streams speech recognition with language and punctuation settings.\\n    For more information on setting up credentials, please refer to:\\n    https://cloud.google.com/docs/authentication/getting-started\\n    \\\"\\\"\\\"\\n\\n    client = speech.SpeechClient()\\n\\n    # Configure the recognition request\\n    config = types.RecognitionConfig(\\n        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,\\n        sample_rate_hertz=16000,\\n        language_code=\\\"en-US\\\",  # Specify the language code\\n        enable_automatic_punctuation=True,  # Enable automatic punctuation\\n    )\\n    streaming_config = types.StreamingRecognitionConfig(\\n        config=config,\\n        interim_results=True,\\n    )\\n\\n    # In a real application, you would stream audio from a microphone or a file\\n    # For demonstration, we'll use a dummy generator\\n    def request_generator():\\n        # Replace this with actual audio input\\n        yield types.StreamingRecognizeRequest(audio_content=b\\\"\\\") \\n\\n    requests = request_generator()\\n\\n    responses = client.streaming_recognize(streaming_config, requests)\\n\\n    print(\\\"Streaming recognition started. Press Ctrl+C to stop.\\\")\\n\\n    for response in responses:\\n        # Process the streaming responses\\n        if response.results:\\n            for result in response.results:\\n                print(f\\\"Transcript: {result.alternatives[0].transcript}\\\")\\n\\nif __name__ == \\\"__main__\\\":\\n    stream_recognize_with_language_and_punctuation()\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/stream_with_language.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/stream_with_language.py\",\"time\":{\"start\":1789865731353,\"end\":1789865731358}},\"metadata\":{\"google\":{\"thoughtSignature\":\"ClYBaRR9E/DnA5TENzaArW5DjNIPvKPJ5uf+rC5RB37U8IXFtcK12HRAHDLLqHAzNeAlE3Agazhxs2HxKvOZhevLbFLAMc0PrWnvKD80QI0MYThJBv7ecgqmAgFpFH0T44lNq2Y08bvhT6HBVxjKefOwP5MkW1grhirRC64/HIZy5ekTDCwyZ/BkvqQySQGHKJDOiqsi2ZFfKA7q7sGZOKGN5i1406nvKZN6f0yEMB4vbTUWHjCVdCE2yrw5j+IFGhuBP60ibpi0QBWSo/7ADhiWJJvUlV6+PrKMPGt/XhFabqGWPSGVay+IQ+UIp/1xFigRAxbESNHVTE7AMsEjyTuscpaLAZYONX1B7PaCR4ui+Om64beC+I5sYQ2iH0NO5DuJzyBE9cjkJEpQYKYDnBH0V51TCO5ck7cEiYlXNToqqEwBbqLAR7n9ZJMI/3d1uq8gFlAKPNtB5nHHCUCQPh5OgOV+2vhmUD7eMmW8SKRLcZl30MSTyVJRMfUIGuiAhgrDAQFpFH0Td27e6brWBtPCmPJO/i4TRRs0jCmU1LtYNZROBPIeKW9I+yjtt4YaCO4L+W1NiFWbkc2RlOGd5I28s0C+zvR6ptsvik9R8YW6d8B6K0ljmqOQM5Difs1Sv2emFCAKs5nm+eOPbc9+z5MIPt15BcqK6v02X5tsxrtwBLIy6IjU6glBVFWferGmgC/Gfzj13N9zELNRY9LUna1E799MRsSUvQPtoPRLIWVkWU09Z2LS54iOtAd6BPee1ILtrWme/ArxAQFpFH0Tylm1diSCOVI/8sQNqjojAFi+XgZKYTiE8BdA8ON5+6+Uk/DMrDoyoSaMKuCAM7mjpxASoJgN5digVTCF+EnYW/Uu5KYk46b6gN+YYCYfIXGNaj/OV04ylhmCMvkErPnYRcZl46NiHFaVya1EM1lfOaIPw9S+yQ5WBDXg982EUHQUrpZrddj0PIbhW9GlytHaX12DYae8VuiB4wy1xZ8FDUBApRx564WpmEZGTpEFjRlSzc83+R3IEoApXQHtGHbVBHVm4oTR3EnOYgDusUrP1xCN7Iuxg1SaYyBZjxOG3j8IgkLjIpaUqixsZ+IKiAEBaRR9E3iQRlvOOfBqL/o31Q5jSock0r7tiSXvhjykFhvQsPi3eyJsgruWZxJFM7fbK/puVcFI+GJY6AiCuNfZwld2iXpD9gy3/LfFkL8eQes2yy4O/5qgdYiH7GtpTBeGlF+XEqUhnyWYOJ3ZsM89q3r9ppgDq9Op/J/WGNsm0DoNwM8VyqYi\"}},\"id\":\"prt_0bc4fa514001pCr2yrwbJpmZtG\",\"sessionID\":\"ses_f43b068f8ffe3er1dKA33Bqvgz\",\"messageID\":\"msg_0bc4f9714001ePqv764uZ4Gbo2\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865731371,\"sessionID\":\"ses_f43b068f8ffe3er1dKA33Bqvgz\",\"part\":{\"id\":\"prt_0bc4fa5200018Z99Uk5IHpmsYB\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc4f9714001ePqv764uZ4Gbo2\",\"sessionID\":\"ses_f43b068f8ffe3er1dKA33Bqvgz\",\"type\":\"step-finish\",\"tokens\":{\"total\":6396,\"input\":5729,\"output\":477,\"reasoning\":190,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0033862}}\n{\"type\":\"step_start\",\"timestamp\":1789865732772,\"sessionID\":\"ses_f43b068f8ffe3er1dKA33Bqvgz\",\"part\":{\"id\":\"prt_0bc4faa9e001Z0614xlnq3OpZe\",\"messageID\":\"msg_0bc4fa526001OOVg2bgNszcRdi\",\"sessionID\":\"ses_f43b068f8ffe3er1dKA33Bqvgz\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43b068f8ffe3er1dKA33Bqvgz",
+      "started": "2026-09-20T00:55:27.358199+00:00",
+      "step": 4,
+      "user_message_count": 1
+    },
+    {
+      "audit": {
+        "created": [
+          "speech_client.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "partial_results.py": "e93e9862109a82a9d89085076a306258b4bca513f02a7f64a6bd8199cb125d2e",
+          "speech_client.py": "3210ae48ea46cef406cf425189f4ce6c3b6a411ff2bc2c4a2346a7254bfc5a6b",
+          "stream_chunks.py": "c2c57d9109d1edec25e0e6c71dcdf865d8cf278a189ea13c4023c4c268f624c1",
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80",
+          "stream_with_language.py": "3e6745068df2893fe1b082135fb305a088e9754eec46a19ab5f8b2841e8be06a"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "speech_client.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:55:40.987381+00:00",
+      "prompt_verified": true,
+      "requested_file": "speech_client.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 7.601203708909452,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865734994,\"sessionID\":\"ses_f43b0519effev7WEXE51n7gPFT\",\"part\":{\"id\":\"prt_0bc4fb34f001TKynF70oT7gEJz\",\"messageID\":\"msg_0bc4fae6e001wfmADfV4oZpMzk\",\"sessionID\":\"ses_f43b0519effev7WEXE51n7gPFT\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865740180,\"sessionID\":\"ses_f43b0519effev7WEXE51n7gPFT\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"j5U39cZKgi3tCdSb\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"speech_client.py\",\"content\":\"import dataclasses\\nimport queue\\nimport threading\\nfrom typing import Iterator\\n\\n@dataclasses.dataclass\\nclass SpeechClientConfig:\\n    \\\"\\\"\\\"Configuration for the Streaming Speech-to-Text client.\\\"\\\"\\\"\\n    sample_rate_hertz: int = 16000\\n    language_code: str = \\\"en-US\\\"\\n    # Placeholder for actual authentication/API key or client details\\n    # For a real integration, this would include provider-specific credentials\\n    # e.g., google_credentials, aws_access_key_id, azure_subscription_key\\n    credentials: object = None \\n\\nclass StreamingSpeechClient:\\n    \\\"\\\"\\\"\\n    A client for streaming speech-to-text.\\n    This is a placeholder and needs to be integrated with a specific\\n    third-party speech-to-text API (e.g., Google Cloud Speech-to-Text,\\n    AWS Transcribe, Azure Speech Service).\\n    \\\"\\\"\\\"\\n\\n    def __init__(self, config: SpeechClientConfig):\\n        self._config = config\\n        self._audio_queue = queue.Queue()\\n        self._listening = False\\n        self._thread = None\\n        self._response_iterator = None\\n\\n    def _stream_audio_content(self) -> Iterator[bytes]:\\n        \\\"\\\"\\\"Generator that yields audio chunks from the queue.\\\"\\\"\\\"\\n        while self._listening or not self._audio_queue.empty():\\n            try:\\n                chunk = self._audio_queue.get(timeout=1.0)\\n                if chunk is None:  # Sentinel for stopping\\n                    break\\n                yield chunk\\n            except queue.Empty:\\n                continue\\n\\n    def start_stream(self):\\n        \\\"\\\"\\\"Starts the streaming process.\\\"\\\"\\\"\\n        if self._listening:\\n            print(\\\"Stream already started.\\\")\\n            return\\n\\n        print(\\\"Starting speech stream...\\\")\\n        self._listening = True\\n        # In a real implementation, this is where you would initialize the\\n        # streaming API client and start sending requests.\\n        # For example, with Google Cloud Speech-to-Text:\\n        # from google.cloud import speech\\n        # client = speech.SpeechClient(credentials=self._config.credentials)\\n        # streaming_config = speech.StreamingRecognitionConfig(...)\\n        # requests = (speech.StreamingRecognizeRequest(audio_content=chunk)\\n        #             for chunk in self._stream_audio_content())\\n        # self._response_iterator = client.streaming_recognize(\\n        #     config=streaming_config, requests=requests\\n        # )\\n        # self._thread = threading.Thread(target=self._process_responses)\\n        # self._thread.start()\\n\\n    def send_audio_chunk(self, audio_chunk: bytes):\\n        \\\"\\\"\\\"Sends an audio chunk to the stream.\\\"\\\"\\\"\\n        if not self._listening:\\n            print(\\\"Stream not started. Call start_stream() first.\\\")\\n            return\\n        self._audio_queue.put(audio_chunk)\\n\\n    def stop_stream(self):\\n        \\\"\\\"\\\"Stops the streaming process and waits for results.\\\"\\\"\\\"\\n        if not self._listening:\\n            print(\\\"Stream not active.\\\")\\n            return\\n\\n        print(\\\"Stopping speech stream...\\\")\\n        self._listening = False\\n        self._audio_queue.put(None)  # Signal to stop the audio content generator\\n\\n        # In a real implementation, you would wait for the _process_responses\\n        # thread to finish and then return the final transcription results.\\n        # if self._thread:\\n        #     self._thread.join()\\n        #     print(\\\"Stream stopped and results processed.\\\")\\n        # return self._get_final_transcription() # Placeholder\\n\\n    def _process_responses(self):\\n        \\\"\\\"\\\"\\n        Placeholder for processing responses from the speech API.\\n        This method would typically run in a separate thread.\\n        \\\"\\\"\\\"\\n        if self._response_iterator:\\n            for response in self._response_iterator:\\n                # Process the streaming recognition response\\n                # For example, print transcription alternatives\\n                if not response.results:\\n                    continue\\n                result = response.results[0]\\n                if not result.alternatives:\\n                    continue\\n                transcript = result.alternatives[0].transcript\\n                is_final = result.is_final\\n                print(f\\\"Transcript: \\\"{transcript}\\\" (Final: {is_final})\\\")\\n\\n    # Additional helper methods can be added here, e.g., for error handling,\\n    # result formatting, or integrating with specific SDK features.\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/speech_client.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/speech_client.py\",\"time\":{\"start\":1789865740170,\"end\":1789865740173}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E4n8ND5dlY8p4V8N3iJR5s/YkWxusFp/QIUPPwxsrLAKYQFpFH0TLd9qVWvYdGQGAgXOW2xBs+QV37dynE6qgbj4aM3dqHYNP+cdGTW39OKqRUhXYsmgVOjTgXSVfGzjxCLht+UDu0ohQBFyAPLU2uB+KgZVfbNpwlJdOIq6H9+6IdgK9gEBaRR9E8XjgIwEWu0KcNCAmPR9ddjqp/cmETZvIDV1oUF6mb8MiXBzK0yBtt7P3v0bal0/ok0yojWpD8wtxOH7k4aMhncdE2MZb4qQ7PsEgtS1sLH2Gq+62hFxfKRyRx9GFfuz1JGdPbtywZX+vDK8UsRFwwOztodg1vgmSmDfrfGZ6WJh5nQB5B5ZERTeIgFse8M2e164AJ2pdSok1buer0LFOcdzyls7UMAN1vYmvLt18KjAzzCz163ebrSv7WU1z6ztcNv3c+zedpnGwOiTCPqKl3PFTN6+1DQL9Uyt3+fSms45KYx9FKS6B7fVobXgjVjnLVUKjwIBaRR9E802+Val2/LlLUqzdI0ejq8/EjUqBP0LOjgc+kdlrI00uvO/tdMloovvve2cbtXlldR6besoOmndQ03c8Cng2RKhrvjqgOOz8glfKGp0HaZ4EF+YF69cXPPyetvl099oIXukJjW/6btkFi+JtZyI7R6PDYMd9HpgCx4QytT0/qW9GB6e0zPVjztblPEBKjdDKdUYo8hwTjPvpxgUwAkFH1X5zRoiL0Uas2/t3L3SVV1ruY70B50WGejC3RfM7wqGF5gsBhKpAvCykyXKQPDf2AlwbDiiu3c8ovfKB5EfjTHTUx+xO0IVQAf1vuat64CL2w9OrSIhK9/zMGy5NDTzmn0Bu4aPGL/tTo8sCvUBAWkUfRPVYN3wMdcBQ/SZGbxeETpwnxslX1Lcm9UO+AxpasyuJ1vCLxiLRfiY7QOmb/4px2xuoaGOeFpOoODDZ2ia6zJpDKtjNAu824qe3WmiuKuLemyp2szloCiYvZBhXs1Njrtz1o3XGBR9Nzs/JxBp8bC0kYjFWeey12NWlayQPvLJhuk7EzkpAaRhdTzG/GGRNyG7jJYrD3asRChU6QeHseMB5U2MKOdSJoXLYEtnrOngDuBmeu/zclTkosC/6dXR46qtwuJ0SHnQ27ZTSMKfmLcNIwkLZp0EihwDehl3O0MKzVml9Re3Sq5NmlXIpA4OrEMK2QEBaRR9E1FybyObPhF04fSrknSh4oGtBpKUpyk1Udv0m5JYyB6yU87hqOajAYQjtOjY1tKuMx7brPItvdEzDq2SnnuO3djEU8dAsPosZJgXjXF45CTikq31CFuG/Kt5HNQmKf3Xx5L+4nV0hXQKK4uoWoFrBceYrGr5KjQ74cW1ZyY/MJCe0Xd9wyr+YEzoub1vNRWURoSrUpkltJSDQniU4WHEnpqjENtEqVm107G/gixjhoKGfaMJZzlqysGqElNQFAx4fbiKJjEIa/FI+Wr1qmUVkIBIKajqCtgBAWkUfRNy2WbVZ845xPmG8D6SA/bpxHAJCvKb+T+37TMZOKLioXqURjadjsPygMiPasFTK1T7+w3rgKEreH5/80vLFdmCa8A2Gpq+6SHfnFH5YWScZtS02JGi6S6u0yeyYgcIPuZlZMQnIW5/cZBq0PXzssuuuV9bSDlhHPsZ0+V712i92taccu8d5vretxLPJhGUdg+lEerm+Ro6gpat5Wi3yxJHg4Lj0AxOMEER+EIY59XzIeA9OA4XXIbWH8Rn+Nd2GuBDppyPoWflHZjFGzP2EyrPGNXf\"}},\"id\":\"prt_0bc4fc7880011CG8VWoKi717Fz\",\"sessionID\":\"ses_f43b0519effev7WEXE51n7gPFT\",\"messageID\":\"msg_0bc4fae6e001wfmADfV4oZpMzk\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865740180,\"sessionID\":\"ses_f43b0519effev7WEXE51n7gPFT\",\"part\":{\"id\":\"prt_0bc4fc78e001mwrJuRMdvbzN46\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc4fae6e001wfmADfV4oZpMzk\",\"sessionID\":\"ses_f43b0519effev7WEXE51n7gPFT\",\"type\":\"step-finish\",\"tokens\":{\"total\":7089,\"input\":5717,\"output\":1118,\"reasoning\":254,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0051451}}\n{\"type\":\"step_start\",\"timestamp\":1789865740564,\"sessionID\":\"ses_f43b0519effev7WEXE51n7gPFT\",\"part\":{\"id\":\"prt_0bc4fc910001NnzVkTlGWVzUKK\",\"messageID\":\"msg_0bc4fc790001is2OaHAegOgCJ1\",\"sessionID\":\"ses_f43b0519effev7WEXE51n7gPFT\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43b0519effev7WEXE51n7gPFT",
+      "started": "2026-09-20T00:55:33.294374+00:00",
+      "step": 5,
+      "user_message_count": 1
+    },
+    {
+      "audit": {
+        "created": [
+          "speech_models.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "partial_results.py": "e93e9862109a82a9d89085076a306258b4bca513f02a7f64a6bd8199cb125d2e",
+          "speech_client.py": "3210ae48ea46cef406cf425189f4ce6c3b6a411ff2bc2c4a2346a7254bfc5a6b",
+          "speech_models.py": "4f0e67c0a91171ab6dc7d3a7e99b109db32ef9ef30b95230ca506dc91372c049",
+          "stream_chunks.py": "c2c57d9109d1edec25e0e6c71dcdf865d8cf278a189ea13c4023c4c268f624c1",
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80",
+          "stream_with_language.py": "3e6745068df2893fe1b082135fb305a088e9754eec46a19ab5f8b2841e8be06a"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "speech_models.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:55:47.451798+00:00",
+      "prompt_verified": true,
+      "requested_file": "speech_models.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 6.327942250063643,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865742563,\"sessionID\":\"ses_f43b0338dffeWOV9O5q3NrhN8X\",\"part\":{\"id\":\"prt_0bc4fd0df001LAMP3s4fUwfdSZ\",\"messageID\":\"msg_0bc4fcc83001TxZ9oW8E6WGS0x\",\"sessionID\":\"ses_f43b0338dffeWOV9O5q3NrhN8X\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865746340,\"sessionID\":\"ses_f43b0338dffeWOV9O5q3NrhN8X\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"4BJRUdhoyZKy72Lb\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"speech_models.py\",\"content\":\"\\nfrom typing import List, Dict, Any\\n\\nclass StreamingSpeechToTextRequest:\\n    \\\"\\\"\\\"\\n    Represents a request for streaming speech-to-text.\\n    \\\"\\\"\\\"\\n    def __init__(self, audio_content: bytes, encoding: str, sample_rate_hertz: int,\\n                 language_code: str, interim_results: bool = True):\\n        self.audio_content = audio_content\\n        self.encoding = encoding\\n        self.sample_rate_hertz = sample_rate_hertz\\n        self.language_code = language_code\\n        self.interim_results = interim_results\\n\\n    def to_dict(self) -> Dict[str, Any]:\\n        \\\"\\\"\\\"Converts the request object to a dictionary for API consumption.\\\"\\\"\\\"\\n        return {\\n            \\\"audio_content\\\": self.audio_content,\\n            \\\"config\\\": {\\n                \\\"encoding\\\": self.encoding,\\n                \\\"sample_rate_hertz\\\": self.sample_rate_hertz,\\n                \\\"language_code\\\": self.language_code,\\n                \\\"interim_results\\\": self.interim_results,\\n            },\\n        }\\n\\nclass StreamingSpeechToTextResponse:\\n    \\\"\\\"\\\"\\n    Represents a response from streaming speech-to-text.\\n    \\\"\\\"\\\"\\n    def __init__(self, transcript: str, confidence: float, is_final: bool):\\n        self.transcript = transcript\\n        self.confidence = confidence\\n        self.is_final = is_final\\n\\n    @classmethod\\n    def from_dict(cls, response_dict: Dict[str, Any]) -> 'StreamingSpeechToTextResponse':\\n        \\\"\\\"\\\"Creates a response object from a dictionary received from an API.\\\"\\\"\\\"\\n        result = response_dict.get(\\\"results\\\", [{}])[0]\\n        alternatives = result.get(\\\"alternatives\\\", [{}])\\n        if alternatives:\\n            transcript = alternatives[0].get(\\\"transcript\\\", \\\"\\\")\\n            confidence = alternatives[0].get(\\\"confidence\\\", 0.0)\\n            is_final = result.get(\\\"is_final\\\", False)\\n            return cls(transcript, confidence, is_final)\\n        return cls(\\\"\\\", 0.0, False)\\n\\ndef normalize_response(raw_response: Dict[str, Any]) -> StreamingSpeechToTextResponse:\\n    \\\"\\\"\\\"\\n    Normalizes a raw API response into a StreamingSpeechToTextResponse object.\\n    \\\"\\\"\\\"\\n    return StreamingSpeechToTextResponse.from_dict(raw_response)\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/speech_models.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/speech_models.py\",\"time\":{\"start\":1789865746322,\"end\":1789865746331}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E3Y3En69O6FSapJdrlaY/kDlLClJP0QvqJSJYq+4VCQKbQFpFH0ThIpKVRFS4BGR6/KWFCGPvoxPSappS+G/y7FAFbNr1a3rA5y4IGR8EkioLBAVxumgs9bNaTT9TUDjrXBukJMtbdtNOx2YrC3H09Bl5i5rvhkvwRIwx4YAQkPkJreQwaA8p5hVF16VQ5YKnAIBaRR9ExtWa9TbQc1P2oVtCOfC8vhkSoh078fB5RoGni8cBqlpgwK53z4nGYiSyiV2MHg/TKScXg0d8jFkeVeRXrTj0UYoQpsadOVsZZ3lleW9DTv4Wrn+H5n6kacR/VnuihQ0JhGXMeVH159ciDuxPDnCPHukHlqeKkQmxrTGfJyNlMCybSMYcTtzRTfZbohz2I5WdC3we6wNDUsS6uJrO7BjTHu8JKrWaxm/dkiFcYO/93Arej6BAQ7ZJ9qYdm6aeIwCzTHH6fu66cslmUqopSfQ4rzf4lhsHBfdiawUq70sNMIAN4QnUjw8D6Jbxy9zVxE1iFHvHWxmuO8OFGkhxft4dmSpby9VdhJ3U2peSQu/MBKTQAQybuuNYAqeAgFpFH0TJp8ZbiufmqkmH8uAT6GCtdPolMXCCAQePIMRwhxzhRfbPWqPwAP28NY4RauW0UC0B8QpYGv2NNQfI3JYx22H5TQgYSX0GeK/J/fccLuJP4jxcBNl88gkULmsPjMXUj73PranTJXsEKWhLUalgV9LKvR7PeBwYTSYhOMx0oqOPtsXZSUPyO0OWATIdsdqYm7hxPVLAa4LjZm9EjgFDMwGDV+VlCB5KQ8mR0uVZ141Oy2TbL82QUqXBc8ENEeP4mQ60wxpAYTLETZS6wb60b1DOcjnMkHany3SDloOfla+avxlWKNa2na923cfoOjkt/CII6WfjgOBq/ECtj6zkWG2uGdJyDTmcFOq5rv9ULWFZCuoJyRZQAPbkhwKlgIBaRR9Ey1YHflq492qWeXJz+klKVtzJIdfl9ACdP3qxaUYAyL3DA3nvW375rf2OQQf4lHFQC20dcz+UOb06j/RGiPf2yLibBw30FeBMcK9wDOe6ZaW4YKSqlSEcW9ZPYh26Ut1F4tf/HcdMCINxqHkHuCkiaxtUjGTxIezJBbjBJ7DJ4WU1yZyKPwsCnQYPrs537ZK/kzSFMtsbMTv18jVS2d1Rxz+wRiAfzrlRSDra1jS6/hdoH1SuQ6cPKW3nY5Jbq8FDY1Gu9XSXnsZaOPJdGHjC0+QrC6zxYqpvNd9T4IG0f4sBc2a72blRapY/2uwCktMeDbnAkeqNmoj87/YFeFcSqbwQUfDCr0yZbT/MlBiWi/WAwr0AQFpFH0TEKDdUNVxZ8jRODO6P0sJYFdCYiQj+gS2vxhxYUIyLVLx3pdbjwbko6IWzvDDkdahdamCav10s18Wg59wq/cgkm6HHfPWb+liPF/zcKbM9+YpPtdYKvT7JaTUDDIEFewC4n9gknQTqYair8NbyM3nLzuEHMW+pdT3Cc719o/iQydUH1F43E99Plv7nqA4fJxCEUGBs6MuOYeBw+HlR/Og5fIaG2jmxeWTlKnORLCTpOljh04wo1W2j0rll1FOwLXzrYAmorSP2JZ9SxBfplU3NF8w1nMT7lAouJyhesafNWwb4fIJMEbuWftwA8VeYPoK8gEBaRR9EzJ51PMdU/Xjq+bZHNxiHJ9a4BV3i3/nXI0YXC1j4z4kAxzjQDj786arWCfl5IQa+YKtxsPlplI1ufVuJ9zIXzXUVnVVTInmJW+8aZddwzQde5tGMQHCTnGSTVM+6LKhXBoduJi78qPSd34/BjB5+dTntE6yny83yYmAYZJf+oP+/3YTVj9vKMy5XrM8wFrjBy8TJN/HFGHmQOjjUdpeQKTIirBj3pJqTxER33etpq5UO/YlphAdKfM39Uav34VL8HIgg0Q6gL7qO/Jg6jlZbhtgpYr/O6PXfSakRjdq9Hsi6XpWs6cpbvAqfCKiqgpRAWkUfRNrTfe9UhbtFFYr5b1I+KpeNvqHj8QDkxaw0ugghEZpdkG97XOhtY/VLGdfDvmpWKx0Y6wBH6yq5ZTzUdY7OTpl5sNbBH6WhH4Y77EH\"}},\"id\":\"prt_0bc4fdf8d001Tz0Nu1O72k63aa\",\"sessionID\":\"ses_f43b0338dffeWOV9O5q3NrhN8X\",\"messageID\":\"msg_0bc4fcc83001TxZ9oW8E6WGS0x\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865746340,\"sessionID\":\"ses_f43b0338dffeWOV9O5q3NrhN8X\",\"part\":{\"id\":\"prt_0bc4fdf9c001K1iMPdmuenGS8a\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc4fcc83001TxZ9oW8E6WGS0x\",\"sessionID\":\"ses_f43b0338dffeWOV9O5q3NrhN8X\",\"type\":\"step-finish\",\"tokens\":{\"total\":6615,\"input\":954,\"output\":618,\"reasoning\":278,\"cache\":{\"write\":0,\"read\":4765}},\"cost\":0.00266915}}\n{\"type\":\"step_start\",\"timestamp\":1789865747268,\"sessionID\":\"ses_f43b0338dffeWOV9O5q3NrhN8X\",\"part\":{\"id\":\"prt_0bc4fe342001ZI2xL51qK7Gtxj\",\"messageID\":\"msg_0bc4fdfa0001sdyFtYw1GWoRI5\",\"sessionID\":\"ses_f43b0338dffeWOV9O5q3NrhN8X\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43b0338dffeWOV9O5q3NrhN8X",
+      "started": "2026-09-20T00:55:41.012665+00:00",
+      "step": 6,
+      "user_message_count": 1
+    },
+    {
+      "audit": {
+        "created": [
+          "live_caption_translate.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "live_caption_translate.py": "69e30407e3d0a9525f145b7d8ef88c2cfddd19701d5de987797732d1ce8708ee",
+          "partial_results.py": "e93e9862109a82a9d89085076a306258b4bca513f02a7f64a6bd8199cb125d2e",
+          "speech_client.py": "3210ae48ea46cef406cf425189f4ce6c3b6a411ff2bc2c4a2346a7254bfc5a6b",
+          "speech_models.py": "4f0e67c0a91171ab6dc7d3a7e99b109db32ef9ef30b95230ca506dc91372c049",
+          "stream_chunks.py": "c2c57d9109d1edec25e0e6c71dcdf865d8cf278a189ea13c4023c4c268f624c1",
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80",
+          "stream_with_language.py": "3e6745068df2893fe1b082135fb305a088e9754eec46a19ab5f8b2841e8be06a"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "live_caption_translate.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:55:53.075985+00:00",
+      "prompt_verified": true,
+      "requested_file": "live_caption_translate.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 5.499818417010829,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865748877,\"sessionID\":\"ses_f43b01a7cffenWOMCqD5o0xDe2\",\"part\":{\"id\":\"prt_0bc4fe98b001Ck2gUj8B6Rh3ZS\",\"messageID\":\"msg_0bc4fe590001X4ffgINZ6H7TSt\",\"sessionID\":\"ses_f43b01a7cffenWOMCqD5o0xDe2\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865751309,\"sessionID\":\"ses_f43b01a7cffenWOMCqD5o0xDe2\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"zfhNYKbB40XHUEzA\",\"state\":{\"status\":\"completed\",\"input\":{\"content\":\"\\nfrom google.cloud import translate_v2 as translate\\nimport os\\n\\ndef translate_caption(text, target_language=\\\"es\\\"):\\n    \\\"\\\"\\\"Translates text into the target language using Google Cloud Translation.\\\"\\\"\\\"\\n    # Instantiates a client\\n    translate_client = translate.Client()\\n\\n    if isinstance(text, bytes):\\n        text = text.decode(\\\"utf-8\\\")\\n\\n    # Text can also be a sequence of strings, in which case this method\\n    # will return a sequence of translations for each text.\\n    result = translate_client.translate(text, target_language=target_language)\\n\\n    # print(f\\\"Text: {result['input']}\\\")\\n    # print(f\\\"Translation: {result['translatedText']}\\\")\\n    # print(f\\\"Detected source language: {result['detectedSourceLanguage']}\\\")\\n    return result[\\\"translatedText\\\"]\\n\\nif __name__ == \\\"__main__\\\":\\n    # This is a placeholder for live caption input.\\n    # In a real application, you would integrate with a live captioning system\\n    # to receive text in real-time.\\n    live_caption_text = \\\"Hello, how are you doing today?\\\"\\n    target_language = \\\"fr\\\" # French\\n\\n    translated_text = translate_caption(live_caption_text, target_language)\\n    print(f\\\"Original Caption: {live_caption_text}\\\")\\n    print(f\\\"Translated Caption ({target_language}): {translated_text}\\\")\\n\\n    live_caption_text_2 = \\\"Nice to meet you.\\\"\\n    target_language_2 = \\\"de\\\" # German\\n    translated_text_2 = translate_caption(live_caption_text_2, target_language_2)\\n    print(f\\\"Original Caption: {live_caption_text_2}\\\")\\n    print(f\\\"Translated Caption ({target_language_2}): {translated_text_2}\\\")\\n\",\"filePath\":\"live_caption_translate.py\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/live_caption_translate.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/live_caption_translate.py\",\"time\":{\"start\":1789865751283,\"end\":1789865751298}},\"metadata\":{\"google\":{\"thoughtSignature\":\"Cl8BaRR9EzLoniyPmp0t3Z1LqKxo8uwxWPmTYM09iE4t0DT3XM2z0lAZnprqa5EeHMYfmFNZbDnaBjsuZBctwicVHDs4dSL46R84qhCMcNu1qdaWjRCDIC2iKV13HrMzPwrzAQFpFH0TBsvfsjKcxgTaDUwxb+TOxQLTpd6GP+H4pTTkUq9aJXEq1dddkGUPX1hJ9cAcYbsoGki9DyhXVh0oUuPM7l/iaiAWO6IpQfNMVSIjUoFThhCKxzJCoWu9glAnfWd3jgti3vv9ff0GopJrnVPxe15ZI6yNG8R0MlM2jYo12phCVLNdjpRpC4Cjn97C+KjEYpMT7L6cAd8xnlR82NzljfvrQTrBwTwoax+T3+DA8ns+HJdhmlCpVzRvZPgNMIA1Zy04OS+gNd8p5E9Oc0iCNFz9aiPEUB+zndmRa2XSD+hCeLJ+Tt2/nPVjPW1+p7vRnAr2AQFpFH0TipMUBHIIiVES2RsDXGeDob41+DgqNK1z7H/zWn9njBqoP+Nwi5St+VuhRNuPBZP7QcznxQoOTgThZi+5s9RI++8eAtgZVNdlmPZtrayEYRhCx4Y+i5SeFFN2X3eG39bvwb3yoRrlIQhG6HWNEvWZ7QS4SLVm79ZlHM+vwHGp8dMFMjHKOUlKeBvHN9laexQf1+G8fj+7ddh7f8/CdlAJxMS4FvQuNkmqhS6ZGGwyONcfS1XfqRjdfAie3pydF3YlLVphLPRQNg2Fu75zairZ84+0ee9X4s5CPb74LezZXCbHZx9G1E3/eramf0U9f+BCSgp6AWkUfRPA6VyCIzTFq75QbolssJxrlH9qHmkXMMaZS3WC2yf5AQnllvO7xHXIPLVWJdzaxdyl10vG3jxJTq8wbZxxCNteBckaPxtmAIua8YbVyU22K3I8icN/p7qpz3bsar839kcNFv5sdtsZF0n23Zd0TEPRxVmKt2E=\"}},\"id\":\"prt_0bc4ff2ee001mizkoIP3auAyK4\",\"sessionID\":\"ses_f43b01a7cffenWOMCqD5o0xDe2\",\"messageID\":\"msg_0bc4fe590001X4ffgINZ6H7TSt\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865751309,\"sessionID\":\"ses_f43b01a7cffenWOMCqD5o0xDe2\",\"part\":{\"id\":\"prt_0bc4ff3040017KImfQUStH8cOm\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc4fe590001X4ffgINZ6H7TSt\",\"sessionID\":\"ses_f43b01a7cffenWOMCqD5o0xDe2\",\"type\":\"step-finish\",\"tokens\":{\"total\":6343,\"input\":959,\"output\":491,\"reasoning\":127,\"cache\":{\"write\":0,\"read\":4766}},\"cost\":0.00197568}}\n{\"type\":\"step_start\",\"timestamp\":1789865752508,\"sessionID\":\"ses_f43b01a7cffenWOMCqD5o0xDe2\",\"part\":{\"id\":\"prt_0bc4ff7b6001M3tgcmXNq5hPzP\",\"messageID\":\"msg_0bc4ff309001gAIHqiURL7ECon\",\"sessionID\":\"ses_f43b01a7cffenWOMCqD5o0xDe2\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43b01a7cffenWOMCqD5o0xDe2",
+      "started": "2026-09-20T00:55:47.458987+00:00",
+      "step": 7,
+      "user_message_count": 1
+    },
+    {
+      "audit": {
+        "created": [
+          "live_caption_safety.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "live_caption_safety.py": "d5195216336f6f93e70e441b4eb31a0768a9946abf22e02872a6fb77994ad2a6",
+          "live_caption_translate.py": "69e30407e3d0a9525f145b7d8ef88c2cfddd19701d5de987797732d1ce8708ee",
+          "partial_results.py": "e93e9862109a82a9d89085076a306258b4bca513f02a7f64a6bd8199cb125d2e",
+          "speech_client.py": "3210ae48ea46cef406cf425189f4ce6c3b6a411ff2bc2c4a2346a7254bfc5a6b",
+          "speech_models.py": "4f0e67c0a91171ab6dc7d3a7e99b109db32ef9ef30b95230ca506dc91372c049",
+          "stream_chunks.py": "c2c57d9109d1edec25e0e6c71dcdf865d8cf278a189ea13c4023c4c268f624c1",
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80",
+          "stream_with_language.py": "3e6745068df2893fe1b082135fb305a088e9754eec46a19ab5f8b2841e8be06a"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "live_caption_safety.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:56:00.191403+00:00",
+      "prompt_verified": true,
+      "requested_file": "live_caption_safety.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 6.876114167040214,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865754821,\"sessionID\":\"ses_f43b00411ffe91n1SMD3DOzdBu\",\"part\":{\"id\":\"prt_0bc5000be001J4VVC0S4eeamWp\",\"messageID\":\"msg_0bc4ffbfb0019BJBhpw9acNWES\",\"sessionID\":\"ses_f43b00411ffe91n1SMD3DOzdBu\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865759439,\"sessionID\":\"ses_f43b00411ffe91n1SMD3DOzdBu\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"gmPHW0Y7MhtupHvN\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"live_caption_safety.py\",\"content\":\"import vertexai\\nfrom vertexai.preview.generative_models import HarmCategory, HarmBlockThreshold, GenerativeModel\\n\\ndef check_safety(text: str) -> dict:\\n    \\\"\\\"\\\"\\n    Checks live transcript text for unsafe content using Google Cloud Vertex AI's Generative AI Safety API.\\n\\n    Args:\\n        text: The live transcript text to check.\\n\\n    Returns:\\n        A dictionary containing safety attributes and scores.\\n    \\\"\\\"\\\"\\n    # Initialize Vertex AI (replace with your project and location)\\n    vertexai.init(project=\\\"your-gcp-project-id\\\", location=\\\"us-central1\\\") \\n\\n    model = GenerativeModel(\\\"gemini-pro\\\") # Using gemini-pro for content moderation\\n\\n    # Configure safety settings to block harmful content\\n    safety_settings = {\\n        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,\\n        HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,\\n        HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,\\n        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,\\n    }\\n\\n    response = model.generate_content(\\n        text,\\n        safety_settings=safety_settings\\n    )\\n    \\n    # You might want to parse response.prompt_feedback.safety_ratings\\n    # and response.candidates[0].safety_ratings for a detailed safety analysis.\\n    # For simplicity, this example returns a basic representation.\\n    \\n    safety_analysis = {\\n        \\\"is_unsafe\\\": False,\\n        \\\"blocked_reason\\\": None,\\n        \\\"safety_ratings\\\": []\\n    }\\n\\n    if response.prompt_feedback.block_reason:\\n        safety_analysis[\\\"is_unsafe\\\"] = True\\n        safety_analysis[\\\"blocked_reason\\\"] = str(response.prompt_feedback.block_reason)\\n    \\n    if response.prompt_feedback.safety_ratings:\\n        safety_analysis[\\\"safety_ratings\\\"] = [\\n            {\\\"category\\\": str(rating.category), \\\"probability\\\": str(rating.probability)}\\n            for rating in response.prompt_feedback.safety_ratings\\n        ]\\n\\n    return safety_analysis\\n\\nif __name__ == \\\"__main__\\\":\\n    # Example usage:\\n    transcript_text = \\\"I hate you, you are so stupid!\\\"\\n    safety_result = check_safety(transcript_text)\\n    print(f\\\"Transcript: \\\\\\\"{transcript_text}\\\\\\\"\\\")\\n    print(f\\\"Safety Check Result: {safety_result}\\\")\\n\\n    transcript_text_safe = \\\"Hello, how are you today?\\\"\\n    safety_result_safe = check_safety(transcript_text_safe)\\n    print(f\\\"Transcript: \\\\\\\"{transcript_text_safe}\\\\\\\"\\\")\\n    print(f\\\"Safety Check Result: {safety_result_safe}\\\")\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/live_caption_safety.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/live_caption_safety.py\",\"time\":{\"start\":1789865759417,\"end\":1789865759430}},\"metadata\":{\"google\":{\"thoughtSignature\":\"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\"}},\"id\":\"prt_0bc5012b300165Hopxb4AdfPPP\",\"sessionID\":\"ses_f43b00411ffe91n1SMD3DOzdBu\",\"messageID\":\"msg_0bc4ffbfb0019BJBhpw9acNWES\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865759439,\"sessionID\":\"ses_f43b00411ffe91n1SMD3DOzdBu\",\"part\":{\"id\":\"prt_0bc5012c7001f0qrNHXCgINYoO\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc4ffbfb0019BJBhpw9acNWES\",\"sessionID\":\"ses_f43b00411ffe91n1SMD3DOzdBu\",\"type\":\"step-finish\",\"tokens\":{\"total\":6809,\"input\":5726,\"output\":746,\"reasoning\":337,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0.0044253}}\n{\"type\":\"step_start\",\"timestamp\":1789865759806,\"sessionID\":\"ses_f43b00411ffe91n1SMD3DOzdBu\",\"part\":{\"id\":\"prt_0bc501439001Ak0i2lX7BsOnjl\",\"messageID\":\"msg_0bc5012cb001GvqWnI3kpiqGlQ\",\"sessionID\":\"ses_f43b00411ffe91n1SMD3DOzdBu\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43b00411ffe91n1SMD3DOzdBu",
+      "started": "2026-09-20T00:55:53.184303+00:00",
+      "step": 8,
+      "user_message_count": 1
+    },
+    {
+      "audit": {
+        "created": [
+          "meeting_summary.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "live_caption_safety.py": "d5195216336f6f93e70e441b4eb31a0768a9946abf22e02872a6fb77994ad2a6",
+          "live_caption_translate.py": "69e30407e3d0a9525f145b7d8ef88c2cfddd19701d5de987797732d1ce8708ee",
+          "meeting_summary.py": "52f58dee89b2a08f8d3f455b844458b90074e0bab0c499c82c861a7cf449e449",
+          "partial_results.py": "e93e9862109a82a9d89085076a306258b4bca513f02a7f64a6bd8199cb125d2e",
+          "speech_client.py": "3210ae48ea46cef406cf425189f4ce6c3b6a411ff2bc2c4a2346a7254bfc5a6b",
+          "speech_models.py": "4f0e67c0a91171ab6dc7d3a7e99b109db32ef9ef30b95230ca506dc91372c049",
+          "stream_chunks.py": "c2c57d9109d1edec25e0e6c71dcdf865d8cf278a189ea13c4023c4c268f624c1",
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80",
+          "stream_with_language.py": "3e6745068df2893fe1b082135fb305a088e9754eec46a19ab5f8b2841e8be06a"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "meeting_summary.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:56:05.803708+00:00",
+      "prompt_verified": true,
+      "requested_file": "meeting_summary.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 5.457050082972273,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865761610,\"sessionID\":\"ses_f43afe8b8ffePtnQvY6wI46snF\",\"part\":{\"id\":\"prt_0bc501b44001bNw44gzoq0fGTx\",\"messageID\":\"msg_0bc5017550012wWlNAhZEuTER5\",\"sessionID\":\"ses_f43afe8b8ffePtnQvY6wI46snF\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865764511,\"sessionID\":\"ses_f43afe8b8ffePtnQvY6wI46snF\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"Hj4dVmBHEXEPfYNR\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"meeting_summary.py\",\"content\":\"import google.generativeai as genai\\nimport os\\n\\n# Configure the Google Generative AI client\\n# Ensure you have GOOGLE_API_KEY set in your environment variables\\ngenai.configure(api_key=os.environ.get(\\\"GOOGLE_API_KEY\\\"))\\n\\ndef summarize_transcript_chunk(transcript_chunk: str) -> str:\\n    \\\"\\\"\\\"\\n    Summarizes a given chunk of meeting transcript using Google's Generative AI.\\n\\n    Args:\\n        transcript_chunk: A string representing a chunk of the meeting transcript.\\n\\n    Returns:\\n        A string containing the summary of the transcript chunk.\\n    \\\"\\\"\\\"\\n    try:\\n        model = genai.GenerativeModel('gemini-pro') # Provider-specific model ID\\n        prompt = f\\\"Summarize the following meeting transcript chunk:\\n\\n{transcript_chunk}\\n\\nSummary:\\\"\\n        response = model.generate_content(prompt)\\n        return response.text\\n    except Exception as e:\\n        return f\\\"Error summarizing transcript: {e}\\\"\\n\\nif __name__ == '__main__':\\n    # Example usage:\\n    sample_transcript_chunk = \\\"\\\"\\\"\\n    Alice: Good morning, everyone. Today, we need to discuss the Q3 marketing strategy.\\n    Bob: I've prepared some slides on our proposed social media campaign. We're targeting a 15% increase in engagement.\\n    Charlie: That sounds ambitious, Bob. What about the budget for paid ads?\\n    Alice: Yes, budget is a key concern. We also need to finalize the content calendar for the next three months.\\n    Bob: I think we can reallocate some funds from the print advertising budget.\\n    Charlie: I'll need to review those numbers.\\n    Alice: Let's aim to have a detailed plan by next Friday.\\n    \\\"\\\"\\\"\\n    summary = summarize_transcript_chunk(sample_transcript_chunk)\\n    print(\\\"Summary of transcript chunk:\\\")\\n    print(summary)\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/meeting_summary.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/meeting_summary.py\",\"time\":{\"start\":1789865764499,\"end\":1789865764502}},\"metadata\":{\"google\":{\"thoughtSignature\":\"CiQBaRR9E7/Wr+pXtaNUAMNoV1bYL6HwvT5/vckFGlRVsQfs6usKdwFpFH0TB54KOqqNaZKtDoij7tCNqaRiehEIxb9LYrj2SYzGYtHakEEd5pQM9qIeI9Auw8kZe5tHsxziLuZAgAtxqnp84ihBTzo+5xkdLMNWdEjTMaZE+9qz5vF5qedMl5WGLsdnYCT0Du507kjL2+hNrTU5MG5eCoICAWkUfRNjWy6ueSQ37PmesD74GVlxC3ePohxPQPr1P00RrIYt+k57pLKN5CLapLchCbCqvlhef8Hv4vRtAZNbIlf/MOsQQREzJiBtbtN7Iy4tfJp4LXjkd60xMLy387KzRnmYT8xJOtXdPBcVPwukH9FrfZW2uMZfkix5VjaKgNeRvR+uLWN6sJN8/lrV4u/ZJmy3g8sCUsBxvmsJ+suWNvrFdIfieIiFeoqwPrx+wHVj+8YvxMd6aP4qzERCzzFKWqK5C6tAFR8UtEkkVzfdQRksy0U7+Izjgd9/Hl7OkRwAeYfi3kTmiAlhE65jKt1iY3IUbniWlDD/1Sxvli7sIDRjCtYBAWkUfRMYTjJj3HGuT87F3wjaF8DvHQ/3Z5y4XHasI7iuIEDh58q3GPlwdmQK7VAGtYG3ohfxM1o/Xz62NNrKG5OkaUW6d7+TJuperdfgtkxl5SqYj5BhXeXf/BijqI1sYHR1oIERP+sOWm0P60PUrS8O7iA5mqCavycCcwDfatF7TqBGZgLdIPKU035rLwKZa7tEe6MwvI5YUGKL2nbDQpywGSFnPNeraN+SuicjfHhXGpDNjXYNdfBqhlNEzsHG15nFMxBnyk+/xTDJeuz3Xfeb5CIqqgrtAQFpFH0ThtnTakaeiw4QnxtfHWP14iPPzM3x5Sh13+R5h5XdR7z1MWyLSzKhJcgx84iglxCVROPRlTIsEdKPyYx81ldVejRPnvYzy0HtTcCTZ7oLmtaIzwGwpCcRYi4gR2NsjN9zF2RsXysAVMhkbuYmJo8ml4rY6LnJO2N7G2cvuvvwtiLLNsvirbheSvprEumY7hXCpsdBrypBcxwCPWSWbl7uCMxxe/ZgbvwiTqPK1U3e07J1yWM7OzUu8GiTS7+YVU70Yl9CMgaxrGR2we98xI3U83KUg+6QqaLXwj5jiBx2ftzkEa/j/P9Y4QpSAWkUfRO8lbr6LggXxfHR65EoYvQYq4KwxbDFX8FKz0L+95iqw/kCYibIx9Uj3/o53sl4BiFDaewh8wSTWEifN9KYkbM486yJgYYpj0fyy+JG6A==\"}},\"id\":\"prt_0bc502690001fCVX7oHhKkVkab\",\"sessionID\":\"ses_f43afe8b8ffePtnQvY6wI46snF\",\"messageID\":\"msg_0bc5017550012wWlNAhZEuTER5\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865764511,\"sessionID\":\"ses_f43afe8b8ffePtnQvY6wI46snF\",\"part\":{\"id\":\"prt_0bc502697001EwBBNWbTrPUB6o\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc5017550012wWlNAhZEuTER5\",\"sessionID\":\"ses_f43afe8b8ffePtnQvY6wI46snF\",\"type\":\"step-finish\",\"tokens\":{\"total\":6385,\"input\":957,\"output\":483,\"reasoning\":179,\"cache\":{\"write\":0,\"read\":4766}},\"cost\":0.00208508}}\n{\"type\":\"step_start\",\"timestamp\":1789865765580,\"sessionID\":\"ses_f43afe8b8ffePtnQvY6wI46snF\",\"part\":{\"id\":\"prt_0bc502ac8001FfFYS37Hz9B6Qp\",\"messageID\":\"msg_0bc50269a001y3p7H2q1V49mo4\",\"sessionID\":\"ses_f43afe8b8ffePtnQvY6wI46snF\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43afe8b8ffePtnQvY6wI46snF",
+      "started": "2026-09-20T00:56:00.199328+00:00",
+      "step": 9,
+      "user_message_count": 1
+    },
+    {
+      "audit": {
+        "created": [
+          "caption_embedding.py"
+        ],
+        "deleted": [],
+        "file_sha256": {
+          "caption_embedding.py": "d39e29a61b8cab2ae041bd32d76f77d68edd8d645f12f8b9d709c84f7166979c",
+          "live_caption_safety.py": "d5195216336f6f93e70e441b4eb31a0768a9946abf22e02872a6fb77994ad2a6",
+          "live_caption_translate.py": "69e30407e3d0a9525f145b7d8ef88c2cfddd19701d5de987797732d1ce8708ee",
+          "meeting_summary.py": "52f58dee89b2a08f8d3f455b844458b90074e0bab0c499c82c861a7cf449e449",
+          "partial_results.py": "e93e9862109a82a9d89085076a306258b4bca513f02a7f64a6bd8199cb125d2e",
+          "speech_client.py": "3210ae48ea46cef406cf425189f4ce6c3b6a411ff2bc2c4a2346a7254bfc5a6b",
+          "speech_models.py": "4f0e67c0a91171ab6dc7d3a7e99b109db32ef9ef30b95230ca506dc91372c049",
+          "stream_chunks.py": "c2c57d9109d1edec25e0e6c71dcdf865d8cf278a189ea13c4023c4c268f624c1",
+          "stream_microphone.py": "0bf573338257c27763d1c5da1bb1cf993d8e1d5f60210d0d7ed6e305ef1beb80",
+          "stream_with_language.py": "3e6745068df2893fe1b082135fb305a088e9754eec46a19ab5f8b2841e8be06a"
+        },
+        "future_files_present": [],
+        "missing_local_imports": {},
+        "off_target_changes": [],
+        "requested_file": "caption_embedding.py",
+        "requested_file_present": true,
+        "revised": [],
+        "symlinks": [],
+        "unexpected_python_files": []
+      },
+      "finished": "2026-09-20T00:56:11.825304+00:00",
+      "prompt_verified": true,
+      "requested_file": "caption_embedding.py",
+      "response": {
+        "command": [
+          "opencode",
+          "run",
+          "--attach",
+          "http://127.0.0.1:56938",
+          "--format",
+          "json",
+          "-m",
+          "google/gemini-2.5-flash",
+          "--agent",
+          "vibench",
+          "<prompt_text>"
+        ],
+        "elapsed_seconds": 5.858099875040352,
+        "error": null,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865767306,\"sessionID\":\"ses_f43afd2b2ffep0F3DNX7VgLelx\",\"part\":{\"id\":\"prt_0bc5031840017TWiLJgmS43Pxr\",\"messageID\":\"msg_0bc502d5b0010ixShNyyNEkIis\",\"sessionID\":\"ses_f43afd2b2ffep0F3DNX7VgLelx\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789865769633,\"sessionID\":\"ses_f43afd2b2ffep0F3DNX7VgLelx\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"b9wvLupl4OQ5AMvg\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"caption_embedding.py\",\"content\":\"import openai\\nimport os\\n\\ndef embed_caption_chunks(caption_chunks: list[str]) -> list[list[float]]:\\n    \\\"\\\"\\\"\\n    Embeds a list of caption chunks using OpenAI's text-embedding-ada-002 model.\\n\\n    Args:\\n        caption_chunks: A list of strings, where each string is a caption chunk.\\n\\n    Returns:\\n        A list of embeddings, where each embedding is a list of floats.\\n    \\\"\\\"\\\"\\n    openai.api_key = os.getenv(\\\"OPENAI_API_KEY\\\")\\n    if not openai.api_key:\\n        raise ValueError(\\\"OPENAI_API_KEY environment variable not set.\\\")\\n\\n    response = openai.Embedding.create(\\n        input=caption_chunks,\\n        model=\\\"text-embedding-ada-002\\\"\\n    )\\n    embeddings = [data.embedding for data in response.data]\\n    return embeddings\\n\\nif __name__ == \\\"__main__\\\":\\n    # Example usage (requires OPENAI_API_KEY to be set in environment)\\n    chunks = [\\n        \\\"This is the first caption chunk about a meeting.\\\",\\n        \\\"The second chunk discusses the key decisions made.\\\",\\n        \\\"Finally, we summarize the action items for the team.\\\"\\n    ]\\n    try:\\n        embedded_chunks = embed_caption_chunks(chunks)\\n        print(f\\\"Generated {len(embedded_chunks)} embeddings, each with dimension {len(embedded_chunks[0])}.\\\")\\n        # print(embedded_chunks) # Uncomment to see the actual embeddings\\n    except ValueError as e:\\n        print(f\\\"Error: {e}\\\")\\n    except Exception as e:\\n        print(f\\\"An unexpected error occurred: {e}\\\")\\n\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/caption_embedding.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-310h6x_n/caption_embedding.py\",\"time\":{\"start\":1789865769623,\"end\":1789865769626}},\"metadata\":{\"google\":{\"thoughtSignature\":\"Cl0BaRR9E1xx8prr0ZqU/sDNT1RgWAEiKut7WBH3mFE76kGYm0yvNFtR1tdvLcCOhE9Pg9ywTVTPGMCQG2rvTUfaZ8LRfd77ePvLBdzdyAtPddABgmKAsZ8QOTCmrIMKhgIBaRR9Ey0IBlyk1f9HBMvH7AsIJmUPXBQy0ziYQs41UDqMzK/E7gn4Kj8Ra3V8uCQX2ZAl9YGVEzwpcf+3l4C4QySsPlYMFKumPr54tSYY1G6rluzLN9vAkDIoESFYQN1w39p4dNXoX+nPrbHyprCybFGhCtc24wKUOYYvh0IHXEGh61v86f5ZP6vXigCMpWY9R36U0i8NjK8Er6uDjOY2s1fGpJKebsA+EL06oPaASnIJLYPDLrN1OjcSnobS94nvA5gJb/apr9V7Y1xgtuFiS/BP3pHC+OIIdV49L67GN8AgUc+1wfeJKBqa5r/jhZMpu7uM65huCOzCNzk6QDmYOZSMbf29CsgBAWkUfRNy1vTyjlGaySwSxz7/qmAh0u3v2j8CuGROqVB02O14xTL+CjZdJVrRCkgr10NVJdB37+y82JBgf4rN+2bthOOvLCR6HZr1L/lf9L18xVBInX+QvXiLmCHa/+7zlVCGTkQTqyu3ut6V5FmxVWEafuyX/8UrfOB/9Z34EncUPm+o0eeUYjtr5Z8wOFglf/IhLIJMz1j3payJVhfpisBttMXfBWGknz8eN8z/FRtNRloq4yJ4CAkiMJxwJNOAJxFS0nvuoiIK3wEBaRR9E/YuYhh97eVRbVbdhcC5WqzMFPzkm0BY42rVuCXBTAx7ZBUNo8W84jPRtEOLMpSnbETJ0jpNg6Gy5cLhKULzHWL7XtYUTlivzYIiodm7ARGL08R+JUqEo6r4CQzK8NnFXor9MwHcusaxbkJLRx2BdC/zghsoaYJTU2Ru4HqGe+GrmxBrzvuNEcjWEdVa1OGXZ/eaNZeaiQZMXpTKULXjGhD/dzqx5DRu+dlwc97Nw+aYgWrF4LtIt2yrbgoFnC1mHtwDS91ZXgaBDUR53tHF4QX1K2F5+SpPKh2HCl4BaRR9E0iWd4OCR+rjdLsscFjjmWJVQu7+eLaW/iZGPulpQ3MNWU+ui4wQlvGS7BXQ2YP5vbkynHnn0T+xY9MbzO82qIfz2XuMdwd135EqsTfOOTQklGXyI0sCnZ61\"}},\"id\":\"prt_0bc503a950011UhxaLPvk1xWeo\",\"sessionID\":\"ses_f43afd2b2ffep0F3DNX7VgLelx\",\"messageID\":\"msg_0bc502d5b0010ixShNyyNEkIis\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789865769633,\"sessionID\":\"ses_f43afd2b2ffep0F3DNX7VgLelx\",\"part\":{\"id\":\"prt_0bc503a9b001G5vjylvIAPtHuu\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc502d5b0010ixShNyyNEkIis\",\"sessionID\":\"ses_f43afd2b2ffep0F3DNX7VgLelx\",\"type\":\"step-finish\",\"tokens\":{\"total\":6331,\"input\":958,\"output\":434,\"reasoning\":173,\"cache\":{\"write\":0,\"read\":4766}},\"cost\":0.00194788}}\n{\"type\":\"step_start\",\"timestamp\":1789865770783,\"sessionID\":\"ses_f43afd2b2ffep0F3DNX7VgLelx\",\"part\":{\"id\":\"prt_0bc503f1a001nPqN7oY23iPKfm\",\"messageID\":\"msg_0bc503a9d001ng59sxtxU5noTt\",\"sessionID\":\"ses_f43afd2b2ffep0F3DNX7VgLelx\",\"type\":\"step-start\"}}\n"
+      },
+      "session_id": "ses_f43afd2b2ffep0F3DNX7VgLelx",
+      "started": "2026-09-20T00:56:05.814174+00:00",
+      "step": 10,
+      "user_message_count": 1
+    }
+  ],
+  "timeout_scope": "whole_repository_run"
+}

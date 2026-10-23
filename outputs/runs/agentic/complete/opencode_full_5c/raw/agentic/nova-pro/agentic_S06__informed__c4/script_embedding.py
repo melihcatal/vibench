@@ -1,0 +1,7 @@
+import openai
+
+
+def embed_text(text):
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    response = openai.Embedding.create(input=text)
+    return response["data"][0]["embedding"]

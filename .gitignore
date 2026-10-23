@@ -1,11 +1,15 @@
-# Large data artifacts distributed via the Hugging Face datasets, hydrated
-# locally under these paths. Patterns are anchored: unanchored "benchmark/"
-# or "vibench/" would also ignore code/scripts/benchmark/ and
-# code/configs/vibench/ (this previously kept the study configs and the
-# benchmark-construction scripts out of the repository by accident).
-/outputs/
-/code/outputs/
-/code/results/**/*.jsonl
+# Live API credentials. `make env` creates configs/.env from the committed
+# .env.template; the filled-in file must never be committed.
+.env
+.env.local
+!*.env.template
+
+# Virtual environments. The READMEs tell you to make one inside code/.
+.venv/
+venv/
+env/
+
+# Hugging Face per-file download cache, created when hydrating from the hub.
 /code/.cache/
 
 # Regenerable provider-doc evidence artifacts (rebuild with `make snapshots`);
@@ -13,6 +17,25 @@
 # audit sample) is tracked in-repo.
 /code/benchmark/vibench/evidence/generated/
 /code/benchmark/vibench/evidence/snapshots/
+
+# Control-model bundle rebuilt by `make baseline-build`; a copy of records that
+# already live in outputs/runs/.
+/outputs/control_sets/
+
+# Fresh audit samples drawn by `make audit-sample`. The annotated n=400 sample
+# is reference data and lives in code/benchmark/vibench/audit/.
+/outputs/audits/
+
+# Figures rebuilt by `make figures`; the paper's reference set is in figures/.
+/code/docs/
+
+# Scratch run roots used by the generation smoke targets.
+/outputs/runs/scratch/
+/outputs/runs/reruns/
+
+# outputs/ itself IS tracked: the generations, detector labels and derived
+# tables ship with this package so every number reproduces from a clean clone
+# with no downloads. Only the regenerable paths above are excluded.
 
 __pycache__/
 *.py[cod]

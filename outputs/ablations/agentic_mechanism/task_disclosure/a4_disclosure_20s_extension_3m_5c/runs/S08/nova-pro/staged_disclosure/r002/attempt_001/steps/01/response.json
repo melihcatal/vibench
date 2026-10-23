@@ -1,0 +1,20 @@
+{
+  "command": [
+    "opencode",
+    "run",
+    "--attach",
+    "http://127.0.0.1:53101",
+    "--format",
+    "json",
+    "-m",
+    "amazon-nova-api/nova-pro-v1",
+    "--agent",
+    "vibench",
+    "<prompt_text>"
+  ],
+  "elapsed_seconds": 7.278466874966398,
+  "error": null,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "{\"type\":\"step_start\",\"timestamp\":1789890125505,\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"part\":{\"id\":\"prt_0bdc3deb5001jOJo0GnkDlTAgq\",\"messageID\":\"msg_0bdc3d820001X6Ee2ifNo8RYhg\",\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789890129083,\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"tooluse_g6pLSVCwnyyzR58l635X4v\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-f_x2u2pw/extract_invoice_fields.py\",\"content\":\"import boto3\\n\\ndef extract_invoice_fields(invoice_path):\\n    textract_client = boto3.client('textract')\\n    \\n    with open(invoice_path, 'rb') as document:\\n        imageBytes = document.read()\\n    \\n    response = textract_client.analyze_document(Document={'Bytes': imageBytes}, FeatureTypes=['FORMS'])\\n    \\n    vendor = None\\n    date = None\\n    total = None\\n    line_items = []\\n    \\n    for block in response['Blocks']:\\n        if block['BlockType'] == 'KEY_VALUE_SET':\\n            if block['Text'] == 'Vendor':\\n                vendor = block['Relationships'][0]['Ids'][0]\\n            elif block['Text'] == 'Date':\\n                date = block['Relationships'][0]['Ids'][0]\\n            elif block['Text'] == 'Total':\\n                total = block['Relationships'][0]['Ids'][0]\\n        elif block['BlockType'] == 'LINE':\\n            line_items.append(block['Text'])\\n    \\n    return {\\n        'vendor': vendor,\\n        'date': date,\\n        'total': total,\\n        'line_items': line_items\\n    }\\n\\nif __name__ == '__main__':\\n    invoice_path = 'path/to/your/invoice.jpg'\\n    fields = extract_invoice_fields(invoice_path)\\n    print(fields)\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-f_x2u2pw/extract_invoice_fields.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-f_x2u2pw/extract_invoice_fields.py\",\"time\":{\"start\":1789890129074,\"end\":1789890129082}},\"id\":\"prt_0bdc3eca8001w3wXxKf78UOU4V\",\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"messageID\":\"msg_0bdc3d820001X6Ee2ifNo8RYhg\"}}\n{\"type\":\"text\",\"timestamp\":1789890129132,\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"part\":{\"id\":\"prt_0bdc3deb90018Gu73oAh1LiKhf\",\"messageID\":\"msg_0bdc3d820001X6Ee2ifNo8RYhg\",\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"type\":\"text\",\"text\":\"<thinking> To extract fields from an invoice, I need to use an external provider. One suitable provider for this task is Amazon Textract, which is a service that automatically extracts text and data from scanned documents. I will write the Python code to use Amazon Textract to extract the required fields from an invoice. </thinking>\\n\\n\",\"time\":{\"start\":1789890125497,\"end\":1789890129122}}}\n{\"type\":\"step_finish\",\"timestamp\":1789890129132,\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"part\":{\"id\":\"prt_0bdc3ece50018ztl0teA2O9cUn\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bdc3d820001X6Ee2ifNo8RYhg\",\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"type\":\"step-finish\",\"tokens\":{\"total\":6955,\"input\":6431,\"output\":524,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0}}\n{\"type\":\"step_start\",\"timestamp\":1789890130354,\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"part\":{\"id\":\"prt_0bdc3f1a8001ecBFauZo4scDEN\",\"messageID\":\"msg_0bdc3ece80013wO4Y3507th44d\",\"sessionID\":\"ses_f423c2859ffezRZtbSuUg0ZQ5t\",\"type\":\"step-start\"}}\n"
+}

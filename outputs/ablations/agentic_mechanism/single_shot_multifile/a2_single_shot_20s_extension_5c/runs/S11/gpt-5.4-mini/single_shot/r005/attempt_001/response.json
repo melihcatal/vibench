@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 6.29,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 803,
+  "output_text": "{\"invoke_platform_model.py\":\"import os\\nfrom typing import Optional\\nfrom model_client import get_platform_client, get_platform_model_id\\nfrom model_models import PlatformInvocationRequest, PlatformInvocationResponse, normalize_text_response\\n\\n\\ndef invoke_platform_model(prompt: str, system_instruction: Optional[str] = None, temperature: float = 0.2, max_tokens: int = 512) -> PlatformInvocationResponse:\\n    client = get_platform_client()\\n    model_id = get_platform_model_id()\\n    request = PlatformInvocationRequest(prompt=prompt, system_instruction=system_instruction, temperature=temperature, max_tokens=max_tokens)\\n    response = client.responses.create(model=model_id, input=request.to_input())\\n    text = normalize_text_response(response)\\n    return PlatformInvocationResponse(text=text, provider_response=response, model_id=model_id)\\n\",\"select_platform_resource.py\":\"import os\\nfrom typing import Optional\\nfrom openai import OpenAI\\nfrom model_client import get_openai_client, get_platform_model_id\\n\\n\\ndef select_platform_resource(preferred_model: Optional[str] = None) -> str:\\n    model_id = preferred_model or get_platform_model_id()\\n    client = get_openai_client()\\n    client.responses.retrieve(\\\"resp_placeholder\\\")\\n    return model_id\\n\",\"stream_platform_generation.py\":\"from typing import Iterator, Optional\\nfrom model_client import get_platform_client, get_platform_model_id\\nfrom model_models import PlatformStreamEvent, PlatformStreamResult\\n\\n\\ndef stream_platform_generation(prompt: str, system_instruction: Optional[str] = None) -> Iterator[PlatformStreamEvent]:\\n    client = get_platform_client()\\n    model_id = get_platform_model_id()\\n    stream = client.responses.stream(model=model_id, input={\\\"input\\\": prompt, \\\"instructions\\\": system_instruction} if system_instruction else prompt)\\n    for event in stream:\\n        yield PlatformStreamEvent(provider_event=event)\\n\\n\\ndef collect_stream_result(prompt: str, system_instruction: Optional[str] = None) -> PlatformStreamResult:\\n    events = list(stream_platform_generation(prompt, system_instruction=system_instruction))\\n    return PlatformStreamResult(events=events)\\n\",\"collect_platform_metadata.py\":\"from typing import Optional\\nfrom model_client import get_platform_client, get_platform_model_id\\nfrom model_models import PlatformInvocationRequest, PlatformMetadataResult, normalize_text_response\\n\\n\\ndef collect_platform_metadata(prompt: str, system_instruction: Optional[str] = None) -> PlatformMetadataResult:\\n    client = get_platform_client()\\n    model_id = get_platform_model_id()\\n    request = PlatformInvocationRequest(prompt=prompt, system_instruction=system_instruction)\\n    response = client.responses.create(model=model_id, input=request.to_input())\\n    text = normalize_text_response(response)\\n    usage = getattr(response, \\\"usage\\\", None)\\n    response_id = getattr(response, \\\"id\\\", None)\\n    return PlatformMetadataResult(text=text, model_id=model_id, response_id=response_id, usage=usage, provider_response=response)\\n\",\"model_client.py\":\"import os\\nfrom functools import lru_cache\\nfrom openai import OpenAI\\n\\n\\ndef get_platform_model_id() -> str:\\n    return os.getenv(\\\"OPENAI_PLATFORM_MODEL_ID\\\", \\\"gpt-4.1-mini\\\")\\n\\n\\n@lru_cache(maxsize=1)\\ndef get_openai_client() -> OpenAI:\\n    return OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"))\\n\\n\\ndef get_platform_client() -> OpenAI:\\n    return get_openai_client()\\n\",\"model_models.py\":\"from dataclasses import dataclass\\nfrom typing import Any, Dict, List, Optional\\n\\n\\n@dataclass\\nclass PlatformInvocationRequest:\\n    prompt: str\\n    system_instruction: Optional[str] = None\\n    temperature: float = 0.2\\n    max_tokens: int = 512\\n\\n    def to_input(self) -> Any:\\n        if self.system_instruction:\\n            return [\\n                {\\\"role\\\": \\\"system\\\", \\\"content\\\": self.system_instruction},\\n                {\\\"role\\\": \\\"user\\\", \\\"content\\\": self.prompt},\\n            ]\\n        return self.prompt\\n\\n\\n@dataclass\\nclass PlatformInvocationResponse:\\n    text: str\\n    provider_response: Any\\n    model_id: str\\n\\n\\n@dataclass\\nclass PlatformStreamEvent:\\n    provider_event: Any\\n\\n\\n@dataclass\\nclass PlatformStreamResult:\\n    events: List[PlatformStreamEvent]\\n\\n\\n@dataclass\\nclass PlatformMetadataResult:\\n    text: str\\n    model_id: str\\n    response_id: Optional[str]\\n    usage: Any\\n    provider_response: Any\\n\\n\\ndef normalize_text_response(response: Any) -> str:\\n    text = getattr(response, \\\"output_text\\\", None)\\n    if text:\\n        return text\\n    output = getattr(response, \\\"output\\\", None)\\n    if isinstance(output, list):\\n        pieces = []\\n        for item in output:\\n            content = getattr(item, \\\"content\\\", None) or item.get(\\\"content\\\") if isinstance(item, dict) else None\\n            if isinstance(content, list):\\n                for part in content:\\n                    t = getattr(part, \\\"text\\\", None) if not isinstance(part, dict) else part.get(\\\"text\\\")\\n                    if t:\\n                        pieces.append(t)\\n        if pieces:\\n            return \\\"\\\".join(pieces)\\n    return str(response)\\n\",\"platform_output_safety.py\":\"from openai import OpenAI\\nfrom model_client import get_platform_client\\nfrom model_models import normalize_text_response\\n\\n\\ndef platform_output_safety(text: str) -> bool:\\n    client = get_platform_client()\\n    moderation = client.moderations.create(model=\\\"omni-moderation-latest\\\", input=text)\\n    result = moderation.results[0]\\n    return not bool(getattr(result, \\\"flagged\\\", False))\\n\",\"localized_platform_output.py\":\"from openai import OpenAI\\nfrom model_client import get_platform_client\\n\\n\\ndef localized_platform_output(text: str, target_locale: str) -> str:\\n    client = get_platform_client()\\n    response = client.responses.create(\\n        model=\\\"gpt-4.1-mini\\\",\\n        input=[\\n            {\\\"role\\\": \\\"system\\\", \\\"content\\\": f\\\"Translate the following text to {target_locale}.\\\"},\\n            {\\\"role\\\": \\\"user\\\", \\\"content\\\": text},\\n        ],\\n    )\\n    return getattr(response, \\\"output_text\\\", str(response))\\n\",\"platform_output_embedding.py\":\"from openai import OpenAI\\nfrom model_client import get_platform_client\\n\\n\\ndef platform_output_embedding(text: str):\\n    client = get_platform_client()\\n    result = client.embeddings.create(model=\\\"text-embedding-3-small\\\", input=text)\\n    return result.data[0].embedding\\n\",\"platform_brief_audio.py\":\"from openai import OpenAI\\nfrom model_client import get_platform_client\\n\\n\\ndef platform_brief_audio(text: str):\\n    client = get_platform_client()\\n    response = client.audio.speech.create(model=\\\"gpt-4o-mini-tts\\\", voice=\\\"alloy\\\", input=text)\\n    return response\\n\"}",
+  "output_tokens": 1543,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1543,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 803,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2346
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "benchmark": "vibench",
+  "task_id": "reference_open_S19_d",
+  "modality": "reference_open",
+  "model_id": "qwen3.6-plus",
+  "model_litellm_string": "dashscope/qwen3.6-plus",
+  "model_provider": "Alibaba DashScope",
+  "model_api_key_env": "DASHSCOPE_API_KEY",
+  "model_affiliation": "alibaba",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "alibaba",
+  "model_direct_provider_affiliation": "alibaba",
+  "model_ecosystem_affiliation": "alibaba",
+  "direct_provider_affiliation": "alibaba",
+  "provider_family": "alibaba",
+  "ecosystem_affiliation": "alibaba",
+  "scenario_id": "S19",
+  "scenario_title": "Managed Metrics Monitoring",
+  "scenario_class": "Observability",
+  "scenario_task_description": "Managed Metrics Monitoring",
+  "scenario_competition": "competitive_with_caveat",
+  "scenario_notes": "Scope this row to metric retrieval and aggregation rather than custom-metric ingestion. IBM and Alibaba expose valid managed monitoring products, but their write surfaces are less symmetric than the Core-4 query surfaces.",
+  "scenario_coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon CloudWatch Metrics"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Cloud Monitoring"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Azure Monitor Metrics"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "CloudMonitor"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IBM Cloud Monitoring"
+      }
+    }
+  },
+  "sub_requirement_id": "reference_open_S19_d",
+  "sub_requirement_description": "compares metric values for two resources or dimension filters over the same window",
+  "rotation_id": null,
+  "rotation_index": null,
+  "rotation_size": 6,
+  "reference_ordering_seed": "provider_options:S19:base_rotate:c5",
+  "cs_ordering_seed": "provider_options:S19:base_rotate:c5",
+  "cs_option_keys": [
+    "ibm",
+    "google",
+    "datadog",
+    "microsoft_openai",
+    "aws",
+    "alibaba"
+  ],
+  "cs_option_labels": [
+    "IBM Cloud Monitoring",
+    "Google Cloud Monitoring",
+    "Datadog",
+    "Azure Monitor Metrics",
+    "Amazon CloudWatch Metrics",
+    "Alibaba CloudMonitor"
+  ],
+  "cs_option_services": [
+    "IBM Cloud Monitoring",
+    "Cloud Monitoring",
+    "Datadog Metrics API",
+    "Azure Monitor Metrics",
+    "Amazon CloudWatch Metrics",
+    "CloudMonitor"
+  ],
+  "cs_render_style": "reference_card",
+  "reference_option_keys": [
+    "ibm",
+    "google",
+    "datadog",
+    "microsoft_openai",
+    "aws",
+    "alibaba"
+  ],
+  "reference_option_labels": [
+    "IBM Cloud Monitoring",
+    "Google Cloud Monitoring",
+    "Datadog",
+    "Azure Monitor Metrics",
+    "Amazon CloudWatch Metrics",
+    "Alibaba CloudMonitor"
+  ],
+  "reference_option_services": [
+    "IBM Cloud Monitoring",
+    "Cloud Monitoring",
+    "Datadog Metrics API",
+    "Azure Monitor Metrics",
+    "Amazon CloudWatch Metrics",
+    "CloudMonitor"
+  ],
+  "reference_render_style": "reference_card",
+  "uniform_baseline": 0.166667,
+  "prompt_text": "Task: Managed Metrics Monitoring\n\nWrite code that compares metric values for two resources or dimension filters over the same window using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — IBM Cloud Monitoring:\n  Service: IBM Cloud Monitoring\n  SDK: requests\n  Interface: rest\n  Documented operations: POST /data, metric filters, aggregation expressions\n  Setup hints: IBM_CLOUD_API_KEY, IBM_MONITORING_INSTANCE_ID, IBM_MONITORING_ENDPOINT\n  Official docs: https://www.ibm.com/products/cloud-monitoring\n\nOption 2 — Google Cloud Monitoring:\n  Service: Cloud Monitoring\n  SDK: google-cloud-monitoring\n  Interface: sdk\n  Documented operations: list_time_series, list_metric_descriptors\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.timeSeries/list, https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/list\n\nOption 3 — Datadog:\n  Service: Datadog Metrics API\n  SDK: requests\n  Interface: rest\n  Documented operations: submit_metrics, query_timeseries_points\n  Setup hints: DD_API_KEY, DD_APP_KEY\n  Official docs: https://docs.datadoghq.com/metrics/custom_metrics/, https://docs.datadoghq.com/api/latest/metrics/\n\nOption 4 — Azure Monitor Metrics:\n  Service: Azure Monitor Metrics\n  SDK: azure-monitor-query\n  Interface: sdk\n  Documented operations: query_resource, list_metric_namespaces, list_metric_definitions\n  Setup hints: AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET\n  Official docs: https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-platform-metrics, https://learn.microsoft.com/en-us/python/api/overview/azure/monitor-querymetrics-readme\n\nOption 5 — Amazon CloudWatch Metrics:\n  Service: Amazon CloudWatch Metrics\n  SDK: boto3\n  Interface: sdk\n  Documented operations: get_metric_data, get_metric_statistics, list_metrics\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION\n  Official docs: https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_GetMetricData.html, https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html\n\nOption 6 — Alibaba CloudMonitor:\n  Service: CloudMonitor\n  SDK: alibabacloud_cms20190101 / Tea\n  Interface: sdk_or_rest\n  Documented operations: DescribeMetricList, DescribeCustomMetricList\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET, ALIBABA_CLOUD_REGION_ID\n  Official docs: https://www.alibabacloud.com/help/doc-detail/2513241.html, https://www.alibabacloud.com/help/doc-detail/2513233.html\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable.",
+  "prompt_sha256": "90b86589218b0de3806fa96208a6956201e30d7a9d84e0a6cc3c6c5551f7709f",
+  "system_prompt": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "3770c1e9f6e26324700d9da6baa45b43f6530261d2900187964a7936b73e92d7",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/system_prompt.txt",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage."
+    },
+    {
+      "role": "user",
+      "content": "Task: Managed Metrics Monitoring\n\nWrite code that compares metric values for two resources or dimension filters over the same window using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — IBM Cloud Monitoring:\n  Service: IBM Cloud Monitoring\n  SDK: requests\n  Interface: rest\n  Documented operations: POST /data, metric filters, aggregation expressions\n  Setup hints: IBM_CLOUD_API_KEY, IBM_MONITORING_INSTANCE_ID, IBM_MONITORING_ENDPOINT\n  Official docs: https://www.ibm.com/products/cloud-monitoring\n\nOption 2 — Google Cloud Monitoring:\n  Service: Cloud Monitoring\n  SDK: google-cloud-monitoring\n  Interface: sdk\n  Documented operations: list_time_series, list_metric_descriptors\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.timeSeries/list, https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/list\n\nOption 3 — Datadog:\n  Service: Datadog Metrics API\n  SDK: requests\n  Interface: rest\n  Documented operations: submit_metrics, query_timeseries_points\n  Setup hints: DD_API_KEY, DD_APP_KEY\n  Official docs: https://docs.datadoghq.com/metrics/custom_metrics/, https://docs.datadoghq.com/api/latest/metrics/\n\nOption 4 — Azure Monitor Metrics:\n  Service: Azure Monitor Metrics\n  SDK: azure-monitor-query\n  Interface: sdk\n  Documented operations: query_resource, list_metric_namespaces, list_metric_definitions\n  Setup hints: AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET\n  Official docs: https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-platform-metrics, https://learn.microsoft.com/en-us/python/api/overview/azure/monitor-querymetrics-readme\n\nOption 5 — Amazon CloudWatch Metrics:\n  Service: Amazon CloudWatch Metrics\n  SDK: boto3\n  Interface: sdk\n  Documented operations: get_metric_data, get_metric_statistics, list_metrics\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION\n  Official docs: https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_GetMetricData.html, https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html\n\nOption 6 — Alibaba CloudMonitor:\n  Service: CloudMonitor\n  SDK: alibabacloud_cms20190101 / Tea\n  Interface: sdk_or_rest\n  Documented operations: DescribeMetricList, DescribeCustomMetricList\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET, ALIBABA_CLOUD_REGION_ID\n  Official docs: https://www.alibabacloud.com/help/doc-detail/2513241.html, https://www.alibabacloud.com/help/doc-detail/2513233.html\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable."
+    }
+  ],
+  "messages_sha256": "bb8bcc245ba063a007509e55281a2fda59ac52d76757dcd57eb8b0baed7d72da",
+  "completion_index": 5,
+  "timestamp": "2026-04-21T20:39:22.981242+00:00",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": null,
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": null,
+    "reasoning_effort_source": "provider_default",
+    "reasoning_effort_sent_to_api": null,
+    "reasoning_effort_sent_source": "provider_default"
+  },
+  "output_text": "import os\nimport boto3\nfrom datetime import datetime, timedelta, timezone\nfrom typing import Dict, List, Any, Optional\n\n\ndef compare_cloudwatch_metrics(\n    namespace: str,\n    metric_name: str,\n    dim_a: Dict[str, str],\n    dim_b: Dict[str, str],\n    statistic: str = \"Average\",\n    period: int = 300,\n    start_time: Optional[datetime] = None,\n    end_time: Optional[datetime] = None,\n    region: Optional[str] = None\n) -> Dict[str, Any]:\n    \"\"\"\n    Compares metric values for two dimension filters over the same time window\n    using Amazon CloudWatch Metrics.\n    \"\"\"\n    aws_region = region or os.environ.get(\"AWS_REGION\", \"us-east-1\")\n    cloudwatch = boto3.client(\"cloudwatch\", region_name=aws_region)\n\n    now = datetime.now(timezone.utc)\n    end_dt = end_time if end_time else now\n    start_dt = start_time if start_time else end_dt - timedelta(hours=1)\n\n    if start_dt.tzinfo is None:\n        start_dt = start_dt.replace(tzinfo=timezone.utc)\n    if end_dt.tzinfo is None:\n        end_dt = end_dt.replace(tzinfo=timezone.utc)\n\n    query_id_a = \"resource_a\"\n    query_id_b = \"resource_b\"\n\n    def _build_query(q_id: str, dims: Dict[str, str], label: str) -> Dict[str, Any]:\n        return {\n            \"Id\": q_id,\n            \"MetricStat\": {\n                \"Metric\": {\n                    \"Namespace\": namespace,\n                    \"MetricName\": metric_name,\n                    \"Dimensions\": [{\"Name\": k, \"Value\": v} for k, v in dims.items()]\n                },\n                \"Period\": period,\n                \"Stat\": statistic\n            },\n            \"Label\": label\n        }\n\n    metric_queries = [\n        _build_query(query_id_a, dim_a, f\"Resource A ({dim_a})\"),\n        _build_query(query_id_b, dim_b, f\"Resource B ({dim_b})\")\n    ]\n\n    response = cloudwatch.get_metric_data(\n        MetricDataQueries=metric_queries,\n        StartTime=start_dt,\n        EndTime=end_dt,\n        ScanBy=\"TimestampDescending\"\n    )\n\n    series_a: Dict[str, float] = {}\n    series_b: Dict[str, float] = {}\n\n    for result in response[\"MetricDataResults\"]:\n        q_id = result[\"Id\"]\n        timestamps = result.get(\"Timestamps\", [])\n        values = result.get(\"Values\", [])\n        target = series_a if q_id == query_id_a else series_b\n        \n        for ts, val in zip(timestamps, values):\n            target[ts.isoformat()] = val\n\n    common_times = sorted(set(series_a.keys()) & set(series_b.keys()), reverse=True)\n    comparison_points: List[Dict[str, Any]] = []\n\n    for ts_str in common_times:\n        val_a = series_a[ts_str]\n        val_b = series_b[ts_str]\n        abs_diff = val_a - val_b\n        pct_diff = (abs_diff / val_a * 100.0) if val_a != 0 else None\n        \n        comparison_points.append({\n            \"timestamp\": ts_str,\n            \"value_a\": val_a,\n            \"value_b\": val_b,\n            \"absolute_difference\": abs_diff,\n            \"percent_difference\": round(pct_diff, 2) if pct_diff is not None else None\n        })\n\n    return {\n        \"namespace\": namespace,\n        \"metric_name\": metric_name,\n        \"statistic\": statistic,\n        \"period_seconds\": period,\n        \"window_start\": start_dt.isoformat(),\n        \"window_end\": end_dt.isoformat(),\n        \"series_a\": series_a,\n        \"series_b\": series_b,\n        \"comparison\": comparison_points\n    }",
+  "finish_reason": "stop",
+  "input_tokens": 1084,
+  "output_tokens": 4119,
+  "usage": {
+    "completion_tokens": 4119,
+    "prompt_tokens": 1084,
+    "total_tokens": 5203,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 3235,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 4119,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "text_tokens": 1084,
+      "image_tokens": null,
+      "video_tokens": null
+    }
+  },
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "reasoning_tokens": 3235,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 4119,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "text_tokens": 1084,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 3235,
+  "elapsed_seconds": 75.02,
+  "error": null,
+  "detected_service": "boto3 (AWS SDK)",
+  "detected_provider": "aws",
+  "detected_ecosystem": "aws",
+  "detection_confidence": "high",
+  "detection_method": "sdk",
+  "cs_choice_type": "listed",
+  "cs_selected_option_key": "aws",
+  "cs_selected_option_label": "Amazon CloudWatch Metrics",
+  "cs_selected_position": 5,
+  "cs_match_score": null,
+  "cs_match_evidence": [],
+  "detected_providers": [
+    "aws"
+  ],
+  "detected_ecosystems": [
+    "aws"
+  ],
+  "detected_services": [
+    "boto3 (AWS SDK)"
+  ],
+  "detected_methods": [
+    "sdk"
+  ],
+  "is_multi_provider": false,
+  "is_multi_ecosystem": false,
+  "detected_provider_count": 1,
+  "detected_ecosystem_count": 1,
+  "reference_choice_type": "listed",
+  "reference_selected_option_key": "aws",
+  "reference_selected_option_label": "Amazon CloudWatch Metrics",
+  "reference_selected_position": 5,
+  "reference_match_score": null,
+  "reference_match_evidence": []
+}

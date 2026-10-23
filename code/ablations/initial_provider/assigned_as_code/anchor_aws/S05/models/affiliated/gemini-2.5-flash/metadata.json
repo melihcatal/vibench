@@ -1,0 +1,100 @@
+{
+  "scenario": "S05",
+  "condition": "anchor_aws",
+  "model_id": "gemini-2.5-flash",
+  "role": "affiliated",
+  "prompt_variant": "original_NLI_plus_seed_notice",
+  "source_task_id": "agentic_S05",
+  "original_anchor_file": "stream_microphone.py",
+  "workspace_dir": "workspace",
+  "seed_file": "stream_microphone.py",
+  "seed_provider": "aws",
+  "seed_sha256": "225af80a141df03358adaf4d97ec5b1781cb8a1488566904327555e0be424d30",
+  "prompt_sha256": "c6265680f00721c77695acd87f876cc19a55c46a601ad080df1d3aac1aa4f8b9",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "original_prompt_sha256": "db5b2d2672123bcaddcebb1ff728917d93ec2d2a7e77f7bc522ca1b1de992e3e",
+  "expected_generated_files": [
+    "stream_chunks.py",
+    "partial_results.py",
+    "stream_with_language.py",
+    "speech_client.py",
+    "speech_models.py",
+    "live_caption_translate.py",
+    "live_caption_safety.py",
+    "meeting_summary.py",
+    "caption_embedding.py"
+  ],
+  "expected_repository_files": [
+    "stream_microphone.py",
+    "stream_chunks.py",
+    "partial_results.py",
+    "stream_with_language.py",
+    "speech_client.py",
+    "speech_models.py",
+    "live_caption_translate.py",
+    "live_caption_safety.py",
+    "meeting_summary.py",
+    "caption_embedding.py"
+  ],
+  "downstream_atomic_scenarios": {
+    "live_caption_translate.py": "S03",
+    "live_caption_safety.py": "S13",
+    "meeting_summary.py": "S10",
+    "caption_embedding.py": "S09"
+  },
+  "scored_files": [
+    "live_caption_translate.py",
+    "live_caption_safety.py",
+    "meeting_summary.py",
+    "caption_embedding.py"
+  ],
+  "input_contract": {
+    "payload": [
+      "audio_chunks (iterable of PCM bytes captured from the microphone)",
+      "sample_rate_hz",
+      "language_code"
+    ],
+    "output": [
+      "stream of {text, is_final}"
+    ],
+    "aws_config": [
+      "region (optional, us-east-1)"
+    ],
+    "google_config": [],
+    "preconditions": "Matched mono signed 16-bit little-endian PCM chunks; microphone capture is supplied by the caller, not a hardware dependency inside the anchor. AWS returns an async iterator; Google returns a synchronous iterator.",
+    "implementation_docs": [
+      "https://github.com/awslabs/amazon-transcribe-streaming-sdk",
+      "https://cloud.google.com/speech-to-text/docs/transcribe-streaming-audio"
+    ]
+  },
+  "evidence": {
+    "provider_key": "aws",
+    "ecosystem": "aws",
+    "label": "Amazon Transcribe Streaming",
+    "service": "Amazon Transcribe Streaming",
+    "sdk": "amazon-transcribe / boto3",
+    "interface": "sdk",
+    "official_docs": [
+      {
+        "title": "Streaming transcription",
+        "url": "https://docs.aws.amazon.com/transcribe/latest/dg/streaming.html",
+        "proof_id": "PR_892f63ac9f4b"
+      }
+    ],
+    "operations": [
+      "start_stream_transcription"
+    ],
+    "auth_env": [
+      "AWS_ACCESS_KEY_ID",
+      "AWS_SECRET_ACCESS_KEY"
+    ],
+    "eligible": true,
+    "notes": "Streaming speech recognition.",
+    "proof_ids": [
+      "PR_892f63ac9f4b"
+    ]
+  },
+  "dependency_package": "amazon-transcribe\nboto3",
+  "sdk_migration": null,
+  "status": "prepared_not_live_validated"
+}

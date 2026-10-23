@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 9.02,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 766,
+  "output_text": "{\"submit_transcription.py\":\"import os\\nfrom typing import Any, Dict, Optional\\n\\nfrom openai import OpenAI\\n\\nfrom speech_client import get_openai_client, resolve_audio_path\\nfrom speech_models import TranscriptionJobRequest, TranscriptionResult, normalize_transcription_result\\n\\n\\ndef submit_transcription(audio_path: str, model: Optional[str] = None, language: Optional[str] = None, prompt: Optional[str] = None) -> Dict[str, Any]:\\n    client = get_openai_client()\\n    req = TranscriptionJobRequest(audio_path=audio_path, model=model, language=language, prompt=prompt)\\n    with resolve_audio_path(req.audio_path) as path:\\n        with open(path, \\\"rb\\\") as f:\\n            kwargs: Dict[str, Any] = {\\\"model\\\": req.model}\\n            if req.language:\\n                kwargs[\\\"language\\\"] = req.language\\n            if req.prompt:\\n                kwargs[\\\"prompt\\\"] = req.prompt\\n            result = client.audio.transcriptions.create(file=f, **kwargs)\\n    return normalize_transcription_result(result)\\n\",\"poll_transcription.py\":\"from typing import Any, Dict\\n\\nfrom openai import OpenAI\\n\\nfrom speech_client import get_openai_client\\nfrom speech_models import TranscriptionJobStatus, normalize_transcription_result\\n\\n\\ndef poll_transcription(transcription_id: str) -> Dict[str, Any]:\\n    client = get_openai_client()\\n    result = client.audio.transcriptions.retrieve(transcription_id)\\n    return normalize_transcription_result(result)\\n\",\"diarized_transcript.py\":\"from typing import Any, Dict, Optional\\n\\nfrom openai import OpenAI\\n\\nfrom speech_client import get_openai_client, resolve_audio_path\\nfrom speech_models import TranscriptionJobRequest, normalize_transcription_result\\n\\n\\ndef diarized_transcript(audio_path: str, model: Optional[str] = None) -> Dict[str, Any]:\\n    client = get_openai_client()\\n    req = TranscriptionJobRequest(audio_path=audio_path, model=model, response_format=\\\"verbose_json\\\")\\n    with resolve_audio_path(req.audio_path) as path:\\n        with open(path, \\\"rb\\\") as f:\\n            result = client.audio.transcriptions.create(file=f, model=req.model, response_format=\\\"verbose_json\\\", timestamp_granularities=[\\\"segment\\\"])\\n    return normalize_transcription_result(result)\\n\",\"timestamped_transcript.py\":\"from typing import Any, Dict, Optional\\n\\nfrom openai import OpenAI\\n\\nfrom speech_client import get_openai_client\\nfrom speech_models import normalize_transcription_result\\n\\n\\ndef timestamped_transcript(transcription_id: str) -> Dict[str, Any]:\\n    client = get_openai_client()\\n    result = client.audio.transcriptions.retrieve(transcription_id)\\n    return normalize_transcription_result(result)\\n\",\"speech_client.py\":\"import os\\nfrom contextlib import contextmanager\\nfrom pathlib import Path\\nfrom typing import Iterator, Optional\\n\\nfrom openai import OpenAI\\n\\n\\ndef get_openai_client() -> OpenAI:\\n    api_key = os.getenv(\\\"OPENAI_API_KEY\\\")\\n    if not api_key:\\n        raise ValueError(\\\"OPENAI_API_KEY is required\\\")\\n    return OpenAI(api_key=api_key)\\n\\n\\n@contextmanager\\ndef resolve_audio_path(audio_path: str) -> Iterator[str]:\\n    path = Path(audio_path).expanduser().resolve()\\n    if not path.exists():\\n        raise FileNotFoundError(str(path))\\n    yield str(path)\\n\",\"speech_models.py\":\"from dataclasses import dataclass, asdict\\nfrom typing import Any, Dict, Optional\\n\\n\\n@dataclass\\nclass TranscriptionJobRequest:\\n    audio_path: str\\n    model: str = \\\"gpt-4o-mini-transcribe\\\"\\n    language: Optional[str] = None\\n    prompt: Optional[str] = None\\n    response_format: str = \\\"json\\\"\\n\\n\\n@dataclass\\nclass TranscriptionJobStatus:\\n    id: str\\n    status: Optional[str] = None\\n    text: Optional[str] = None\\n\\n\\ndef normalize_transcription_result(result: Any) -> Dict[str, Any]:\\n    if hasattr(result, \\\"model_dump\\\"):\\n        return result.model_dump()\\n    if hasattr(result, \\\"dict\\\"):\\n        return result.dict()\\n    if isinstance(result, dict):\\n        return result\\n    return {\\\"text\\\": getattr(result, \\\"text\\\", None), \\\"raw\\\": str(result)}\\n\",\"translate_transcript.py\":\"from typing import Any, Dict, List\\n\\nfrom openai import OpenAI\\n\\nfrom speech_client import get_openai_client\\n\\n\\ndef translate_transcript(segments: List[Dict[str, Any]], target_language: str = \\\"en\\\") -> Dict[str, Any]:\\n    client = get_openai_client()\\n    content = \\\"\\\\n\\\".join(segment.get(\\\"text\\\", \\\"\\\") for segment in segments)\\n    response = client.responses.create(\\n        model=\\\"gpt-4.1-mini\\\",\\n        input=[\\n            {\\\"role\\\": \\\"system\\\", \\\"content\\\": f\\\"Translate transcript text to {target_language}. Return concise translated text.\\\"},\\n            {\\\"role\\\": \\\"user\\\", \\\"content\\\": content},\\n        ],\\n    )\\n    return {\\\"translation\\\": response.output_text, \\\"provider\\\": \\\"openai\\\", \\\"model\\\": \\\"gpt-4.1-mini\\\"}\\n\",\"moderate_transcript.py\":\"from typing import Any, Dict, List\\n\\nfrom openai import OpenAI\\n\\nfrom speech_client import get_openai_client\\n\\n\\ndef moderate_transcript(text: str) -> Dict[str, Any]:\\n    client = get_openai_client()\\n    result = client.moderations.create(model=\\\"omni-moderation-latest\\\", input=text)\\n    return result.model_dump() if hasattr(result, \\\"model_dump\\\") else result.dict()\\n\",\"archive_summary.py\":\"from typing import Any, Dict\\n\\nfrom openai import OpenAI\\n\\nfrom speech_client import get_openai_client\\n\\n\\ndef archive_summary(transcript: str) -> Dict[str, Any]:\\n    client = get_openai_client()\\n    response = client.responses.create(\\n        model=\\\"gpt-4.1-mini\\\",\\n        input=[\\n            {\\\"role\\\": \\\"system\\\", \\\"content\\\": \\\"Summarize the transcription for archival metadata.\\\"},\\n            {\\\"role\\\": \\\"user\\\", \\\"content\\\": transcript},\\n        ],\\n    )\\n    return {\\\"summary\\\": response.output_text, \\\"provider\\\": \\\"openai\\\", \\\"model\\\": \\\"gpt-4.1-mini\\\"}\\n\",\"transcript_embedding.py\":\"from typing import Any, Dict, List\\n\\nfrom openai import OpenAI\\n\\nfrom speech_client import get_openai_client\\n\\n\\ndef transcript_embedding(segments: List[Dict[str, Any]]) -> Dict[str, Any]:\\n    client = get_openai_client()\\n    texts = [segment.get(\\\"text\\\", \\\"\\\") for segment in segments if segment.get(\\\"text\\\")]\\n    response = client.embeddings.create(model=\\\"text-embedding-3-small\\\", input=texts)\\n    data = response.model_dump() if hasattr(response, \\\"model_dump\\\") else response.dict()\\n    return {\\\"embeddings\\\": data.get(\\\"data\\\", []), \\\"model\\\": \\\"text-embedding-3-small\\\", \\\"provider\\\": \\\"openai\\\"}\\n\"}",
+  "output_tokens": 1605,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1605,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 766,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2371
+  }
+}

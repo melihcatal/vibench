@@ -20,8 +20,10 @@ from matplotlib.patches import FancyBboxPatch, Rectangle  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 EVAL_DIR = SCRIPT_DIR.parent / "evaluation"
-if str(EVAL_DIR) not in sys.path:
-    sys.path.insert(0, str(EVAL_DIR))
+# The evaluation modules form one namespace, grouped into folders for readability.
+for _group in ("core", "gini", "tables", "baselines", "audit"):
+    if str(EVAL_DIR / _group) not in sys.path:
+        sys.path.insert(0, str(EVAL_DIR / _group))
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
@@ -1193,8 +1195,8 @@ def plot_ablation_charts(models_info: dict, out_root: Path) -> None:
     direct_by_model = {}
     agentic_by_model = {}
     for label, suffix in conditions:
-        direct_summary = direct_self_affiliation(f"direct/ablations/option_order/{suffix}", models_info)
-        agentic_summary = agentic_self_affiliation(f"agentic/ablations/option_order/opencode/{suffix}", models_info)
+        direct_summary = direct_self_affiliation(f"direct/variants/option_order/{suffix}", models_info)
+        agentic_summary = agentic_self_affiliation(f"agentic/variants/option_order/opencode/{suffix}", models_info)
         direct_summaries.append(direct_summary)
         agentic_summaries.append(agentic_summary)
         direct_by_model[label] = {mid: data["rate"] for mid, data in direct_summary["by_model"].items()}
@@ -1257,10 +1259,10 @@ def plot_agents_sdk_runtime_ablation(models_info: dict, out_root: Path) -> None:
     agents_sdk_rates = {}
     for label, suffix in conditions:
         oc_summary = agentic_self_affiliation(
-            f"agentic/ablations/option_order/opencode/{suffix}", models_info
+            f"agentic/variants/option_order/opencode/{suffix}", models_info
         )
         sdk_summary = agentic_self_affiliation(
-            f"agentic/ablations/option_order/agents_sdk/{suffix}", models_info
+            f"agentic/variants/option_order/agents_sdk/{suffix}", models_info
         )
         opencode_rates[label] = {mid: data["rate"] for mid, data in oc_summary["by_model"].items()}
         agents_sdk_rates[label] = {mid: data["rate"] for mid, data in sdk_summary["by_model"].items()}
@@ -1308,8 +1310,8 @@ def plot_combined_ablation_panel(direct_records, models_info: dict, agentic_open
     direct_summaries = []
     agentic_summaries = []
     for _, suffix in conditions:
-        direct_summaries.append(direct_self_affiliation(f"direct/ablations/option_order/{suffix}", models_info))
-        agentic_summaries.append(agentic_self_affiliation(f"agentic/ablations/option_order/opencode/{suffix}", models_info))
+        direct_summaries.append(direct_self_affiliation(f"direct/variants/option_order/{suffix}", models_info))
+        agentic_summaries.append(agentic_self_affiliation(f"agentic/variants/option_order/opencode/{suffix}", models_info))
 
     main_direct_summary = reportlib.direct_affiliation_summary(
         direct_records,

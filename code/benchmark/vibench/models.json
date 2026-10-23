@@ -68,7 +68,10 @@
       "tier": "flagship",
       "role": "affiliated",
       "default_temperature": 1.0,
-      "study_order": 2
+      "study_order": 2,
+      "opencode": {
+        "model_ref": "google/gemini-2.5-pro"
+      }
     },
     {
       "id": "gemini-2.5-flash",
@@ -85,7 +88,10 @@
       "tier": "budget",
       "role": "affiliated",
       "default_temperature": 1.0,
-      "study_order": 1
+      "study_order": 1,
+      "opencode": {
+        "model_ref": "google/gemini-2.5-flash"
+      }
     },
     {
       "id": "gpt-5.4",
@@ -103,7 +109,18 @@
       "tier": "flagship",
       "role": "affiliated",
       "default_temperature": 1.0,
-      "study_order": 3
+      "study_order": 3,
+      "opencode": {
+        "model_ref": "openai/gpt-5.4",
+        "reasoning_variants": [
+          "high",
+          "low",
+          "medium",
+          "minimal",
+          "none",
+          "xhigh"
+        ]
+      }
     },
     {
       "id": "gpt-5.4-mini",
@@ -121,15 +138,27 @@
       "tier": "budget",
       "role": "affiliated",
       "default_temperature": 1.0,
-      "study_order": 4
+      "study_order": 4,
+      "opencode": {
+        "model_ref": "openai/gpt-5.4-mini",
+        "reasoning_variants": [
+          "high",
+          "low",
+          "medium",
+          "minimal",
+          "none",
+          "xhigh"
+        ]
+      }
     },
     {
       "id": "nova-pro",
       "display_name": "Nova Pro",
       "developer": "Amazon",
-      "litellm_string": "bedrock/eu.amazon.nova-pro-v1:0",
-      "api_provider": "AWS Bedrock",
-      "api_key_env": "AWS_ACCESS_KEY_ID",
+      "litellm_string": "amazon_nova/nova-pro-v1",
+      "api_provider": "Amazon Nova API",
+      "api_key_env": "AMAZON_NOVA_API_KEY",
+      "api_base_env": "AMAZON_NOVA_API_BASE",
       "provider_family": "amazon",
       "direct_provider_affiliation": "aws",
       "ecosystem_affiliation": "aws",
@@ -138,16 +167,47 @@
       "tier": "flagship",
       "role": "affiliated",
       "default_temperature": 0.7,
-      "_note": "Switched from first-party Amazon Nova API to AWS Bedrock on 2026-04-11. Existing labeled/.../nova-pro/ outputs were generated via the first-party API; new outputs from this point are via Bedrock. Same nova-pro-v1 model weights, different gateway.",
-      "study_order": 5
+      "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-pro-v1. Earlier routing switched to Bedrock on 2026-04-11; original agentic run metadata records Bedrock. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+      "study_order": 5,
+      "opencode": {
+        "model_ref": "amazon-nova-api/nova-pro-v1",
+        "identity_mode": "custom_provider",
+        "identity_note": "First-party Amazon Nova API; historical agentic runs used the Bedrock gateway.",
+        "provider_config": {
+          "provider": {
+            "amazon-nova-api": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "Amazon Nova API",
+              "options": {
+                "baseURL": {
+                  "$env": "AMAZON_NOVA_API_BASE"
+                },
+                "apiKey": "{env:AMAZON_NOVA_API_KEY}"
+              },
+              "models": {
+                "nova-pro-v1": {
+                  "name": "Nova Pro",
+                  "tool_call": true,
+                  "temperature": true,
+                  "limit": {
+                    "context": 128000,
+                    "output": 8000
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
     {
       "id": "nova-2-lite",
       "display_name": "Nova 2 Lite",
       "developer": "Amazon",
-      "litellm_string": "bedrock/eu.amazon.nova-2-lite-v1:0",
-      "api_provider": "AWS Bedrock",
-      "api_key_env": "AWS_ACCESS_KEY_ID",
+      "litellm_string": "amazon_nova/nova-2-lite-v1",
+      "api_provider": "Amazon Nova API",
+      "api_key_env": "AMAZON_NOVA_API_KEY",
+      "api_base_env": "AMAZON_NOVA_API_BASE",
       "provider_family": "amazon",
       "direct_provider_affiliation": "aws",
       "ecosystem_affiliation": "aws",
@@ -156,8 +216,38 @@
       "tier": "budget",
       "role": "affiliated",
       "default_temperature": 0.7,
-      "_note": "Switched from first-party Amazon Nova API to AWS Bedrock on 2026-04-11. Model id confirmed available in user Bedrock catalog. Existing labeled/.../nova-2-lite/ outputs are from the first-party API; new outputs from this point are via Bedrock. Same nova-2-lite-v1 weights, different gateway.",
-      "study_order": 6
+      "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-2-lite-v1. Earlier routing switched to Bedrock on 2026-04-11. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+      "study_order": 6,
+      "opencode": {
+        "model_ref": "amazon-nova-api/nova-2-lite-v1",
+        "identity_mode": "custom_provider",
+        "identity_note": "First-party Amazon Nova API; no local Bedrock proxy required.",
+        "provider_config": {
+          "provider": {
+            "amazon-nova-api": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "Amazon Nova API",
+              "options": {
+                "baseURL": {
+                  "$env": "AMAZON_NOVA_API_BASE"
+                },
+                "apiKey": "{env:AMAZON_NOVA_API_KEY}"
+              },
+              "models": {
+                "nova-2-lite-v1": {
+                  "name": "Nova 2 Lite",
+                  "tool_call": true,
+                  "temperature": true,
+                  "limit": {
+                    "context": 128000,
+                    "output": 8000
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
     {
       "id": "qwen3.6-plus",
@@ -175,7 +265,10 @@
       "role": "affiliated",
       "default_temperature": null,
       "default_temperature_note": "Not documented by Alibaba",
-      "study_order": 9
+      "study_order": 9,
+      "opencode": {
+        "model_ref": "alibaba/qwen3.6-plus"
+      }
     },
     {
       "id": "qwen3-coder-flash",
@@ -193,7 +286,10 @@
       "role": "affiliated",
       "default_temperature": null,
       "default_temperature_note": "Not documented by Alibaba",
-      "study_order": 10
+      "study_order": 10,
+      "opencode": {
+        "model_ref": "alibaba/qwen3-coder-flash"
+      }
     },
     {
       "id": "granite-4.0-h-small",
@@ -210,7 +306,12 @@
       "tier": "flagship",
       "role": "affiliated",
       "default_temperature": 0.7,
-      "study_order": 7
+      "study_order": 7,
+      "opencode": {
+        "model_ref": "litellm-watsonx/granite-4.0-h-small",
+        "identity_mode": "litellm_proxy",
+        "identity_note": "Uses a workspace-local OpenAI-compatible OpenCode provider pointed at a local LiteLLM proxy, which forwards to IBM watsonx.ai Granite 4.0 H-Small."
+      }
     },
     {
       "id": "claude-sonnet-4.6",
@@ -227,7 +328,10 @@
       "affiliation_note": "Dual-invested by Amazon ($4B+) and Google ($2B+) but operationally independent",
       "tier": "flagship",
       "role": "independent",
-      "default_temperature": 1.0
+      "default_temperature": 1.0,
+      "opencode": {
+        "model_ref": "anthropic/claude-sonnet-4-6"
+      }
     },
     {
       "id": "grok-4-1-fast-reasoning",
@@ -246,8 +350,13 @@
       "default_temperature": null,
       "default_temperature_note": "Not explicitly documented by xAI for Grok 4.1 fast reasoning",
       "api_base_env": "XAI_API_BASE",
-      "litellm_note": "Uses xAI's OpenAI-compatible API at https://api.x.ai/v1.",
-      "study_order": 13
+      "litellm_note": "RETIRED 2026-05-15 with a SILENT REDIRECT: requests to this slug are served by grok-4.3 (low reasoning) at grok-4.3 pricing. NEVER re-run under this ID \u2014 outputs would be a different model under the old name. Study outputs preserved in controls-2026q2.",
+      "study_order": 13,
+      "opencode": {
+        "model_ref": "xai-compatible/grok-4-1-fast-reasoning",
+        "identity_mode": "custom_provider",
+        "identity_note": "Uses a workspace-local OpenAI-compatible provider config because OpenCode's built-in xAI catalog does not yet expose grok-4-1-fast-reasoning."
+      }
     },
     {
       "id": "deepseek-v3.2",
@@ -264,8 +373,13 @@
       "tier": "flagship",
       "role": "control",
       "default_temperature": 1.0,
-      "litellm_note": "Official DeepSeek API model ID is deepseek-chat; DeepSeek documents it as DeepSeek-V3.2 non-thinking mode. Use deepseek-reasoner only for a separate thinking/reasoning condition.",
-      "study_order": 11
+      "litellm_note": "RETIRED: the deepseek-chat alias was retired 2026-07-24 and V3.2 is no longer served first-party. Do not re-run under this entry; study outputs are preserved in the controls-2026q2 baseline bundle. Successor lineage (non-thinking chat) is deepseek-v4-flash per DeepSeek's migration notes.",
+      "study_order": 11,
+      "opencode": {
+        "model_ref": "deepseek/deepseek-chat",
+        "identity_mode": "proxy_backend",
+        "identity_note": "Uses DeepSeek's official API alias deepseek-chat, documented as DeepSeek-V3.2 non-thinking mode."
+      }
     },
     {
       "id": "mistral-large-3",
@@ -283,8 +397,11 @@
       "role": "control",
       "default_temperature": null,
       "default_temperature_note": "Not verified",
-      "litellm_note": "mistral-large-3 not accepted by API. Using mistral-large-latest which points to Large 3.",
-      "study_order": 12
+      "litellm_note": "mistral-large-latest is an alias \u2014 pin the dated model ID at smoke-test time so reruns stay version-stable.",
+      "study_order": 12,
+      "opencode": {
+        "model_ref": "mistral/mistral-large-latest"
+      }
     },
     {
       "id": "nova-pro-bedrock",
@@ -351,7 +468,12 @@
       "role": "affiliated",
       "default_temperature": 0.7,
       "_note": "Local serving via mlx_lm.server. Set LOCAL_MLX_TINY_API_BASE=http://127.0.0.1:8801/v1 in configs/.env.",
-      "study_order": 8
+      "study_order": 8,
+      "opencode": {
+        "model_ref": "local-mlx-tiny/default_model",
+        "identity_mode": "custom_provider",
+        "identity_note": "Uses a workspace-local OpenAI-compatible provider config pointing at a local mlx_lm.server endpoint (LOCAL_MLX_TINY_API_BASE). The model field uses mlx_lm's `default_model` alias so the provider config does not need to embed the absolute snapshot path."
+      }
     },
     {
       "id": "granite-4.0-h-small-local",
@@ -369,7 +491,12 @@
       "tier": "flagship",
       "role": "affiliated",
       "default_temperature": 0.7,
-      "_note": "Mixed 3-bit/4-bit quantization (mlx_lm.convert --quant-predicate mixed_3_4 \u2248 3.64 bits/weight). Served by mlx_lm.server. ~14 GB on disk, ~15 GB peak runtime. Quantization is a known confound vs the full-precision watsonx-routed entry."
+      "_note": "Mixed 3-bit/4-bit quantization (mlx_lm.convert --quant-predicate mixed_3_4 \u2248 3.64 bits/weight). Served by mlx_lm.server. ~14 GB on disk, ~15 GB peak runtime. Quantization is a known confound vs the full-precision watsonx-routed entry.",
+      "opencode": {
+        "model_ref": "local-mlx-small/default_model",
+        "identity_mode": "custom_provider",
+        "identity_note": "Uses a workspace-local OpenAI-compatible provider config pointing at a local mlx_lm.server endpoint (LOCAL_MLX_SMALL_API_BASE) serving the mixed-3/4-bit MLX-quantised granite-4.0-h-small. The model field uses mlx_lm's `default_model` alias."
+      }
     }
   ]
 }

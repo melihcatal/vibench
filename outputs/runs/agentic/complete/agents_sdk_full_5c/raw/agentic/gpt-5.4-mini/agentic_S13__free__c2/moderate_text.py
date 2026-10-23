@@ -1,0 +1,19 @@
+from openai import OpenAI
+
+from safety_client import get_client, load_config
+from safety_models import ModerationDecision, ModerationRequest, normalize_text
+
+
+def moderate_text(request: ModerationRequest) -> ModerationDecision:
+    cfg = load_config()
+    client: OpenAI = get_client(cfg)
+    text = normalize_text(request.text)
+    result = client.moderations.create(model="omni-moderation-latest", input=text)
+    item = result.results[0]
+    return ModerationDecision(
+        allowed=not item.flagged,
+        categories=dict(item.categories),
+        scores=dict(item.category_scores),
+        model="omni-moderation-latest",
+        raw=result.model_dump() if hasattr(result, "model_dump") else None,
+    )

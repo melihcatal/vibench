@@ -1,0 +1,337 @@
+{
+  "cell": {
+    "condition": "instruct_google",
+    "model": "nova-pro",
+    "prompt_sha256": "89be449bfae7b2b748b156305167ae9769f38ce7489f66335d3f1460a66e7869",
+    "repetition": 1,
+    "scenario": "S14",
+    "seed_sha256": null,
+    "system_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+    "task_sha256": "0a99a9ac5e01fa469df54749eb289649a4dac4cdc966e2de760df367a1507ba2"
+  },
+  "model": {
+    "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-pro-v1. Earlier routing switched to Bedrock on 2026-04-11; original agentic run metadata records Bedrock. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+    "affiliation_type": "direct_ownership",
+    "api_base_env": "AMAZON_NOVA_API_BASE",
+    "api_key_env": "AMAZON_NOVA_API_KEY",
+    "api_provider": "Amazon Nova API",
+    "cloud_affiliation": "aws",
+    "default_temperature": 0.7,
+    "developer": "Amazon",
+    "direct_provider_affiliation": "aws",
+    "display_name": "Nova Pro",
+    "ecosystem_affiliation": "aws",
+    "id": "nova-pro",
+    "litellm_string": "amazon_nova/nova-pro-v1",
+    "opencode": {
+      "identity_mode": "custom_provider",
+      "identity_note": "First-party Amazon Nova API; historical agentic runs used the Bedrock gateway.",
+      "model_ref": "amazon-nova-api/nova-pro-v1",
+      "provider_config": {
+        "provider": {
+          "amazon-nova-api": {
+            "models": {
+              "nova-pro-v1": {
+                "limit": {
+                  "context": 128000,
+                  "output": 8000
+                },
+                "name": "Nova Pro",
+                "temperature": true,
+                "tool_call": true
+              }
+            },
+            "name": "Amazon Nova API",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "[REDACTED]",
+              "baseURL": {
+                "$env": "AMAZON_NOVA_API_BASE"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provider_family": "amazon",
+    "role": "affiliated",
+    "study_order": 5,
+    "tier": "flagship"
+  },
+  "task": {
+    "aligned_context_files": [
+      "storage_client.py",
+      "storage_models.py"
+    ],
+    "aligned_core_files": [
+      "upload_object.py",
+      "presigned_download.py",
+      "object_metadata.py",
+      "list_prefix.py"
+    ],
+    "assigned_initial_provider": "google",
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "stored_document_ocr.py",
+      "stored_text_translate.py",
+      "stored_asset_summary.py",
+      "asset_metadata_embedding.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S14",
+        "atomic_subtask_id": "nli_S14_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "uploads a file or byte stream to managed object storage",
+        "file": "upload_object.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "upload_object"
+      },
+      {
+        "atomic_scenario": "S14",
+        "atomic_subtask_id": "nli_S14_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "creates a time-limited signed download URL for a stored object",
+        "file": "presigned_download.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "presigned_download"
+      },
+      {
+        "atomic_scenario": "S14",
+        "atomic_subtask_id": "nli_S14_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "reads object metadata or head information from managed object storage",
+        "file": "object_metadata.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "object_metadata"
+      },
+      {
+        "atomic_scenario": "S14",
+        "atomic_subtask_id": "nli_S14_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "lists stored objects under a bucket or container prefix",
+        "file": "list_prefix.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "list_prefix"
+      },
+      {
+        "atomic_scenario": "S14",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for Managed Object Storage",
+        "file": "storage_client.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "storage_client"
+      },
+      {
+        "atomic_scenario": "S14",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for Managed Object Storage",
+        "file": "storage_models.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "storage_models"
+      },
+      {
+        "aligned_task_id": "agentic_S07",
+        "atomic_scenario": "S07",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "compatible_but_independent",
+        "dependency_reason": "This extension step uses outputs from the primary Storage workflow.",
+        "description": "Run OCR on a stored document object",
+        "file": "stored_document_ocr.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S08",
+        "role": "stored_document_ocr"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Storage provider.",
+        "description": "Translate text extracted from a stored document",
+        "file": "stored_text_translate.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "stored_text_translate"
+      },
+      {
+        "aligned_task_id": "agentic_S10",
+        "atomic_scenario": "S10",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Storage provider.",
+        "description": "Summarize content extracted from a stored asset",
+        "file": "stored_asset_summary.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S11",
+        "role": "stored_asset_summary"
+      },
+      {
+        "aligned_task_id": "agentic_S09",
+        "atomic_scenario": "S09",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Storage provider.",
+        "description": "Embed object metadata and extracted text for search",
+        "file": "asset_metadata_embedding.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S10",
+        "role": "asset_metadata_embedding"
+      }
+    ],
+    "context_files": [
+      "storage_client.py",
+      "storage_models.py"
+    ],
+    "coverage": {
+      "all5": true,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Alibaba Object Storage Service"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Amazon S3"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Cloud Storage"
+        },
+        "ibm": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "IBM Cloud Object Storage"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Azure Blob Storage"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic managed object storage task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S14",
+    "downstream_files": [
+      "stored_document_ocr.py",
+      "stored_text_translate.py",
+      "stored_asset_summary.py",
+      "asset_metadata_embedding.py"
+    ],
+    "expected_files": [
+      "upload_object.py",
+      "presigned_download.py",
+      "object_metadata.py",
+      "list_prefix.py",
+      "storage_client.py",
+      "storage_models.py",
+      "stored_document_ocr.py",
+      "stored_text_translate.py",
+      "stored_asset_summary.py",
+      "asset_metadata_embedding.py"
+    ],
+    "family": "Storage",
+    "legacy_primary_atomic_scenario": "S18",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_d973af422d3a",
+      "PR_dddc3f933205"
+    ],
+    "primary_atomic_scenario": "S14",
+    "primary_component_file": "upload_object.py",
+    "primary_component_role": "upload_object",
+    "proof_ids": [
+      "PR_aadb53a6395e",
+      "PR_d883ae439fe3",
+      "PR_bb0db0a84ec0",
+      "PR_d68dcb13f581",
+      "PR_ca8a8d4d9d84",
+      "PR_d973af422d3a",
+      "PR_dddc3f933205"
+    ],
+    "provider_proof_ids": [
+      "PR_aadb53a6395e",
+      "PR_d883ae439fe3",
+      "PR_bb0db0a84ec0",
+      "PR_d68dcb13f581",
+      "PR_ca8a8d4d9d84"
+    ],
+    "scored_files": [
+      "upload_object.py",
+      "presigned_download.py",
+      "object_metadata.py",
+      "list_prefix.py",
+      "stored_document_ocr.py",
+      "stored_text_translate.py",
+      "stored_asset_summary.py",
+      "asset_metadata_embedding.py"
+    ],
+    "seed_files": [],
+    "task_id": "agentic_S14",
+    "title": "Agentic S14 - Managed Object Storage"
+  }
+}

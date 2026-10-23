@@ -1,0 +1,196 @@
+{
+  "benchmark": "vibench",
+  "task_id": "reference_open_S20_c",
+  "modality": "reference_open",
+  "model_id": "gemini-2.5-flash",
+  "model_litellm_string": "gemini/gemini-2.5-flash",
+  "model_provider": "Google AI Studio",
+  "model_api_key_env": "GEMINI_API_KEY",
+  "model_affiliation": "google",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "google",
+  "model_direct_provider_affiliation": "google",
+  "model_ecosystem_affiliation": "google",
+  "direct_provider_affiliation": "google",
+  "provider_family": "google",
+  "ecosystem_affiliation": "google",
+  "scenario_id": "S20",
+  "scenario_title": "Managed Log Query / Log Ingestion",
+  "scenario_class": "Observability",
+  "scenario_task_description": "Managed Log Query / Log Ingestion",
+  "scenario_competition": "competitive_with_caveat",
+  "scenario_notes": "Logging is strong on code-first write and query operations, but storage and query surfaces differ more than metrics. Keep the row at structured writes and filtered retrieval.",
+  "scenario_coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon CloudWatch Logs"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Cloud Logging"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Azure Monitor Logs / Logs Ingestion API"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Simple Log Service"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IBM Cloud Logs"
+      }
+    }
+  },
+  "sub_requirement_id": "reference_open_S20_c",
+  "sub_requirement_description": "queries recent error log entries filtered by severity and time range",
+  "rotation_id": null,
+  "rotation_index": null,
+  "rotation_size": 6,
+  "reference_ordering_seed": "provider_options:S20:base_rotate:c5",
+  "cs_ordering_seed": "provider_options:S20:base_rotate:c5",
+  "cs_option_keys": [
+    "datadog",
+    "ibm",
+    "google",
+    "alibaba",
+    "aws",
+    "microsoft_openai"
+  ],
+  "cs_option_labels": [
+    "Datadog",
+    "IBM Cloud Logs",
+    "Google Cloud Logging",
+    "Alibaba Simple Log Service",
+    "Amazon CloudWatch Logs",
+    "Azure Monitor Logs"
+  ],
+  "cs_option_services": [
+    "Datadog Logs API",
+    "IBM Cloud Logs",
+    "Cloud Logging",
+    "Simple Log Service",
+    "Amazon CloudWatch Logs",
+    "Azure Monitor Logs / Logs Ingestion API"
+  ],
+  "cs_render_style": "reference_card",
+  "reference_option_keys": [
+    "datadog",
+    "ibm",
+    "google",
+    "alibaba",
+    "aws",
+    "microsoft_openai"
+  ],
+  "reference_option_labels": [
+    "Datadog",
+    "IBM Cloud Logs",
+    "Google Cloud Logging",
+    "Alibaba Simple Log Service",
+    "Amazon CloudWatch Logs",
+    "Azure Monitor Logs"
+  ],
+  "reference_option_services": [
+    "Datadog Logs API",
+    "IBM Cloud Logs",
+    "Cloud Logging",
+    "Simple Log Service",
+    "Amazon CloudWatch Logs",
+    "Azure Monitor Logs / Logs Ingestion API"
+  ],
+  "reference_render_style": "reference_card",
+  "uniform_baseline": 0.166667,
+  "prompt_text": "Task: Managed Log Query / Log Ingestion\n\nWrite code that queries recent error log entries filtered by severity and time range using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Datadog:\n  Service: Datadog Logs API\n  SDK: requests\n  Interface: rest\n  Documented operations: submit logs, search logs\n  Setup hints: DD_API_KEY, DD_APP_KEY\n  Official docs: https://docs.datadoghq.com/logs/guide/access-your-log-data-programmatically/, https://docs.datadoghq.com/api/latest/logs/\n\nOption 2 — IBM Cloud Logs:\n  Service: IBM Cloud Logs\n  SDK: requests\n  Interface: rest\n  Documented operations: POST /logs/v1/singles, query data, DataPrime filters\n  Setup hints: IBM_CLOUD_API_KEY, IBM_LOGS_INSTANCE_ID, IBM_LOGS_REGION\n  Official docs: https://www.ibm.com/products/cloud-logs\n\nOption 3 — Google Cloud Logging:\n  Service: Cloud Logging\n  SDK: google-cloud-logging\n  Interface: sdk\n  Documented operations: entries.write, entries.list\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/logging/docs/reference/v2/rest/v2/entries/write, https://cloud.google.com/logging/docs/reference/v2/rest/v2/entries/list\n\nOption 4 — Alibaba Simple Log Service:\n  Service: Simple Log Service\n  SDK: aliyun-log-python-sdk\n  Interface: sdk_or_rest\n  Documented operations: PutLogs, GetLogs, GetLogsV2\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET, ALIBABA_SLS_ENDPOINT\n  Official docs: https://www.alibabacloud.com/help/doc-detail/2847535.html, https://www.alibabacloud.com/help/doc-detail/2771313.html\n\nOption 5 — Amazon CloudWatch Logs:\n  Service: Amazon CloudWatch Logs\n  SDK: boto3\n  Interface: sdk\n  Documented operations: put_log_events, filter_log_events, start_query\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION\n  Official docs: https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutLogEvents.html, https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_StartQuery.html\n\nOption 6 — Azure Monitor Logs:\n  Service: Azure Monitor Logs / Logs Ingestion API\n  SDK: azure-monitor-ingestion / azure-monitor-query\n  Interface: sdk_or_rest\n  Documented operations: upload, query_workspace, query_resource\n  Setup hints: AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET\n  Official docs: https://learn.microsoft.com/en-us/azure/azure-monitor/logs/custom-logs-overview, https://learn.microsoft.com/en-us/azure/azure-monitor/logs/api/overview\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable.",
+  "prompt_sha256": "fbbb89aa6c1606bfaffb726df69968b535a478d1232925ee0f96594e4e538cba",
+  "system_prompt": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "3770c1e9f6e26324700d9da6baa45b43f6530261d2900187964a7936b73e92d7",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/system_prompt.txt",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage."
+    },
+    {
+      "role": "user",
+      "content": "Task: Managed Log Query / Log Ingestion\n\nWrite code that queries recent error log entries filtered by severity and time range using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Datadog:\n  Service: Datadog Logs API\n  SDK: requests\n  Interface: rest\n  Documented operations: submit logs, search logs\n  Setup hints: DD_API_KEY, DD_APP_KEY\n  Official docs: https://docs.datadoghq.com/logs/guide/access-your-log-data-programmatically/, https://docs.datadoghq.com/api/latest/logs/\n\nOption 2 — IBM Cloud Logs:\n  Service: IBM Cloud Logs\n  SDK: requests\n  Interface: rest\n  Documented operations: POST /logs/v1/singles, query data, DataPrime filters\n  Setup hints: IBM_CLOUD_API_KEY, IBM_LOGS_INSTANCE_ID, IBM_LOGS_REGION\n  Official docs: https://www.ibm.com/products/cloud-logs\n\nOption 3 — Google Cloud Logging:\n  Service: Cloud Logging\n  SDK: google-cloud-logging\n  Interface: sdk\n  Documented operations: entries.write, entries.list\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/logging/docs/reference/v2/rest/v2/entries/write, https://cloud.google.com/logging/docs/reference/v2/rest/v2/entries/list\n\nOption 4 — Alibaba Simple Log Service:\n  Service: Simple Log Service\n  SDK: aliyun-log-python-sdk\n  Interface: sdk_or_rest\n  Documented operations: PutLogs, GetLogs, GetLogsV2\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET, ALIBABA_SLS_ENDPOINT\n  Official docs: https://www.alibabacloud.com/help/doc-detail/2847535.html, https://www.alibabacloud.com/help/doc-detail/2771313.html\n\nOption 5 — Amazon CloudWatch Logs:\n  Service: Amazon CloudWatch Logs\n  SDK: boto3\n  Interface: sdk\n  Documented operations: put_log_events, filter_log_events, start_query\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION\n  Official docs: https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutLogEvents.html, https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_StartQuery.html\n\nOption 6 — Azure Monitor Logs:\n  Service: Azure Monitor Logs / Logs Ingestion API\n  SDK: azure-monitor-ingestion / azure-monitor-query\n  Interface: sdk_or_rest\n  Documented operations: upload, query_workspace, query_resource\n  Setup hints: AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET\n  Official docs: https://learn.microsoft.com/en-us/azure/azure-monitor/logs/custom-logs-overview, https://learn.microsoft.com/en-us/azure/azure-monitor/logs/api/overview\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable."
+    }
+  ],
+  "messages_sha256": "9aea8597d20e9d925f94d7a6a7966a904993863b567139315e3cd6d51fef261a",
+  "completion_index": 5,
+  "timestamp": "2026-04-21T18:42:02.642438+00:00",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": null,
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": null,
+    "reasoning_effort_source": "provider_default",
+    "reasoning_effort_sent_to_api": null,
+    "reasoning_effort_sent_source": "provider_default"
+  },
+  "output_text": "import datetime\nfrom google.cloud import logging\n\ndef query_error_logs(project_id: str, start_time: datetime.datetime, end_time: datetime.datetime) -> list[dict]:\n    \"\"\"\n    Queries Google Cloud Logging for error log entries within a specified time range.\n\n    Args:\n        project_id: The ID of the Google Cloud project to query logs from.\n        start_time: The start of the time range (inclusive) for log entries. Must be timezone-aware.\n        end_time: The end of the time range (exclusive) for log entries. Must be timezone-aware.\n\n    Returns:\n        A list of dictionaries, where each dictionary represents an error log entry.\n    \"\"\"\n    if start_time.tzinfo is None or start_time.tzinfo.utcoffset(start_time) is None:\n        raise ValueError(\"start_time must be timezone-aware.\")\n    if end_time.tzinfo is None or end_time.tzinfo.utcoffset(end_time) is None:\n        raise ValueError(\"end_time must be timezone-aware.\")\n\n    # Initialize the Cloud Logging client\n    client = logging.Client(project=project_id)\n\n    # Convert datetime objects to ISO 8601 format with 'Z' for UTC\n    # The filter expects RFC3339 timestamps.\n    start_iso = start_time.isoformat(timespec='seconds')\n    end_iso = end_time.isoformat(timespec='seconds')\n\n    # Construct the filter string\n    # \"severity=ERROR\" filters by severity level.\n    # \"timestamp >= ...\" and \"timestamp < ...\" filter by time range.\n    filter_str = (\n        f'severity=ERROR AND '\n        f'timestamp >= \"{start_iso}\" AND '\n        f'timestamp < \"{end_iso}\"'\n    )\n\n    log_entries = []\n    # Use client.list_entries to query logs.\n    # The projects parameter specifies which projects to query.\n    for entry in client.list_entries(filter_=filter_str, projects=[project_id]):\n        # Extract payload based on its type\n        payload = None\n        if entry.text_payload:\n            payload = entry.text_payload\n        elif entry.json_payload:\n            payload = dict(entry.json_payload)  # Convert protobuf Map to Python dict\n        elif entry.proto_payload:\n            payload = str(entry.proto_payload) # Convert protobuf message to string\n\n        log_entries.append({\n            \"timestamp\": entry.timestamp.isoformat(),\n            \"severity\": entry.severity.name,\n            \"log_name\": entry.log_name,\n            \"resource_type\": entry.resource.type,\n            \"resource_labels\": dict(entry.resource.labels) if entry.resource else None,\n            \"labels\": dict(entry.labels) if entry.labels else None,\n            \"payload\": payload,\n            # Additional fields can be added as needed, e.g., operation, trace, span_id, etc.\n        })\n\n    return log_entries",
+  "finish_reason": "stop",
+  "input_tokens": 1214,
+  "output_tokens": 1988,
+  "usage": {
+    "completion_tokens": 1988,
+    "prompt_tokens": 1214,
+    "total_tokens": 3202,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1289,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 699,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "text_tokens": 1214,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "cache_read_input_tokens": null
+  },
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "reasoning_tokens": 1289,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 699,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "text_tokens": 1214,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 1289,
+  "elapsed_seconds": 10.33,
+  "error": null
+}

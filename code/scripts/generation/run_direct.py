@@ -37,8 +37,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DEFAULT_CONFIG_PATH = BASE_DIR / "configs" / "default.yaml"
-RUNS_DIR = BASE_DIR / "outputs" / "runs"
-RESULTS_DIR = BASE_DIR / "results"
+RUNS_DIR = BASE_DIR.parent / "outputs" / "runs"
+RUN_SEARCH_DIRS = [RUNS_DIR]
 OPEN_REFERENCE_MODALITY = "reference_open"
 LEGACY_CS_MODALITY = "cs_documented"
 REFERENCE_MODALITY_ALIASES = {OPEN_REFERENCE_MODALITY, LEGACY_CS_MODALITY}
@@ -71,16 +71,16 @@ def resolve_existing_run(run_id):
     candidate = Path(run_id)
     if candidate.exists() and candidate.is_dir():
         return candidate.resolve()
-    for base in (RESULTS_DIR, RUNS_DIR):
+    for base in RUN_SEARCH_DIRS:
         candidate = base / run_id
         if candidate.exists() and candidate.is_dir():
             return candidate
-    for base in (RESULTS_DIR, RUNS_DIR):
+    for base in RUN_SEARCH_DIRS:
         for run_path in _iter_run_dirs(base):
             rel = _run_match_key(base, run_path)
             if run_path.name == run_id or rel == run_id:
                 return run_path
-    for base in (RESULTS_DIR, RUNS_DIR):
+    for base in RUN_SEARCH_DIRS:
         matches = sorted([
             d for d in _iter_run_dirs(base)
             if run_id in d.name or run_id in _run_match_key(base, d)
@@ -190,6 +190,9 @@ def apply_cli_overrides(config, args):
     if args.modality:
         config["modalities"] = [args.modality]
         overrides["modalities"] = [args.modality]
+    if getattr(args, "limit", None):
+        config["limit_per_model"] = args.limit
+        overrides["limit_per_model"] = args.limit
     if args.temperature is not None:
         config["sampling"]["temperature"] = args.temperature
         overrides["temperature"] = args.temperature
@@ -1240,12 +1243,15 @@ def run(config, dry_run=False, run_name=None, verbose=False, force_sequential=Fa
     # Different models run in parallel (different API providers)
     model_jobs = {}
     total_jobs = 0
+    job_limit = config.get("limit_per_model")
     for model in models:
         model_jobs[model["id"]] = []
         for task in tasks:
             for ci in range(1, n_completions + 1):
                 model_jobs[model["id"]].append((task, model, ci))
-                total_jobs += 1
+        if job_limit:
+            model_jobs[model["id"]] = model_jobs[model["id"]][:job_limit]
+        total_jobs += len(model_jobs[model["id"]])
 
     # Shared counters (thread-safe via lock)
     import threading
@@ -1282,10 +1288,9 @@ def run(config, dry_run=False, run_name=None, verbose=False, force_sequential=Fa
             consecutive_errors[model_id] = 0
 
     # Resume skip-existence check. By default we look at labeled/ rather
-    # than raw/ so a curated run that ships only labeled files (like the
-    # canonical results/ runs) is still resume-safe. Set skip_from to
-    # "raw" to use the legacy behaviour, or "both" to skip a slot if
-    # either tree has the file.
+    # than raw/ so a run that ships only labeled files is still
+    # resume-safe. Set skip_from to "raw" to use the legacy behaviour, or
+    # "both" to skip a slot if either tree has the file.
     skip_from = (config.get("skip_from") or "labeled").lower()
     if skip_from not in ("labeled", "raw", "both"):
         print(f"  WARN: unknown skip_from={skip_from!r}, falling back to 'labeled'")
@@ -1572,6 +1577,8 @@ Examples:
                           help="Run only these scenario IDs. Supports space-separated or comma-separated values, "
                                "for example --scenario S19 S20 or --scenario S19,S20")
     override.add_argument("--modality", choices=["nli", "fim", OPEN_REFERENCE_MODALITY, LEGACY_CS_MODALITY])
+    override.add_argument("--limit", type=int,
+                          help="Max generations per model (truncates the job queue; for smoke tests)")
     override.add_argument("--completions", type=int, help="Completions per prompt")
     override.add_argument("--temperature", type=float, help="Sampling temperature")
     override.add_argument("--max-tokens", type=int, help="Max output tokens")
@@ -1610,14 +1617,13 @@ Examples:
     if args.workers is not None:
         config["max_workers"] = args.workers
 
-    # Resume: resolve run directory path. Searches absolute path first,
-    # then results/ (committed canonical runs) and outputs/runs/ (fresh
-    # working runs), allowing both exact-name and substring matches.
+    # Resume: resolve run directory path. Searches an absolute path first,
+    # then outputs/runs/, allowing both exact-name and substring matches.
     if args.resume:
         resume_path = resolve_existing_run(args.resume)
         if resume_path is None:
             print(f"Cannot find run to resume: {args.resume}  "
-                  f"(searched results/ and outputs/runs/)")
+                  f"(searched outputs/runs/)")
             return
         config["_resume_dir"] = str(resume_path)
         print(f"Resuming run: {resume_path}")

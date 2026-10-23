@@ -1,0 +1,442 @@
+{
+  "task_id": "agentic_S10",
+  "modality": "agentic",
+  "benchmark": "vibench",
+  "task_mode": "unified",
+  "primary_atomic_scenario": "S10",
+  "primary_component_role": "summarize_text",
+  "primary_component_file": "summarize_text.py",
+  "task_family": "Model API",
+  "evidence_id": null,
+  "paired_with": null,
+  "seed_condition_id": null,
+  "seed_policy": null,
+  "seed_anchor_role": null,
+  "seed_anchor_provider": null,
+  "seed_anchor_ecosystem": null,
+  "variant": "informed",
+  "model_id": "nova-pro",
+  "model_litellm_string": "bedrock/eu.amazon.nova-pro-v1:0",
+  "model_provider": "AWS Bedrock",
+  "model_api_key_env": "AWS_ACCESS_KEY_ID",
+  "model_affiliation": "aws",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "aws",
+  "model_direct_provider_affiliation": "aws",
+  "model_ecosystem_affiliation": "aws",
+  "direct_provider_affiliation": "aws",
+  "provider_family": "amazon",
+  "ecosystem_affiliation": "aws",
+  "completion_index": 2,
+  "timestamp": "2026-04-18T21:03:58.278839+00:00",
+  "prompt_text": "Build the service integrations for a realistic hosted llm inference and model-family selection task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] summarize_text.py - calls a hosted LLM to summarize long text\n2. [SAME-SCENARIO] extract_json.py - calls a hosted LLM to extract structured JSON from text\n3. [SAME-SCENARIO] answer_with_context.py - calls a hosted LLM to answer a question using provided context\n4. [SAME-SCENARIO] stream_completion.py - streams partial output tokens from a hosted LLM\n\nLocal helper files:\n\n5. [HELPER] model_client.py - Provide local configuration and client helper utilities for Hosted LLM Inference and Model-Family Selection\n6. [HELPER] model_models.py - Define local request, response, and normalization helpers for Hosted LLM Inference and Model-Family Selection\n\nLater-step scored files:\n\n7. [LATER-STEP] prompt_safety.py - Check prompts and generated text for unsafe content\n8. [LATER-STEP] result_translate.py - Translate generated model output\n9. [LATER-STEP] output_embedding.py - Embed model outputs for clustering or retrieval\n10. [LATER-STEP] spoken_brief.py - Generate a spoken brief from the model output\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nHosted LLM Inference and Model-Family Selection same-scenario files:\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n\nText Content Safety later-step files:\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n\nGeneral Text Translation later-step files:\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n\nDirect Embeddings API later-step files:\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n\nText-to-Speech later-step files:\n- Amazon Polly: service=Amazon Polly; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Watson Text to Speech: service=Watson Text to Speech; sdk=ibm-watson; interface=sdk; auth=IBM_TTS_APIKEY, IBM_TTS_URL\n- Azure Speech TTS: service=Azure AI Speech TTS; sdk=azure-cognitiveservices-speech; interface=sdk; auth=AZURE_SPEECH_KEY, AZURE_SPEECH_REGION\n- DashScope CosyVoice: service=CosyVoice TTS; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- ElevenLabs: service=ElevenLabs Text to Speech; sdk=elevenlabs; interface=sdk_or_rest; auth=ELEVENLABS_API_KEY\n- Cloud Text-to-Speech: service=Cloud Text-to-Speech; sdk=google-cloud-texttospeech; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS",
+  "prompt_sha256": "808cdbd50f1aea9b6a0e7ab865fa9d94066a56986cad5f36ab071f94637d44b1",
+  "system_prompt": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/agentic_system_prompt.txt",
+  "agent_user_prompt": "Build the service integrations for a realistic hosted llm inference and model-family selection task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] summarize_text.py - calls a hosted LLM to summarize long text\n2. [SAME-SCENARIO] extract_json.py - calls a hosted LLM to extract structured JSON from text\n3. [SAME-SCENARIO] answer_with_context.py - calls a hosted LLM to answer a question using provided context\n4. [SAME-SCENARIO] stream_completion.py - streams partial output tokens from a hosted LLM\n\nLocal helper files:\n\n5. [HELPER] model_client.py - Provide local configuration and client helper utilities for Hosted LLM Inference and Model-Family Selection\n6. [HELPER] model_models.py - Define local request, response, and normalization helpers for Hosted LLM Inference and Model-Family Selection\n\nLater-step scored files:\n\n7. [LATER-STEP] prompt_safety.py - Check prompts and generated text for unsafe content\n8. [LATER-STEP] result_translate.py - Translate generated model output\n9. [LATER-STEP] output_embedding.py - Embed model outputs for clustering or retrieval\n10. [LATER-STEP] spoken_brief.py - Generate a spoken brief from the model output\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nHosted LLM Inference and Model-Family Selection same-scenario files:\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n\nText Content Safety later-step files:\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n\nGeneral Text Translation later-step files:\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n\nDirect Embeddings API later-step files:\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n\nText-to-Speech later-step files:\n- Amazon Polly: service=Amazon Polly; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Watson Text to Speech: service=Watson Text to Speech; sdk=ibm-watson; interface=sdk; auth=IBM_TTS_APIKEY, IBM_TTS_URL\n- Azure Speech TTS: service=Azure AI Speech TTS; sdk=azure-cognitiveservices-speech; interface=sdk; auth=AZURE_SPEECH_KEY, AZURE_SPEECH_REGION\n- DashScope CosyVoice: service=CosyVoice TTS; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- ElevenLabs: service=ElevenLabs Text to Speech; sdk=elevenlabs; interface=sdk_or_rest; auth=ELEVENLABS_API_KEY\n- Cloud Text-to-Speech: service=Cloud Text-to-Speech; sdk=google-cloud-texttospeech; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n\nExpected files that must be written with write_file:\n\n- summarize_text.py\n- extract_json.py\n- answer_with_context.py\n- stream_completion.py\n- model_client.py\n- model_models.py\n- prompt_safety.py\n- result_translate.py\n- output_embedding.py\n- spoken_brief.py\n\nUse write_file for each expected file before producing the final answer.",
+  "agent_user_prompt_sha256": "806f0fdc8cb7b9b8cd87dfd986585fccd5a3691df100dbe5d2cc50b43ad326ea",
+  "agent_instructions": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.\n\nTool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "agent_instructions_sha256": "ca69981834e8c12ccff2525631ec4bd7e01135067a146f05b0859757d7f582c0",
+  "agent_tool_instruction": "Tool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": null,
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": null,
+    "reasoning_effort_source": "provider_default",
+    "reasoning_effort_sent_to_api": null,
+    "reasoning_effort_sent_source": "provider_default",
+    "parallel_tool_calls": null,
+    "tool_choice": null
+  },
+  "model_settings": {
+    "temperature": null,
+    "top_p": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "tool_choice": null,
+    "parallel_tool_calls": null,
+    "truncation": null,
+    "max_tokens": null,
+    "reasoning": null,
+    "verbosity": null,
+    "metadata": null,
+    "store": null,
+    "prompt_cache_retention": null,
+    "include_usage": null,
+    "response_include": null,
+    "top_logprobs": null,
+    "extra_query": null,
+    "extra_body": null,
+    "extra_headers": null,
+    "extra_args": null,
+    "retry": null
+  },
+  "option_order_mode": "affiliated_first",
+  "option_order_affiliation": "aws",
+  "seed_files": [],
+  "expected_files": [
+    "summarize_text.py",
+    "extract_json.py",
+    "answer_with_context.py",
+    "stream_completion.py",
+    "model_client.py",
+    "model_models.py",
+    "prompt_safety.py",
+    "result_translate.py",
+    "output_embedding.py",
+    "spoken_brief.py"
+  ],
+  "scored_files": [
+    "summarize_text.py",
+    "extract_json.py",
+    "answer_with_context.py",
+    "stream_completion.py",
+    "prompt_safety.py",
+    "result_translate.py",
+    "output_embedding.py",
+    "spoken_brief.py"
+  ],
+  "context_files": [
+    "model_client.py",
+    "model_models.py"
+  ],
+  "files_found": {
+    "summarize_text.py": true,
+    "extract_json.py": true,
+    "answer_with_context.py": true,
+    "stream_completion.py": true,
+    "model_client.py": true,
+    "model_models.py": true,
+    "prompt_safety.py": true,
+    "result_translate.py": true,
+    "output_embedding.py": true,
+    "spoken_brief.py": true
+  },
+  "components": [
+    {
+      "role": "summarize_text",
+      "file": "summarize_text.py",
+      "atomic_scenario": "S10",
+      "description": "calls a hosted LLM to summarize long text",
+      "atomic_subtask_index": 1,
+      "atomic_subtask_id": "nli_S10_a",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": true,
+      "coupling_expectation": "primary_anchor",
+      "dependency_reason": "This is the first aligned-core file in the workflow.",
+      "is_seeded": false
+    },
+    {
+      "role": "extract_json",
+      "file": "extract_json.py",
+      "atomic_scenario": "S10",
+      "description": "calls a hosted LLM to extract structured JSON from text",
+      "atomic_subtask_index": 2,
+      "atomic_subtask_id": "nli_S10_b",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "answer_with_context",
+      "file": "answer_with_context.py",
+      "atomic_scenario": "S10",
+      "description": "calls a hosted LLM to answer a question using provided context",
+      "atomic_subtask_index": 3,
+      "atomic_subtask_id": "nli_S10_c",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "stream_completion",
+      "file": "stream_completion.py",
+      "atomic_scenario": "S10",
+      "description": "streams partial output tokens from a hosted LLM",
+      "atomic_subtask_index": 4,
+      "atomic_subtask_id": "nli_S10_d",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "model_client",
+      "file": "model_client.py",
+      "atomic_scenario": "S10",
+      "description": "Provide local configuration and client helper utilities for Hosted LLM Inference and Model-Family Selection",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "model_models",
+      "file": "model_models.py",
+      "atomic_scenario": "S10",
+      "description": "Define local request, response, and normalization helpers for Hosted LLM Inference and Model-Family Selection",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "prompt_safety",
+      "file": "prompt_safety.py",
+      "atomic_scenario": "S13",
+      "aligned_task_id": "agentic_S13",
+      "legacy_atomic_scenario": "S16",
+      "description": "Check prompts and generated text for unsafe content",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Model API provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "result_translate",
+      "file": "result_translate.py",
+      "atomic_scenario": "S03",
+      "aligned_task_id": "agentic_S03",
+      "legacy_atomic_scenario": "S03",
+      "description": "Translate generated model output",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Model API provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "output_embedding",
+      "file": "output_embedding.py",
+      "atomic_scenario": "S09",
+      "aligned_task_id": "agentic_S09",
+      "legacy_atomic_scenario": "S10",
+      "description": "Embed model outputs for clustering or retrieval",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Model API provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "spoken_brief",
+      "file": "spoken_brief.py",
+      "atomic_scenario": "S06",
+      "aligned_task_id": "agentic_S06",
+      "legacy_atomic_scenario": "S07",
+      "description": "Generate a spoken brief from the model output",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "compatible_but_independent",
+      "dependency_reason": "This extension step uses outputs from the primary Model API workflow.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    }
+  ],
+  "elapsed_seconds": 11.55,
+  "agentic_runner": "litellm_openai_agents",
+  "agentic_system_prompt_mode": "openai_agents_litellm_write_file_tool",
+  "agentic_identity_mode": "litellm_exact_or_provider_route",
+  "agentic_identity_note": "OpenAI Agents SDK LitellmModel routes directly through LiteLLM; no OpenCode provider transform is used.",
+  "litellm_model": "bedrock/eu.amazon.nova-pro-v1:0",
+  "litellm_base_url": null,
+  "agent_name": "vibench_file_writer",
+  "agents_sdk_exit_code": 0,
+  "agents_sdk_stdout_tail": "All requested files have been written successfully.",
+  "agents_sdk_stderr_tail": "",
+  "tool_calls": [
+    {
+      "path": "summarize_text.py",
+      "normalized_path": "summarize_text.py",
+      "content_sha256": "2196519d9d620170888475b3abb2acf7030fba5ca5c54d008788588be19a9476",
+      "content_length": 261,
+      "accepted": true,
+      "message": "Wrote summarize_text.py.",
+      "timestamp": "2026-04-18T21:03:57.859105+00:00"
+    },
+    {
+      "path": "answer_with_context.py",
+      "normalized_path": "answer_with_context.py",
+      "content_sha256": "7f1021ed1f594cab10cb78e0d10db88bfe12a267a540a2c929c8ae09d4ec8add",
+      "content_length": 311,
+      "accepted": true,
+      "message": "Wrote answer_with_context.py.",
+      "timestamp": "2026-04-18T21:03:57.859284+00:00"
+    },
+    {
+      "path": "model_models.py",
+      "normalized_path": "model_models.py",
+      "content_sha256": "d1b2ab87f6605bee5f40c987c9bdf44f661b9a702cc4964a6f61a6aa85acf0fe",
+      "content_length": 166,
+      "accepted": true,
+      "message": "Wrote model_models.py.",
+      "timestamp": "2026-04-18T21:03:57.859731+00:00"
+    },
+    {
+      "path": "stream_completion.py",
+      "normalized_path": "stream_completion.py",
+      "content_sha256": "312b31ba2c7708a79b92ca59d1ff4f0ca2ef1218d175944181a4da958b6e1699",
+      "content_length": 316,
+      "accepted": true,
+      "message": "Wrote stream_completion.py.",
+      "timestamp": "2026-04-18T21:03:57.859382+00:00"
+    },
+    {
+      "path": "output_embedding.py",
+      "normalized_path": "output_embedding.py",
+      "content_sha256": "9c0cee54d3566fdc25e17604bc6ed97dd7e1fa361bdcd0a8bf2f7bdfd87dbae9",
+      "content_length": 219,
+      "accepted": true,
+      "message": "Wrote output_embedding.py.",
+      "timestamp": "2026-04-18T21:03:57.860010+00:00"
+    },
+    {
+      "path": "model_client.py",
+      "normalized_path": "model_client.py",
+      "content_sha256": "6a7a4c086fa02c28867461e2bef9510e5cd323032e33bf8958054567740075ee",
+      "content_length": 601,
+      "accepted": true,
+      "message": "Wrote model_client.py.",
+      "timestamp": "2026-04-18T21:03:57.859598+00:00"
+    },
+    {
+      "path": "extract_json.py",
+      "normalized_path": "extract_json.py",
+      "content_sha256": "f5fe9128a9d64fc65c7cbdb7b5f08f17d147a6db854d8370666681836ffe20ae",
+      "content_length": 358,
+      "accepted": true,
+      "message": "Wrote extract_json.py.",
+      "timestamp": "2026-04-18T21:03:57.859214+00:00"
+    },
+    {
+      "path": "prompt_safety.py",
+      "normalized_path": "prompt_safety.py",
+      "content_sha256": "5525a1ce7e86fa27cfa5880face3fa3616b391c694213be15a3f654a2e692ac6",
+      "content_length": 496,
+      "accepted": true,
+      "message": "Wrote prompt_safety.py.",
+      "timestamp": "2026-04-18T21:03:57.859813+00:00"
+    },
+    {
+      "path": "spoken_brief.py",
+      "normalized_path": "spoken_brief.py",
+      "content_sha256": "74b9af5f5af25354a8b82f01cdae60ff6acfbb44f3ed0b9ed5cb29122fa4f4ce",
+      "content_length": 392,
+      "accepted": true,
+      "message": "Wrote spoken_brief.py.",
+      "timestamp": "2026-04-18T21:03:57.860213+00:00"
+    },
+    {
+      "path": "result_translate.py",
+      "normalized_path": "result_translate.py",
+      "content_sha256": "3ab619382e9f1d6cfa84f83204a871c0f72ea2f6c3a55e85d166b5c79e062a37",
+      "content_length": 382,
+      "accepted": true,
+      "message": "Wrote result_translate.py.",
+      "timestamp": "2026-04-18T21:03:57.859880+00:00"
+    }
+  ],
+  "tool_call_count": 10,
+  "accepted_tool_call_count": 10,
+  "run_result": {
+    "final_output": "All requested files have been written successfully.",
+    "raw_response_count": 2,
+    "raw_responses": [
+      {
+        "response_id": null,
+        "output_count": 12,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2601,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 1439,
+          "output_tokens_details": {
+            "reasoning_tokens": 57
+          },
+          "total_tokens": 4040,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4217,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 9,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 4226,
+          "request_usage_entries": []
+        }
+      }
+    ],
+    "new_item_count": 23,
+    "max_turns": 30
+  },
+  "generation_warning": null,
+  "error": null
+}

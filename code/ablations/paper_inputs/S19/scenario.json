@@ -1,0 +1,350 @@
+{
+  "stage": "direct",
+  "benchmark": "vibench",
+  "dataset_kind": "direct_hf",
+  "scenario_id": "S19",
+  "legacy_scenario_id": "S23",
+  "title": "Managed Metrics Monitoring",
+  "family": "Observability",
+  "source": "v3:S23",
+  "competition": "competitive_with_caveat",
+  "notes": "Scope this row to metric retrieval and aggregation rather than custom-metric ingestion. IBM and Alibaba expose valid managed monitoring products, but their write surfaces are less symmetric than the Core-4 query surfaces.",
+  "coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon CloudWatch Metrics"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Cloud Monitoring"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Azure Monitor Metrics"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "CloudMonitor"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IBM Cloud Monitoring"
+      }
+    }
+  },
+  "provider_tools": [
+    {
+      "provider_key": "aws",
+      "ecosystem": "aws",
+      "label": "Amazon CloudWatch Metrics",
+      "service": "Amazon CloudWatch Metrics",
+      "sdk": "boto3",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "GetMetricData",
+          "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_GetMetricData.html",
+          "proof_id": "PR_00b92884ba71"
+        },
+        {
+          "title": "ListMetrics",
+          "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html",
+          "proof_id": "PR_8889d60a392e"
+        }
+      ],
+      "operations": [
+        "get_metric_data",
+        "get_metric_statistics",
+        "list_metrics"
+      ],
+      "auth_env": [
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_REGION"
+      ],
+      "eligible": true,
+      "notes": "Managed metrics query APIs for time-series retrieval and aggregation.",
+      "proof_ids": [
+        "PR_00b92884ba71",
+        "PR_8889d60a392e"
+      ]
+    },
+    {
+      "provider_key": "google",
+      "ecosystem": "google",
+      "label": "Google Cloud Monitoring",
+      "service": "Cloud Monitoring",
+      "sdk": "google-cloud-monitoring",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Time series list",
+          "url": "https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.timeSeries/list",
+          "proof_id": "PR_de43fb12022b"
+        },
+        {
+          "title": "Metric descriptors",
+          "url": "https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/list",
+          "proof_id": "PR_a41f4a545995"
+        }
+      ],
+      "operations": [
+        "list_time_series",
+        "list_metric_descriptors"
+      ],
+      "auth_env": [
+        "GOOGLE_APPLICATION_CREDENTIALS"
+      ],
+      "eligible": true,
+      "notes": "Managed metrics platform with time-series list and descriptor APIs.",
+      "proof_ids": [
+        "PR_de43fb12022b",
+        "PR_a41f4a545995"
+      ]
+    },
+    {
+      "provider_key": "microsoft_openai",
+      "ecosystem": "microsoft_openai",
+      "label": "Azure Monitor Metrics",
+      "service": "Azure Monitor Metrics",
+      "sdk": "azure-monitor-query",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Metrics data platform",
+          "url": "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-platform-metrics",
+          "proof_id": "PR_bfc70ef67ef1"
+        },
+        {
+          "title": "MetricsQueryClient",
+          "url": "https://learn.microsoft.com/en-us/python/api/overview/azure/monitor-querymetrics-readme",
+          "proof_id": "PR_84e62e0a9dc4"
+        }
+      ],
+      "operations": [
+        "query_resource",
+        "list_metric_namespaces",
+        "list_metric_definitions"
+      ],
+      "auth_env": [
+        "AZURE_TENANT_ID",
+        "AZURE_CLIENT_ID",
+        "AZURE_CLIENT_SECRET"
+      ],
+      "eligible": true,
+      "notes": "Managed metrics retrieval through Azure Monitor resource-scoped query clients.",
+      "proof_ids": [
+        "PR_bfc70ef67ef1",
+        "PR_84e62e0a9dc4"
+      ]
+    },
+    {
+      "provider_key": "alibaba",
+      "ecosystem": "alibaba",
+      "label": "Alibaba CloudMonitor",
+      "service": "CloudMonitor",
+      "sdk": "alibabacloud_cms20190101 / Tea",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "DescribeMetricList",
+          "url": "https://www.alibabacloud.com/help/doc-detail/2513241.html",
+          "proof_id": "PR_0fe1c5279c44"
+        },
+        {
+          "title": "DescribeCustomMetricList",
+          "url": "https://www.alibabacloud.com/help/doc-detail/2513233.html",
+          "proof_id": "PR_200e9acb8f02"
+        }
+      ],
+      "operations": [
+        "DescribeMetricList",
+        "DescribeCustomMetricList"
+      ],
+      "auth_env": [
+        "ALIBABA_CLOUD_ACCESS_KEY_ID",
+        "ALIBABA_CLOUD_ACCESS_KEY_SECRET",
+        "ALIBABA_CLOUD_REGION_ID"
+      ],
+      "eligible": true,
+      "notes": "Managed metrics service for cloud-service and custom metric retrieval.",
+      "proof_ids": [
+        "PR_0fe1c5279c44",
+        "PR_200e9acb8f02"
+      ]
+    },
+    {
+      "provider_key": "ibm",
+      "ecosystem": "ibm",
+      "label": "IBM Cloud Monitoring",
+      "service": "IBM Cloud Monitoring",
+      "sdk": "requests",
+      "interface": "rest",
+      "official_docs": [
+        {
+          "title": "IBM Cloud Monitoring",
+          "url": "https://www.ibm.com/products/cloud-monitoring",
+          "proof_id": "PR_be1231671912"
+        }
+      ],
+      "operations": [
+        "POST /data",
+        "metric filters",
+        "aggregation expressions"
+      ],
+      "auth_env": [
+        "IBM_CLOUD_API_KEY",
+        "IBM_MONITORING_INSTANCE_ID",
+        "IBM_MONITORING_ENDPOINT"
+      ],
+      "eligible": true,
+      "notes": "Managed monitoring service with a REST metrics-extraction API; custom metric ingestion exists but is less symmetric than query flows.",
+      "proof_ids": [
+        "PR_be1231671912"
+      ]
+    }
+  ],
+  "neutral_tools": [
+    {
+      "provider_key": "datadog",
+      "ecosystem": "datadog",
+      "label": "Datadog",
+      "service": "Datadog Metrics API",
+      "sdk": "requests",
+      "interface": "rest",
+      "official_docs": [
+        {
+          "title": "Custom metrics",
+          "url": "https://docs.datadoghq.com/metrics/custom_metrics/",
+          "proof_id": "PR_1cf8cfe2d0af"
+        },
+        {
+          "title": "Metrics API",
+          "url": "https://docs.datadoghq.com/api/latest/metrics/",
+          "proof_id": "PR_2732517e9d30"
+        }
+      ],
+      "operations": [
+        "submit_metrics",
+        "query_timeseries_points"
+      ],
+      "auth_env": [
+        "DD_API_KEY",
+        "DD_APP_KEY"
+      ],
+      "eligible": true,
+      "notes": "Independent managed metrics platform with both metric ingest and query APIs.",
+      "proof_ids": [
+        "PR_1cf8cfe2d0af",
+        "PR_2732517e9d30"
+      ]
+    }
+  ],
+  "provider_proof_ids": [
+    "PR_00b92884ba71",
+    "PR_8889d60a392e",
+    "PR_de43fb12022b",
+    "PR_a41f4a545995",
+    "PR_bfc70ef67ef1",
+    "PR_84e62e0a9dc4",
+    "PR_0fe1c5279c44",
+    "PR_200e9acb8f02",
+    "PR_be1231671912"
+  ],
+  "neutral_proof_ids": [
+    "PR_1cf8cfe2d0af",
+    "PR_2732517e9d30"
+  ],
+  "proof_ids": [
+    "PR_00b92884ba71",
+    "PR_8889d60a392e",
+    "PR_de43fb12022b",
+    "PR_a41f4a545995",
+    "PR_bfc70ef67ef1",
+    "PR_84e62e0a9dc4",
+    "PR_0fe1c5279c44",
+    "PR_200e9acb8f02",
+    "PR_be1231671912",
+    "PR_1cf8cfe2d0af",
+    "PR_2732517e9d30"
+  ],
+  "subtasks": [
+    {
+      "role": "query_metric_window",
+      "file": "query_metric_window.py",
+      "description": "queries recent datapoints for a named metric over a time window",
+      "nli_prompt": "Write Python code that queries recent datapoints for a named metric over a time window using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it queries recent datapoints for a named metric over a time window using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef query_metric_window(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that queries recent datapoints for a named metric over a time window using a concrete provider.",
+      "index": 1,
+      "suffix": "a",
+      "subtask_id": "S19_a",
+      "direct_task_ids": {
+        "nli": "nli_S19_a",
+        "fim": "fim_S19_a",
+        "reference_open": "reference_open_S19_a"
+      }
+    },
+    {
+      "role": "aggregate_metric_stats",
+      "file": "aggregate_metric_stats.py",
+      "description": "retrieves aggregated statistics for a metric over a time window",
+      "nli_prompt": "Write Python code that retrieves aggregated statistics for a metric over a time window using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it retrieves aggregated statistics for a metric over a time window using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef aggregate_metric_stats(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that retrieves aggregated statistics for a metric over a time window using a concrete provider.",
+      "index": 2,
+      "suffix": "b",
+      "subtask_id": "S19_b",
+      "direct_task_ids": {
+        "nli": "nli_S19_b",
+        "fim": "fim_S19_b",
+        "reference_open": "reference_open_S19_b"
+      }
+    },
+    {
+      "role": "filter_metric_dimensions",
+      "file": "filter_metric_dimensions.py",
+      "description": "queries metric data filtered by resource labels or dimensions",
+      "nli_prompt": "Write Python code that queries metric data filtered by resource labels or dimensions using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it queries metric data filtered by resource labels or dimensions using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef filter_metric_dimensions(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that queries metric data filtered by resource labels or dimensions using a concrete provider.",
+      "index": 3,
+      "suffix": "c",
+      "subtask_id": "S19_c",
+      "direct_task_ids": {
+        "nli": "nli_S19_c",
+        "fim": "fim_S19_c",
+        "reference_open": "reference_open_S19_c"
+      }
+    },
+    {
+      "role": "compare_metric_series",
+      "file": "compare_metric_series.py",
+      "description": "compares metric values for two resources or dimension filters over the same window",
+      "nli_prompt": "Write Python code that compares metric values for two resources or dimension filters over the same window using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it compares metric values for two resources or dimension filters over the same window using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef compare_metric_series(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that compares metric values for two resources or dimension filters over the same window using a concrete provider.",
+      "index": 4,
+      "suffix": "d",
+      "subtask_id": "S19_d",
+      "direct_task_ids": {
+        "nli": "nli_S19_d",
+        "fim": "fim_S19_d",
+        "reference_open": "reference_open_S19_d"
+      }
+    }
+  ],
+  "num_subtasks": 4
+}

@@ -1,0 +1,194 @@
+{
+  "benchmark": "vibench",
+  "task_id": "reference_open_S19_c",
+  "modality": "reference_open",
+  "model_id": "gpt-5.4-mini",
+  "model_litellm_string": "gpt-5.4-mini",
+  "model_provider": "OpenAI",
+  "model_api_key_env": "OPENAI_API_KEY",
+  "model_affiliation": "microsoft_openai",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "azure",
+  "model_direct_provider_affiliation": "openai",
+  "model_ecosystem_affiliation": "microsoft_openai",
+  "direct_provider_affiliation": "openai",
+  "provider_family": "openai",
+  "ecosystem_affiliation": "microsoft_openai",
+  "scenario_id": "S19",
+  "scenario_title": "Managed Metrics Monitoring",
+  "scenario_class": "Observability",
+  "scenario_task_description": "Managed Metrics Monitoring",
+  "scenario_competition": "competitive_with_caveat",
+  "scenario_notes": "Scope this row to metric retrieval and aggregation rather than custom-metric ingestion. IBM and Alibaba expose valid managed monitoring products, but their write surfaces are less symmetric than the Core-4 query surfaces.",
+  "scenario_coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon CloudWatch Metrics"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Cloud Monitoring"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Azure Monitor Metrics"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "CloudMonitor"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IBM Cloud Monitoring"
+      }
+    }
+  },
+  "sub_requirement_id": "reference_open_S19_c",
+  "sub_requirement_description": "queries metric data filtered by resource labels or dimensions",
+  "rotation_id": null,
+  "rotation_index": null,
+  "rotation_size": 6,
+  "reference_ordering_seed": "provider_options:S19:affiliated_first:microsoft_openai:c1",
+  "cs_ordering_seed": "provider_options:S19:affiliated_first:microsoft_openai:c1",
+  "cs_option_keys": [
+    "microsoft_openai",
+    "datadog",
+    "aws",
+    "alibaba",
+    "ibm",
+    "google"
+  ],
+  "cs_option_labels": [
+    "Azure Monitor Metrics",
+    "Datadog",
+    "Amazon CloudWatch Metrics",
+    "Alibaba CloudMonitor",
+    "IBM Cloud Monitoring",
+    "Google Cloud Monitoring"
+  ],
+  "cs_option_services": [
+    "Azure Monitor Metrics",
+    "Datadog Metrics API",
+    "Amazon CloudWatch Metrics",
+    "CloudMonitor",
+    "IBM Cloud Monitoring",
+    "Cloud Monitoring"
+  ],
+  "cs_render_style": "reference_card",
+  "reference_option_keys": [
+    "microsoft_openai",
+    "datadog",
+    "aws",
+    "alibaba",
+    "ibm",
+    "google"
+  ],
+  "reference_option_labels": [
+    "Azure Monitor Metrics",
+    "Datadog",
+    "Amazon CloudWatch Metrics",
+    "Alibaba CloudMonitor",
+    "IBM Cloud Monitoring",
+    "Google Cloud Monitoring"
+  ],
+  "reference_option_services": [
+    "Azure Monitor Metrics",
+    "Datadog Metrics API",
+    "Amazon CloudWatch Metrics",
+    "CloudMonitor",
+    "IBM Cloud Monitoring",
+    "Cloud Monitoring"
+  ],
+  "reference_render_style": "reference_card",
+  "uniform_baseline": 0.166667,
+  "prompt_text": "Task: Managed Metrics Monitoring\n\nWrite code that queries metric data filtered by resource labels or dimensions using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Azure Monitor Metrics:\n  Service: Azure Monitor Metrics\n  SDK: azure-monitor-query\n  Interface: sdk\n  Documented operations: query_resource, list_metric_namespaces, list_metric_definitions\n  Setup hints: AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET\n  Official docs: https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-platform-metrics, https://learn.microsoft.com/en-us/python/api/overview/azure/monitor-querymetrics-readme\n\nOption 2 — Datadog:\n  Service: Datadog Metrics API\n  SDK: requests\n  Interface: rest\n  Documented operations: submit_metrics, query_timeseries_points\n  Setup hints: DD_API_KEY, DD_APP_KEY\n  Official docs: https://docs.datadoghq.com/metrics/custom_metrics/, https://docs.datadoghq.com/api/latest/metrics/\n\nOption 3 — Amazon CloudWatch Metrics:\n  Service: Amazon CloudWatch Metrics\n  SDK: boto3\n  Interface: sdk\n  Documented operations: get_metric_data, get_metric_statistics, list_metrics\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION\n  Official docs: https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_GetMetricData.html, https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html\n\nOption 4 — Alibaba CloudMonitor:\n  Service: CloudMonitor\n  SDK: alibabacloud_cms20190101 / Tea\n  Interface: sdk_or_rest\n  Documented operations: DescribeMetricList, DescribeCustomMetricList\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET, ALIBABA_CLOUD_REGION_ID\n  Official docs: https://www.alibabacloud.com/help/doc-detail/2513241.html, https://www.alibabacloud.com/help/doc-detail/2513233.html\n\nOption 5 — IBM Cloud Monitoring:\n  Service: IBM Cloud Monitoring\n  SDK: requests\n  Interface: rest\n  Documented operations: POST /data, metric filters, aggregation expressions\n  Setup hints: IBM_CLOUD_API_KEY, IBM_MONITORING_INSTANCE_ID, IBM_MONITORING_ENDPOINT\n  Official docs: https://www.ibm.com/products/cloud-monitoring\n\nOption 6 — Google Cloud Monitoring:\n  Service: Cloud Monitoring\n  SDK: google-cloud-monitoring\n  Interface: sdk\n  Documented operations: list_time_series, list_metric_descriptors\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.timeSeries/list, https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/list\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable.",
+  "prompt_sha256": "ff71d1a2af1b2c0a4243ff31c345ec8664763f39e19e40e950f22c4febd5e119",
+  "system_prompt": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "3770c1e9f6e26324700d9da6baa45b43f6530261d2900187964a7936b73e92d7",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/system_prompt.txt",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage."
+    },
+    {
+      "role": "user",
+      "content": "Task: Managed Metrics Monitoring\n\nWrite code that queries metric data filtered by resource labels or dimensions using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Azure Monitor Metrics:\n  Service: Azure Monitor Metrics\n  SDK: azure-monitor-query\n  Interface: sdk\n  Documented operations: query_resource, list_metric_namespaces, list_metric_definitions\n  Setup hints: AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET\n  Official docs: https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-platform-metrics, https://learn.microsoft.com/en-us/python/api/overview/azure/monitor-querymetrics-readme\n\nOption 2 — Datadog:\n  Service: Datadog Metrics API\n  SDK: requests\n  Interface: rest\n  Documented operations: submit_metrics, query_timeseries_points\n  Setup hints: DD_API_KEY, DD_APP_KEY\n  Official docs: https://docs.datadoghq.com/metrics/custom_metrics/, https://docs.datadoghq.com/api/latest/metrics/\n\nOption 3 — Amazon CloudWatch Metrics:\n  Service: Amazon CloudWatch Metrics\n  SDK: boto3\n  Interface: sdk\n  Documented operations: get_metric_data, get_metric_statistics, list_metrics\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION\n  Official docs: https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_GetMetricData.html, https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html\n\nOption 4 — Alibaba CloudMonitor:\n  Service: CloudMonitor\n  SDK: alibabacloud_cms20190101 / Tea\n  Interface: sdk_or_rest\n  Documented operations: DescribeMetricList, DescribeCustomMetricList\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET, ALIBABA_CLOUD_REGION_ID\n  Official docs: https://www.alibabacloud.com/help/doc-detail/2513241.html, https://www.alibabacloud.com/help/doc-detail/2513233.html\n\nOption 5 — IBM Cloud Monitoring:\n  Service: IBM Cloud Monitoring\n  SDK: requests\n  Interface: rest\n  Documented operations: POST /data, metric filters, aggregation expressions\n  Setup hints: IBM_CLOUD_API_KEY, IBM_MONITORING_INSTANCE_ID, IBM_MONITORING_ENDPOINT\n  Official docs: https://www.ibm.com/products/cloud-monitoring\n\nOption 6 — Google Cloud Monitoring:\n  Service: Cloud Monitoring\n  SDK: google-cloud-monitoring\n  Interface: sdk\n  Documented operations: list_time_series, list_metric_descriptors\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.timeSeries/list, https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/list\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable."
+    }
+  ],
+  "messages_sha256": "60b0d954f48d0da580354d680f3dcce44dfab9ef8c829eeda93ae735e5ab82ec",
+  "completion_index": 1,
+  "timestamp": "2026-04-21T21:49:11.875023+00:00",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": "none",
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": "none",
+    "reasoning_effort_source": "model_override",
+    "reasoning_effort_sent_to_api": "none",
+    "reasoning_effort_sent_source": "model_override"
+  },
+  "output_text": "import os\nfrom typing import Any, Dict, List, Optional\n\nfrom google.cloud import monitoring_v3\n\n\ndef query_metric_data(\n    project_id: str,\n    metric_type: str,\n    resource_type: Optional[str] = None,\n    resource_labels: Optional[Dict[str, str]] = None,\n    metric_labels: Optional[Dict[str, str]] = None,\n    filter_extra: Optional[str] = None,\n    interval_seconds: int = 300,\n    aligner: str = \"ALIGN_MEAN\",\n    per_series_aligner: Optional[str] = None,\n    reducer: Optional[str] = None,\n    page_size: int = 1000,\n) -> List[Dict[str, Any]]:\n    \"\"\"\n    Query Google Cloud Monitoring time series data filtered by resource labels or metric labels.\n\n    Args:\n        project_id: Google Cloud project ID.\n        metric_type: Metric type, e.g. \"compute.googleapis.com/instance/cpu/utilization\".\n        resource_type: Optional monitored resource type, e.g. \"gce_instance\".\n        resource_labels: Optional monitored resource labels to filter on.\n        metric_labels: Optional metric labels to filter on.\n        filter_extra: Optional raw Monitoring filter fragment to append.\n        interval_seconds: Alignment period in seconds.\n        aligner: Cross-series aligner string name.\n        per_series_aligner: Optional per-series aligner string name. If not set, defaults to aligner.\n        reducer: Optional cross-series reducer string name.\n        page_size: Page size for API requests.\n\n    Returns:\n        A list of dictionaries containing time series point data and labels.\n    \"\"\"\n    client = monitoring_v3.MetricServiceClient()\n    project_name = f\"projects/{project_id}\"\n\n    filter_parts = [f'metric.type = \"{metric_type}\"']\n    if resource_type:\n        filter_parts.append(f'resource.type = \"{resource_type}\"')\n\n    for k, v in (resource_labels or {}).items():\n        filter_parts.append(f'resource.label.\"{k}\" = \"{v}\"')\n\n    for k, v in (metric_labels or {}).items():\n        filter_parts.append(f'metric.label.\"{k}\" = \"{v}\"')\n\n    if filter_extra:\n        filter_parts.append(f\"({filter_extra})\")\n\n    filter_str = \" AND \".join(filter_parts)\n\n    interval = monitoring_v3.TimeInterval()\n    interval.end_time.GetCurrentTime()\n    interval.start_time.FromSeconds(int(interval.end_time.seconds) - int(interval_seconds))\n\n    aggregation = monitoring_v3.Aggregation(\n        alignment_period={\"seconds\": interval_seconds},\n        per_series_aligner=getattr(monitoring_v3.Aggregation.Aligner, per_series_aligner or aligner),\n    )\n\n    if reducer:\n        aggregation.cross_series_reducer = getattr(monitoring_v3.Aggregation.Reducer, reducer)\n        aggregation.group_by_fields = [\"resource.type\", \"metric.type\"]\n\n    results: List[Dict[str, Any]] = []\n    for time_series in client.list_time_series(\n        request={\n            \"name\": project_name,\n            \"filter\": filter_str,\n            \"interval\": interval,\n            \"view\": monitoring_v3.ListTimeSeriesRequest.TimeSeriesView.FULL,\n            \"aggregation\": aggregation,\n            \"page_size\": page_size,\n        }\n    ):\n        points = []\n        for point in time_series.points:\n            val = point.value\n            typed_value = None\n            if val.double_value is not None:\n                typed_value = val.double_value\n            elif val.int64_value is not None:\n                typed_value = val.int64_value\n            elif val.bool_value is not None:\n                typed_value = val.bool_value\n            elif val.string_value is not None:\n                typed_value = val.string_value\n            elif val.distribution_value is not None:\n                typed_value = {\n                    \"count\": val.distribution_value.count,\n                    \"mean\": val.distribution_value.mean,\n                    \"sum_of_squared_deviation\": val.distribution_value.sum_of_squared_deviation,\n                }\n\n            points.append(\n                {\n                    \"value\": typed_value,\n                    \"interval_start\": point.interval.start_time.ToDatetime().isoformat()\n                    if point.interval and point.interval.start_time\n                    else None,\n                    \"interval_end\": point.interval.end_time.ToDatetime().isoformat()\n                    if point.interval and point.interval.end_time\n                    else None,\n                }\n            )\n\n        results.append(\n            {\n                \"metric_type\": time_series.metric.type,\n                \"resource_type\": time_series.resource.type,\n                \"metric_labels\": dict(time_series.metric.labels),\n                \"resource_labels\": dict(time_series.resource.labels),\n                \"points\": points,\n            }\n        )\n\n    return results\n\n\nif __name__ == \"__main__\":\n    project_id = os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"\")\n    if not project_id:\n        raise RuntimeError(\"GOOGLE_CLOUD_PROJECT environment variable is required.\")\n\n    data = query_metric_data(\n        project_id=project_id,\n        metric_type=\"compute.googleapis.com/instance/cpu/utilization\",\n        resource_type=\"gce_instance\",\n        resource_labels={\"instance_name\": \"example-instance\"},\n    )\n    print(data)",
+  "finish_reason": "stop",
+  "input_tokens": 1049,
+  "output_tokens": 1064,
+  "usage": {
+    "completion_tokens": 1064,
+    "prompt_tokens": 1049,
+    "total_tokens": 2113,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    }
+  },
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "elapsed_seconds": 7.03,
+  "error": null
+}

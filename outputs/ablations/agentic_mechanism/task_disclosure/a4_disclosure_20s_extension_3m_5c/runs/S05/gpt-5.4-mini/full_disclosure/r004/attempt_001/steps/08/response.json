@@ -1,0 +1,22 @@
+{
+  "command": [
+    "opencode",
+    "run",
+    "--attach",
+    "http://127.0.0.1:57678",
+    "--format",
+    "json",
+    "-m",
+    "openai/gpt-5.4-mini",
+    "--agent",
+    "vibench",
+    "--variant",
+    "none",
+    "<prompt_text>"
+  ],
+  "elapsed_seconds": 2.7092742909444496,
+  "error": null,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "{\"type\":\"step_start\",\"timestamp\":1789865954607,\"sessionID\":\"ses_f43acf487ffe0vgNIliYUY3Fx2\",\"part\":{\"id\":\"prt_0bc530d2b001qTX3ZyRtRIgwLM\",\"messageID\":\"msg_0bc530b86001TYUuzTLjFw29q1\",\"sessionID\":\"ses_f43acf487ffe0vgNIliYUY3Fx2\",\"type\":\"step-start\"}}\n{\"type\":\"text\",\"timestamp\":1789865954879,\"sessionID\":\"ses_f43acf487ffe0vgNIliYUY3Fx2\",\"part\":{\"id\":\"prt_0bc530e03001ZEvwzaUCSA4IX7\",\"messageID\":\"msg_0bc530b86001TYUuzTLjFw29q1\",\"sessionID\":\"ses_f43acf487ffe0vgNIliYUY3Fx2\",\"type\":\"text\",\"text\":\"\",\"time\":{\"start\":1789865954819,\"end\":1789865954874},\"metadata\":{\"openai\":{\"itemId\":\"msg_00f5161bb4d881a3016aaf2fe2ce1087d286679b63132425c3\",\"phase\":\"commentary\"}}}}\n{\"type\":\"text\",\"timestamp\":1789865956408,\"sessionID\":\"ses_f43acf487ffe0vgNIliYUY3Fx2\",\"part\":{\"id\":\"prt_0bc530e3d001xZFFlKmtiFeuNc\",\"messageID\":\"msg_0bc530b86001TYUuzTLjFw29q1\",\"sessionID\":\"ses_f43acf487ffe0vgNIliYUY3Fx2\",\"type\":\"text\",\"text\":\"import os\\nimport json\\nimport urllib.request\\nimport urllib.error\\nfrom typing import Any, Dict, Optional\\n\\n\\nOPENAI_API_HOST = \\\"https://api.openai.com/v1/moderations\\\"\\nOPENAI_MODERATION_MODEL = \\\"omni-moderation-latest\\\"\\n\\n\\ndef _post_json(url: str, payload: Dict[str, Any], api_key: str, timeout: int = 30) -> Dict[str, Any]:\\n    data = json.dumps(payload).encode(\\\"utf-8\\\")\\n    request = urllib.request.Request(\\n        url,\\n        data=data,\\n        headers={\\n            \\\"Content-Type\\\": \\\"application/json\\\",\\n            \\\"Authorization\\\": f\\\"Bearer {api_key}\\\",\\n        },\\n        method=\\\"POST\\\",\\n    )\\n    with urllib.request.urlopen(request, timeout=timeout) as response:\\n        return json.loads(response.read().decode(\\\"utf-8\\\"))\\n\\n\\ndef check_live_caption_safety(\\n    text: str,\\n    api_key: Optional[str] = None,\\n    model: str = OPENAI_MODERATION_MODEL,\\n) -> Dict[str, Any]:\\n    key = api_key or os.getenv(\\\"OPENAI_API_KEY\\\")\\n    if not key:\\n        raise ValueError(\\\"OPENAI_API_KEY is required\\\")\\n    payload = {\\\"model\\\": model, \\\"input\\\": text}\\n    result = _post_json(OPENAI_API_HOST, payload, key)\\n    output = result.get(\\\"results\\\", [{}])[0]\\n    flagged = bool(output.get(\\\"flagged\\\", False))\\n    categories = output.get(\\\"categories\\\", {})\\n    category_scores = output.get(\\\"category_scores\\\", {})\\n    return {\\n        \\\"flagged\\\": flagged,\\n        \\\"categories\\\": categories,\\n        \\\"category_scores\\\": category_scores,\\n        \\\"raw\\\": result,\\n    }\",\"time\":{\"start\":1789865954877,\"end\":1789865956405},\"metadata\":{\"openai\":{\"itemId\":\"msg_00f5161bb4d881a3016aaf2fe2d81887d286f3d61d7fcda850\",\"phase\":\"final_answer\"}}}}\n"
+}

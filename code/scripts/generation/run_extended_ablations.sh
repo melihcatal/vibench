@@ -9,8 +9,8 @@ MODE="${1:-sequential}"
 run_direct() {
   local name="$1"
   python scripts/generation/run_direct.py \
-    --config "configs/vibench/direct/ablations/option_order/${name}_3c.yaml" \
-    --resume "direct/ablations/option_order/${name}_3c" \
+    --config "configs/vibench/direct/variants/option_order/${name}_3c.yaml" \
+    --resume "direct/variants/option_order/${name}_3c" \
     --retry-errors \
     --retry-empty
 }
@@ -18,8 +18,8 @@ run_direct() {
 run_opencode() {
   local name="$1"
   python scripts/generation/run_agentic.py \
-    --config "configs/vibench/agentic/ablations/option_order/opencode/${name}_3c.yaml" \
-    --resume "agentic/ablations/option_order/opencode/${name}_3c" \
+    --config "configs/vibench/agentic/variants/option_order/opencode/${name}_3c.yaml" \
+    --resume "agentic/variants/option_order/opencode/${name}_3c" \
     --retry-errors \
     --retry-empty \
     --retry-incomplete
@@ -28,8 +28,8 @@ run_opencode() {
 run_agents_sdk() {
   local name="$1"
   python scripts/generation/run_agentic_litellm_agents.py \
-    --config "configs/vibench/agentic/ablations/option_order/agents_sdk/${name}_3c.yaml" \
-    --resume "agentic/ablations/option_order/agents_sdk/${name}_3c" \
+    --config "configs/vibench/agentic/variants/option_order/agents_sdk/${name}_3c.yaml" \
+    --resume "agentic/variants/option_order/agents_sdk/${name}_3c" \
     --retry-errors \
     --retry-empty \
     --retry-incomplete

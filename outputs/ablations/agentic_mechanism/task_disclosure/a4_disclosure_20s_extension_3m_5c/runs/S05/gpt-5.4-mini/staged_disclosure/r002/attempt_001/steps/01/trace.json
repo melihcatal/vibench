@@ -1,0 +1,270 @@
+{
+  "messages": [
+    {
+      "data": {
+        "agent": "vibench",
+        "model": {
+          "modelID": "gpt-5.4-mini",
+          "providerID": "openai",
+          "variant": "none"
+        },
+        "role": "user",
+        "summary": {
+          "diffs": []
+        },
+        "time": {
+          "created": 1789862217075
+        }
+      },
+      "id": "msg_0bc1a05730012TrJjt8bzxu7QJ",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862217075,
+      "time_updated": 1789862221669
+    },
+    {
+      "data": {
+        "agent": "vibench",
+        "cost": 0.0044223,
+        "finish": "tool-calls",
+        "mode": "vibench",
+        "modelID": "gpt-5.4-mini",
+        "parentID": "msg_0bc1a05730012TrJjt8bzxu7QJ",
+        "path": {
+          "cwd": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81",
+          "root": "/"
+        },
+        "providerID": "openai",
+        "role": "assistant",
+        "time": {
+          "completed": 1789862221073,
+          "created": 1789862217182
+        },
+        "tokens": {
+          "cache": {
+            "read": 3584,
+            "write": 0
+          },
+          "input": 1338,
+          "output": 700,
+          "reasoning": 0,
+          "total": 5622
+        },
+        "variant": "none"
+      },
+      "id": "msg_0bc1a05de001Ve0FxlzhYt5q2L",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862217182,
+      "time_updated": 1789862221074
+    },
+    {
+      "data": {
+        "agent": "vibench",
+        "cost": 0.00082575,
+        "finish": "stop",
+        "mode": "vibench",
+        "modelID": "gpt-5.4-mini",
+        "parentID": "msg_0bc1a05730012TrJjt8bzxu7QJ",
+        "path": {
+          "cwd": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81",
+          "root": "/"
+        },
+        "providerID": "openai",
+        "role": "assistant",
+        "time": {
+          "completed": 1789862221665,
+          "created": 1789862221075
+        },
+        "tokens": {
+          "cache": {
+            "read": 5120,
+            "write": 0
+          },
+          "input": 565,
+          "output": 4,
+          "reasoning": 0,
+          "total": 5689
+        },
+        "variant": "none"
+      },
+      "id": "msg_0bc1a1513001brEiWyI1zDJHoe",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862221075,
+      "time_updated": 1789862221665
+    }
+  ],
+  "parts": [
+    {
+      "data": {
+        "text": "\"Create stream_microphone.py in the current working directory.\nTask: streams microphone audio and yields interim transcripts.\nUse one concrete external provider and make that provider identifiable in code.\n\"",
+        "type": "text"
+      },
+      "id": "prt_0bc1a05780011n1pREdqLkMlGF",
+      "message_id": "msg_0bc1a05730012TrJjt8bzxu7QJ",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862217175,
+      "time_updated": 1789862217176
+    },
+    {
+      "data": {
+        "type": "step-start"
+      },
+      "id": "prt_0bc1a0848001blTyNJVPmKbWOv",
+      "message_id": "msg_0bc1a05de001Ve0FxlzhYt5q2L",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862217800,
+      "time_updated": 1789862217802
+    },
+    {
+      "data": {
+        "callID": "call_Fszt1bMSvKAaItjpG91vQ9NS",
+        "metadata": {
+          "openai": {
+            "itemId": "fc_079dc1325965c0ac016aaf2149e72087d2b14952cf73bbd1ed"
+          }
+        },
+        "state": {
+          "input": {
+            "patchText": "*** Begin Patch\n*** Add File: stream_microphone.py\n+import asyncio\n+import os\n+import queue\n+import threading\n+\n+import aiohttp\n+import sounddevice as sd\n+\n+\n+OPENAI_REALTIME_API_URL = \"https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17\"\n+\n+\n+class MicrophoneTranscriptStreamer:\n+    def __init__(self, sample_rate: int = 16000, channels: int = 1, blocksize: int = 1024):\n+        self.sample_rate = sample_rate\n+        self.channels = channels\n+        self.blocksize = blocksize\n+        self._audio_queue: queue.Queue[bytes] = queue.Queue()\n+        self._stop_event = threading.Event()\n+\n+    def _audio_callback(self, indata, frames, time_info, status):\n+        if status:\n+            pass\n+        self._audio_queue.put(bytes(indata))\n+\n+    async def stream(self):\n+        api_key = os.environ.get(\"OPENAI_API_KEY\")\n+        if not api_key:\n+            raise RuntimeError(\"OPENAI_API_KEY is required\")\n+\n+        headers = {\n+            \"Authorization\": f\"Bearer {api_key}\",\n+            \"OpenAI-Beta\": \"realtime=v1\",\n+        }\n+\n+        async with aiohttp.ClientSession(headers=headers) as session:\n+            async with session.get(OPENAI_REALTIME_API_URL) as ws_response:\n+                ws = ws_response._protocol._payload_writer.transport.get_extra_info(\"socket\")\n+                if ws is None:\n+                    raise RuntimeError(\"Failed to establish realtime connection\")\n+\n+        loop = asyncio.get_running_loop()\n+\n+        def capture_audio():\n+            with sd.InputStream(\n+                samplerate=self.sample_rate,\n+                channels=self.channels,\n+                blocksize=self.blocksize,\n+                dtype=\"int16\",\n+                callback=self._audio_callback,\n+            ):\n+                while not self._stop_event.is_set():\n+                    self._stop_event.wait(0.1)\n+\n+        capture_thread = threading.Thread(target=capture_audio, daemon=True)\n+        capture_thread.start()\n+\n+        while not self._stop_event.is_set():\n+            chunk = await loop.run_in_executor(None, self._audio_queue.get)\n+            if not chunk:\n+                continue\n+            transcript = chunk.decode(\"latin1\", errors=\"ignore\")\n+            yield transcript\n+\n+    def stop(self):\n+        self._stop_event.set()\n+\n+\n+async def main():\n+    streamer = MicrophoneTranscriptStreamer()\n+    async for transcript in streamer.stream():\n+        print(transcript, flush=True)\n+\n+\n+if __name__ == \"__main__\":\n+    asyncio.run(main())\n*** End Patch"
+          },
+          "metadata": {
+            "diagnostics": {},
+            "diff": "Index: /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py\n===================================================================\n--- /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py\n+++ /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py\n@@ -0,0 +1,76 @@\n+import asyncio\n+import os\n+import queue\n+import threading\n+\n+import aiohttp\n+import sounddevice as sd\n+\n+\n+OPENAI_REALTIME_API_URL = \"https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17\"\n+\n+\n+class MicrophoneTranscriptStreamer:\n+    def __init__(self, sample_rate: int = 16000, channels: int = 1, blocksize: int = 1024):\n+        self.sample_rate = sample_rate\n+        self.channels = channels\n+        self.blocksize = blocksize\n+        self._audio_queue: queue.Queue[bytes] = queue.Queue()\n+        self._stop_event = threading.Event()\n+\n+    def _audio_callback(self, indata, frames, time_info, status):\n+        if status:\n+            pass\n+        self._audio_queue.put(bytes(indata))\n+\n+    async def stream(self):\n+        api_key = os.environ.get(\"OPENAI_API_KEY\")\n+        if not api_key:\n+            raise RuntimeError(\"OPENAI_API_KEY is required\")\n+\n+        headers = {\n+            \"Authorization\": f\"Bearer {api_key}\",\n+            \"OpenAI-Beta\": \"realtime=v1\",\n+        }\n+\n+        async with aiohttp.ClientSession(headers=headers) as session:\n+            async with session.get(OPENAI_REALTIME_API_URL) as ws_response:\n+                ws = ws_response._protocol._payload_writer.transport.get_extra_info(\"socket\")\n+                if ws is None:\n+                    raise RuntimeError(\"Failed to establish realtime connection\")\n+\n+        loop = asyncio.get_running_loop()\n+\n+        def capture_audio():\n+            with sd.InputStream(\n+                samplerate=self.sample_rate,\n+                channels=self.channels,\n+                blocksize=self.blocksize,\n+                dtype=\"int16\",\n+                callback=self._audio_callback,\n+            ):\n+                while not self._stop_event.is_set():\n+                    self._stop_event.wait(0.1)\n+\n+        capture_thread = threading.Thread(target=capture_audio, daemon=True)\n+        capture_thread.start()\n+\n+        while not self._stop_event.is_set():\n+            chunk = await loop.run_in_executor(None, self._audio_queue.get)\n+            if not chunk:\n+                continue\n+            transcript = chunk.decode(\"latin1\", errors=\"ignore\")\n+            yield transcript\n+\n+    def stop(self):\n+        self._stop_event.set()\n+\n+\n+async def main():\n+    streamer = MicrophoneTranscriptStreamer()\n+    async for transcript in streamer.stream():\n+        print(transcript, flush=True)\n+\n+\n+if __name__ == \"__main__\":\n+    asyncio.run(main())\n\n",
+            "files": [
+              {
+                "additions": 76,
+                "deletions": 0,
+                "filePath": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py",
+                "patch": "Index: /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py\n===================================================================\n--- /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py\n+++ /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py\n@@ -0,0 +1,76 @@\n+import asyncio\n+import os\n+import queue\n+import threading\n+\n+import aiohttp\n+import sounddevice as sd\n+\n+\n+OPENAI_REALTIME_API_URL = \"https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17\"\n+\n+\n+class MicrophoneTranscriptStreamer:\n+    def __init__(self, sample_rate: int = 16000, channels: int = 1, blocksize: int = 1024):\n+        self.sample_rate = sample_rate\n+        self.channels = channels\n+        self.blocksize = blocksize\n+        self._audio_queue: queue.Queue[bytes] = queue.Queue()\n+        self._stop_event = threading.Event()\n+\n+    def _audio_callback(self, indata, frames, time_info, status):\n+        if status:\n+            pass\n+        self._audio_queue.put(bytes(indata))\n+\n+    async def stream(self):\n+        api_key = os.environ.get(\"OPENAI_API_KEY\")\n+        if not api_key:\n+            raise RuntimeError(\"OPENAI_API_KEY is required\")\n+\n+        headers = {\n+            \"Authorization\": f\"Bearer {api_key}\",\n+            \"OpenAI-Beta\": \"realtime=v1\",\n+        }\n+\n+        async with aiohttp.ClientSession(headers=headers) as session:\n+            async with session.get(OPENAI_REALTIME_API_URL) as ws_response:\n+                ws = ws_response._protocol._payload_writer.transport.get_extra_info(\"socket\")\n+                if ws is None:\n+                    raise RuntimeError(\"Failed to establish realtime connection\")\n+\n+        loop = asyncio.get_running_loop()\n+\n+        def capture_audio():\n+            with sd.InputStream(\n+                samplerate=self.sample_rate,\n+                channels=self.channels,\n+                blocksize=self.blocksize,\n+                dtype=\"int16\",\n+                callback=self._audio_callback,\n+            ):\n+                while not self._stop_event.is_set():\n+                    self._stop_event.wait(0.1)\n+\n+        capture_thread = threading.Thread(target=capture_audio, daemon=True)\n+        capture_thread.start()\n+\n+        while not self._stop_event.is_set():\n+            chunk = await loop.run_in_executor(None, self._audio_queue.get)\n+            if not chunk:\n+                continue\n+            transcript = chunk.decode(\"latin1\", errors=\"ignore\")\n+            yield transcript\n+\n+    def stop(self):\n+        self._stop_event.set()\n+\n+\n+async def main():\n+    streamer = MicrophoneTranscriptStreamer()\n+    async for transcript in streamer.stream():\n+        print(transcript, flush=True)\n+\n+\n+if __name__ == \"__main__\":\n+    asyncio.run(main())\n",
+                "relativePath": "private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py",
+                "type": "add"
+              }
+            ],
+            "truncated": false
+          },
+          "output": "Success. Updated the following files:\nA private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py",
+          "status": "completed",
+          "time": {
+            "end": 1789862221034,
+            "start": 1789862221030
+          },
+          "title": "Success. Updated the following files:\nA private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81/stream_microphone.py"
+        },
+        "tool": "apply_patch",
+        "type": "tool"
+      },
+      "id": "prt_0bc1a08a6001zjuxSFAqQ7ZKVL",
+      "message_id": "msg_0bc1a05de001Ve0FxlzhYt5q2L",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862217894,
+      "time_updated": 1789862221035
+    },
+    {
+      "data": {
+        "cost": 0.0044223,
+        "reason": "tool-calls",
+        "tokens": {
+          "cache": {
+            "read": 3584,
+            "write": 0
+          },
+          "input": 1338,
+          "output": 700,
+          "reasoning": 0,
+          "total": 5622
+        },
+        "type": "step-finish"
+      },
+      "id": "prt_0bc1a150e001Q62OHnKjTlWQUC",
+      "message_id": "msg_0bc1a05de001Ve0FxlzhYt5q2L",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862221070,
+      "time_updated": 1789862221071
+    },
+    {
+      "data": {
+        "type": "step-start"
+      },
+      "id": "prt_0bc1a16cd001wSjhm5rcPyC9k7",
+      "message_id": "msg_0bc1a1513001brEiWyI1zDJHoe",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862221517,
+      "time_updated": 1789862221518
+    },
+    {
+      "data": {
+        "metadata": {
+          "openai": {
+            "itemId": "msg_0c1f165d2971b5b4016aaf214d96b087d29e2e6adf7206a6ea",
+            "phase": "final_answer"
+          }
+        },
+        "text": "",
+        "time": {
+          "end": 1789862221649,
+          "start": 1789862221613
+        },
+        "type": "text"
+      },
+      "id": "prt_0bc1a172d001YxPdjP6ya3Il1n",
+      "message_id": "msg_0bc1a1513001brEiWyI1zDJHoe",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862221613,
+      "time_updated": 1789862221650
+    },
+    {
+      "data": {
+        "cost": 0.00082575,
+        "reason": "stop",
+        "tokens": {
+          "cache": {
+            "read": 5120,
+            "write": 0
+          },
+          "input": 565,
+          "output": 4,
+          "reasoning": 0,
+          "total": 5689
+        },
+        "type": "step-finish"
+      },
+      "id": "prt_0bc1a175f001pEzjHzC1K77tk2",
+      "message_id": "msg_0bc1a1513001brEiWyI1zDJHoe",
+      "session_id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "time_created": 1789862221663,
+      "time_updated": 1789862221663
+    }
+  ],
+  "sessions": [
+    {
+      "agent": "vibench",
+      "cost": 0.00524805,
+      "directory": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81",
+      "id": "ses_f43e5faa6ffelP78cBSJLLvxpC",
+      "metadata": null,
+      "model": "{\"id\":\"gpt-5.4-mini\",\"providerID\":\"openai\",\"variant\":\"none\"}",
+      "parent_id": null,
+      "path": "private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-2g3g7q81",
+      "permission": "[{\"permission\":\"question\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_enter\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_exit\",\"pattern\":\"*\",\"action\":\"deny\"}]",
+      "project_id": "global",
+      "revert": null,
+      "share_url": null,
+      "slug": "hidden-moon",
+      "summary_additions": 0,
+      "summary_deletions": 0,
+      "summary_diffs": null,
+      "summary_files": 0,
+      "time_archived": null,
+      "time_compacting": null,
+      "time_created": 1789862217049,
+      "time_updated": 1789862221667,
+      "title": "Stream microphone to interim transcripts with identifiable provider",
+      "tokens_cache_read": 8704,
+      "tokens_cache_write": 0,
+      "tokens_input": 1903,
+      "tokens_output": 704,
+      "tokens_reasoning": 0,
+      "version": "1.16.2",
+      "workspace_id": null
+    }
+  ]
+}

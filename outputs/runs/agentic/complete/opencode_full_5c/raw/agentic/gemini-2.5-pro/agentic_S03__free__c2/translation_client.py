@@ -1,0 +1,12 @@
+from google.cloud import translate_v2 as translate
+import os
+
+
+def get_translation_client():
+    """
+    Initializes and returns a Google Cloud Translation client.
+
+    Assumes that the GOOGLE_APPLICATION_CREDENTIALS environment
+    variable is set to the path of the service account key file.
+    """
+    return translate.Client()

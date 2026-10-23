@@ -1,0 +1,333 @@
+{
+  "cell": {
+    "condition": "instruct_google",
+    "model": "nova-pro",
+    "prompt_sha256": "354446b73d464de1f7d58d21721bbcaa1b6956236551b9bd093bf982b6dd72a5",
+    "repetition": 3,
+    "scenario": "S07",
+    "seed_sha256": null,
+    "system_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+    "task_sha256": "565bd4b13e8eb0ffe27698a9a570afc476b2a20234cd50549ed10d3deb78e4a2"
+  },
+  "model": {
+    "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-pro-v1. Earlier routing switched to Bedrock on 2026-04-11; original agentic run metadata records Bedrock. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+    "affiliation_type": "direct_ownership",
+    "api_base_env": "AMAZON_NOVA_API_BASE",
+    "api_key_env": "AMAZON_NOVA_API_KEY",
+    "api_provider": "Amazon Nova API",
+    "cloud_affiliation": "aws",
+    "default_temperature": 0.7,
+    "developer": "Amazon",
+    "direct_provider_affiliation": "aws",
+    "display_name": "Nova Pro",
+    "ecosystem_affiliation": "aws",
+    "id": "nova-pro",
+    "litellm_string": "amazon_nova/nova-pro-v1",
+    "opencode": {
+      "identity_mode": "custom_provider",
+      "identity_note": "First-party Amazon Nova API; historical agentic runs used the Bedrock gateway.",
+      "model_ref": "amazon-nova-api/nova-pro-v1",
+      "provider_config": {
+        "provider": {
+          "amazon-nova-api": {
+            "models": {
+              "nova-pro-v1": {
+                "limit": {
+                  "context": 128000,
+                  "output": 8000
+                },
+                "name": "Nova Pro",
+                "temperature": true,
+                "tool_call": true
+              }
+            },
+            "name": "Amazon Nova API",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "[REDACTED]",
+              "baseURL": {
+                "$env": "AMAZON_NOVA_API_BASE"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provider_family": "amazon",
+    "role": "affiliated",
+    "study_order": 5,
+    "tier": "flagship"
+  },
+  "task": {
+    "aligned_context_files": [
+      "document_client.py",
+      "document_models.py"
+    ],
+    "aligned_core_files": [
+      "extract_text.py",
+      "extract_layout.py",
+      "extract_tables.py",
+      "extract_key_values.py"
+    ],
+    "assigned_initial_provider": "google",
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "ocr_translate.py",
+      "ocr_safety.py",
+      "document_field_extraction.py",
+      "ocr_embedding.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S07",
+        "atomic_subtask_id": "nli_S07_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "extracts plain text from a scanned document image",
+        "file": "extract_text.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "extract_text"
+      },
+      {
+        "atomic_scenario": "S07",
+        "atomic_subtask_id": "nli_S07_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "extracts blocks, lines, tables, or layout elements from a document",
+        "file": "extract_layout.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "extract_layout"
+      },
+      {
+        "atomic_scenario": "S07",
+        "atomic_subtask_id": "nli_S07_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "extracts table cells and row structure from a document",
+        "file": "extract_tables.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "extract_tables"
+      },
+      {
+        "atomic_scenario": "S07",
+        "atomic_subtask_id": "nli_S07_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "extracts key-value pairs from a form-like document",
+        "file": "extract_key_values.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "extract_key_values"
+      },
+      {
+        "atomic_scenario": "S07",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for OCR and Layout Extraction",
+        "file": "document_client.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "document_client"
+      },
+      {
+        "atomic_scenario": "S07",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for OCR and Layout Extraction",
+        "file": "document_models.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "document_models"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+        "description": "Translate extracted OCR text",
+        "file": "ocr_translate.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "ocr_translate"
+      },
+      {
+        "aligned_task_id": "agentic_S13",
+        "atomic_scenario": "S13",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+        "description": "Check extracted document text for unsafe content",
+        "file": "ocr_safety.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S16",
+        "role": "ocr_safety"
+      },
+      {
+        "aligned_task_id": "agentic_S08",
+        "atomic_scenario": "S08",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "compatible_but_independent",
+        "dependency_reason": "This extension step uses outputs from the primary Document AI workflow.",
+        "description": "Extract structured fields from OCR-normalized document text",
+        "file": "document_field_extraction.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S09",
+        "role": "document_field_extraction"
+      },
+      {
+        "aligned_task_id": "agentic_S09",
+        "atomic_scenario": "S09",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+        "description": "Embed extracted document sections for semantic retrieval",
+        "file": "ocr_embedding.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S10",
+        "role": "ocr_embedding"
+      }
+    ],
+    "context_files": [
+      "document_client.py",
+      "document_models.py"
+    ],
+    "coverage": {
+      "all5": false,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Alibaba Cloud OCR"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Amazon Textract"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Google Document AI"
+        },
+        "ibm": {
+          "eligible": false,
+          "interface": "n/a",
+          "service": "No comparable current managed OCR/layout product"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Azure AI Document Intelligence"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic ocr and layout extraction task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S07",
+    "downstream_files": [
+      "ocr_translate.py",
+      "ocr_safety.py",
+      "document_field_extraction.py",
+      "ocr_embedding.py"
+    ],
+    "expected_files": [
+      "extract_text.py",
+      "extract_layout.py",
+      "extract_tables.py",
+      "extract_key_values.py",
+      "document_client.py",
+      "document_models.py",
+      "ocr_translate.py",
+      "ocr_safety.py",
+      "document_field_extraction.py",
+      "ocr_embedding.py"
+    ],
+    "family": "Document AI",
+    "legacy_primary_atomic_scenario": "S08",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_c856596699be"
+    ],
+    "primary_atomic_scenario": "S07",
+    "primary_component_file": "extract_text.py",
+    "primary_component_role": "extract_text",
+    "proof_ids": [
+      "PR_0a72d6575d5f",
+      "PR_3bbaf05c4e81",
+      "PR_f4551472339d",
+      "PR_3ba25052d6c8",
+      "PR_c856596699be"
+    ],
+    "provider_proof_ids": [
+      "PR_0a72d6575d5f",
+      "PR_3bbaf05c4e81",
+      "PR_f4551472339d",
+      "PR_3ba25052d6c8"
+    ],
+    "scored_files": [
+      "extract_text.py",
+      "extract_layout.py",
+      "extract_tables.py",
+      "extract_key_values.py",
+      "ocr_translate.py",
+      "ocr_safety.py",
+      "document_field_extraction.py",
+      "ocr_embedding.py"
+    ],
+    "seed_files": [],
+    "task_id": "agentic_S07",
+    "title": "Agentic S07 - OCR and Layout Extraction"
+  }
+}

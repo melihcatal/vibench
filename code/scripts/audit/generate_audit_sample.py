@@ -26,8 +26,11 @@ import random
 from collections import Counter, defaultdict
 from pathlib import Path
 
+# The corpus lives under code/; the generated runs sit beside it at the
+# repository root, and sample source_paths are recorded relative to that root.
 REPO = Path(__file__).resolve().parents[2]
-RUNS_ROOT = REPO / "outputs" / "runs"
+REPO_ROOT = REPO.parent
+RUNS_ROOT = REPO_ROOT / "outputs" / "runs"
 DEFAULT_OUT = REPO / "benchmark" / "vibench" / "audit" / "vibench_detector_audit.jsonl"
 
 MAX_OUTPUT = 3000
@@ -74,7 +77,7 @@ def _source_path(path: Path | None) -> str:
     if path is None:
         return ""
     try:
-        return str(path.resolve().relative_to(REPO))
+        return str(path.resolve().relative_to(REPO_ROOT))
     except ValueError:
         return str(path)
 
@@ -197,16 +200,33 @@ def load_agentic_pool(run: Path, include_unscored: bool) -> list[dict]:
     return pool
 
 
+# The config-variant runs moved from outputs/runs/<mode>/ablations/ to
+# <mode>/variants/. Both the sample ordering and the sample id are derived from
+# the run path, and the shipped n=400 sample plus both reviewer CSVs key off
+# those ids, so the identity fields are canonicalised to the original spelling.
+# The record itself keeps the current path; only identity is pinned.
+_CANONICAL_RUN_SEGMENTS = [("/variants/", "/ablations/")]
+
+
+def _canonical_identity(record: dict) -> list:
+    run_id = record.get("run_id") or ""
+    source_path = record.get("source_path") or ""
+    for current, legacy in _CANONICAL_RUN_SEGMENTS:
+        run_id = run_id.replace(current.strip("/"), legacy.strip("/"))
+        source_path = source_path.replace(current, legacy)
+    return [
+        run_id,
+        record.get("source") or "",
+        record.get("model_id") or "",
+        record.get("task_id") or "",
+        record.get("modality") or "",
+        record.get("component_file") or "",
+        source_path,
+    ]
+
+
 def _sort_key(record: dict) -> tuple:
-    return (
-        record.get("run_id", ""),
-        record.get("source", ""),
-        record.get("model_id", ""),
-        record.get("task_id", ""),
-        record.get("modality", ""),
-        record.get("component_file", ""),
-        record.get("source_path", ""),
-    )
+    return tuple(_canonical_identity(record))
 
 
 def _sample_random(pool: list[dict], n: int, rng: random.Random) -> list[dict]:
@@ -275,18 +295,7 @@ def _filter_pool(
 def assign_sample_ids(samples: list[dict]) -> None:
     seen = set()
     for index, sample in enumerate(samples):
-        raw = json.dumps(
-            [
-                sample.get("run_id", ""),
-                sample.get("source", ""),
-                sample.get("model_id", ""),
-                sample.get("task_id", ""),
-                sample.get("modality", ""),
-                sample.get("component_file", ""),
-                sample.get("source_path", ""),
-            ],
-            separators=(",", ":"),
-        )
+        raw = json.dumps(_canonical_identity(sample), separators=(",", ":"))
         sample_id = hashlib.sha256(raw.encode()).hexdigest()[:12]
         salt = 0
         while sample_id in seen:
@@ -339,7 +348,23 @@ def main() -> None:
     parser.add_argument("--include-unscored-agentic", action="store_true")
     parser.add_argument("--summary-out", type=Path)
     parser.add_argument("--key-out", type=Path)
+    parser.add_argument("--force", action="store_true",
+                        help="Overwrite an existing sample file (see the warning below).")
     args = parser.parse_args()
+
+    # The shipped sample is human-annotated reference data: reviewer1.csv and
+    # reviewer2.csv key off its sample ids, and build_alignment_report.py
+    # reconstructs those exact 400 rows to produce the reported agreement. A
+    # fresh draw is a different 400 rows, so overwriting it silently invalidates
+    # the annotations. Refuse unless the caller means it.
+    if args.out.exists() and not args.force:
+        raise SystemExit(
+            f"{args.out} already exists and would be replaced by a different\n"
+            f"sample. The reviewer CSVs are keyed to the ids in that file, so\n"
+            f"replacing it breaks the annotator-agreement report.\n\n"
+            f"  To draw a fresh sample elsewhere:  --out <new path>\n"
+            f"  To replace the shipped sample:     --force"
+        )
 
     runs = [_resolve_run(value) for value in args.run] if args.run else _discover_current_runs()
     if not runs:

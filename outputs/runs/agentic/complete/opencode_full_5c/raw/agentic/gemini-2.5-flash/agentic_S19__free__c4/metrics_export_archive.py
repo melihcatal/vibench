@@ -1,0 +1,9 @@
+import os\nimport json\nfrom google.cloud import storage\nfrom observability_models import ArchivedMetricSnapshot\nfrom typing import Dict, Any\n
+def archive_metric_snapshot(snapshot: ArchivedMetricSnapshot) -> Dict[str, str]:\n    \"\"\"Archives exported metric snapshots in managed object storage.\"\"\"\n    client = storage.Client()\n    bucket = client.bucket(snapshot.bucket_name)\n    blob = bucket.blob(snapshot.blob_name)\n
+    blob.upload_from_string(snapshot.content, content_type=\"application/json\")\n
+    return {\n        \'status\': \'success\',\n        \'bucket_name\': snapshot.bucket_name,\n        \'blob_name\': snapshot.blob_name,\n        \'public_url\': blob.public_url\n    }\n
+if __name__ == \'__main__\':\n    # Example usage\n    # Replace with your GCS bucket name and desired blob name\n    bucket_name = os.environ.get(\'GCS_BUCKET_NAME\', \'your-gcs-bucket-name\')\n    blob_name = \'metric_snapshots/cpu_utilization_2023-03-15.json\'\n    
+    # Example metric data to archive (this would typically come from a monitoring query)\n    example_metric_data = {\n        \"metric_type\": \"compute.googleapis.com/instance/cpu/utilization\",\n        \"timestamp\": \"1678886400\",\n        \"value\": 0.75,\n        \"instance_name\": \"my-instance-1\"\n    }\n    
+    snapshot_content = json.dumps(example_metric_data, indent=2)\n
+    example_snapshot = ArchivedMetricSnapshot(\n        bucket_name=bucket_name,\n        blob_name=blob_name,\n        content=snapshot_content\n    )\n
+    try:\n        archive_result = archive_metric_snapshot(example_snapshot)\n        print(json.dumps(archive_result, indent=2))\n    except Exception as e:\n        print(f\"An error occurred: {e}\")\n        print(\"Please ensure you have authenticated to GCP and have the necessary permissions for Cloud Storage.\")\n        print(\"You might need to set the GCS_BUCKET_NAME environment variable and ensure the bucket exists.\")\n

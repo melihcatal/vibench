@@ -1,0 +1,441 @@
+{
+  "task_id": "agentic_S08",
+  "modality": "agentic",
+  "benchmark": "vibench",
+  "task_mode": "unified",
+  "primary_atomic_scenario": "S08",
+  "primary_component_role": "extract_invoice_fields",
+  "primary_component_file": "extract_invoice_fields.py",
+  "task_family": "Document AI",
+  "evidence_id": null,
+  "paired_with": null,
+  "seed_condition_id": null,
+  "seed_policy": null,
+  "seed_anchor_role": null,
+  "seed_anchor_provider": null,
+  "seed_anchor_ecosystem": null,
+  "variant": "informed",
+  "model_id": "mistral-large-3",
+  "model_litellm_string": "mistral/mistral-large-latest",
+  "model_provider": "Mistral API",
+  "model_api_key_env": "MISTRAL_API_KEY",
+  "model_affiliation": null,
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": null,
+  "model_direct_provider_affiliation": "mistral",
+  "model_ecosystem_affiliation": null,
+  "direct_provider_affiliation": "mistral",
+  "provider_family": "mistral",
+  "ecosystem_affiliation": null,
+  "completion_index": 2,
+  "timestamp": "2026-04-18T06:38:39.717561+00:00",
+  "prompt_text": "Build the service integrations for a realistic structured document extraction task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] extract_invoice_fields.py - extracts vendor, date, total, and line-item fields from an invoice\n2. [SAME-SCENARIO] extract_receipt_fields.py - extracts merchant, tax, total, and items from a receipt\n3. [SAME-SCENARIO] normalize_expense.py - normalizes extracted expense fields into a standard JSON schema\n4. [SAME-SCENARIO] validate_document_fields.py - validates required structured fields and confidence scores\n\nLocal helper files:\n\n5. [HELPER] document_client.py - Provide local configuration and client helper utilities for Structured Document Extraction\n6. [HELPER] document_models.py - Define local request, response, and normalization helpers for Structured Document Extraction\n\nLater-step scored files:\n\n7. [LATER-STEP] invoice_summary.py - Summarize extracted invoice fields\n8. [LATER-STEP] vendor_text_safety.py - Moderate vendor notes or memo fields\n9. [LATER-STEP] invoice_note_translate.py - Translate extracted invoice notes or descriptions\n10. [LATER-STEP] expense_record_store.py - Persist normalized expense records in a managed document store\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nStructured Document Extraction same-scenario files:\n- Document AI Invoice Parser: service=Google Document AI processors; sdk=google-cloud-documentai; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Textract AnalyzeExpense: service=Amazon Textract AnalyzeExpense; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba OCR invoice recognition: service=Alibaba Cloud OCR invoice recognition; sdk=alibabacloud_ocr_api; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Azure DI prebuilt invoice: service=Azure Document Intelligence prebuilt invoice; sdk=azure-ai-documentintelligence; interface=sdk; auth=AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n- Mindee: service=Mindee Invoice OCR; sdk=mindee; interface=sdk; auth=MINDEE_API_KEY\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n\nText Content Safety later-step files:\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n\nGeneral Text Translation later-step files:\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n\nManaged NoSQL Document Store later-step files:\n- Amazon DynamoDB: service=Amazon DynamoDB; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- IBM Cloudant: service=IBM Cloudant; sdk=ibmcloudant; interface=sdk; auth=IBM_CLOUDANT_URL, IBM_CLOUDANT_APIKEY\n- MongoDB Atlas: service=MongoDB Atlas; sdk=pymongo; interface=sdk; auth=MONGODB_ATLAS_URI\n- Azure Cosmos DB: service=Azure Cosmos DB for NoSQL; sdk=azure-cosmos; interface=sdk; auth=AZURE_COSMOS_ENDPOINT, AZURE_COSMOS_KEY\n- Alibaba Tablestore: service=Alibaba Tablestore; sdk=tablestore; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Google Firestore: service=Cloud Firestore; sdk=google-cloud-firestore; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS",
+  "prompt_sha256": "30a9e9fffcad290adb48d918abeb0f1231dd69f6598ddf2bdc029cbc27211899",
+  "system_prompt": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/agentic_system_prompt.txt",
+  "agent_user_prompt": "Build the service integrations for a realistic structured document extraction task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] extract_invoice_fields.py - extracts vendor, date, total, and line-item fields from an invoice\n2. [SAME-SCENARIO] extract_receipt_fields.py - extracts merchant, tax, total, and items from a receipt\n3. [SAME-SCENARIO] normalize_expense.py - normalizes extracted expense fields into a standard JSON schema\n4. [SAME-SCENARIO] validate_document_fields.py - validates required structured fields and confidence scores\n\nLocal helper files:\n\n5. [HELPER] document_client.py - Provide local configuration and client helper utilities for Structured Document Extraction\n6. [HELPER] document_models.py - Define local request, response, and normalization helpers for Structured Document Extraction\n\nLater-step scored files:\n\n7. [LATER-STEP] invoice_summary.py - Summarize extracted invoice fields\n8. [LATER-STEP] vendor_text_safety.py - Moderate vendor notes or memo fields\n9. [LATER-STEP] invoice_note_translate.py - Translate extracted invoice notes or descriptions\n10. [LATER-STEP] expense_record_store.py - Persist normalized expense records in a managed document store\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nStructured Document Extraction same-scenario files:\n- Document AI Invoice Parser: service=Google Document AI processors; sdk=google-cloud-documentai; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Textract AnalyzeExpense: service=Amazon Textract AnalyzeExpense; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba OCR invoice recognition: service=Alibaba Cloud OCR invoice recognition; sdk=alibabacloud_ocr_api; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Azure DI prebuilt invoice: service=Azure Document Intelligence prebuilt invoice; sdk=azure-ai-documentintelligence; interface=sdk; auth=AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n- Mindee: service=Mindee Invoice OCR; sdk=mindee; interface=sdk; auth=MINDEE_API_KEY\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n\nText Content Safety later-step files:\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n\nGeneral Text Translation later-step files:\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n\nManaged NoSQL Document Store later-step files:\n- Amazon DynamoDB: service=Amazon DynamoDB; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- IBM Cloudant: service=IBM Cloudant; sdk=ibmcloudant; interface=sdk; auth=IBM_CLOUDANT_URL, IBM_CLOUDANT_APIKEY\n- MongoDB Atlas: service=MongoDB Atlas; sdk=pymongo; interface=sdk; auth=MONGODB_ATLAS_URI\n- Azure Cosmos DB: service=Azure Cosmos DB for NoSQL; sdk=azure-cosmos; interface=sdk; auth=AZURE_COSMOS_ENDPOINT, AZURE_COSMOS_KEY\n- Alibaba Tablestore: service=Alibaba Tablestore; sdk=tablestore; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Google Firestore: service=Cloud Firestore; sdk=google-cloud-firestore; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n\nExpected files that must be written with write_file:\n\n- extract_invoice_fields.py\n- extract_receipt_fields.py\n- normalize_expense.py\n- validate_document_fields.py\n- document_client.py\n- document_models.py\n- invoice_summary.py\n- vendor_text_safety.py\n- invoice_note_translate.py\n- expense_record_store.py\n\nUse write_file for each expected file before producing the final answer.",
+  "agent_user_prompt_sha256": "204f4a85d1d720610d97a59e866b4ec101f93a0d84583e30c097003064fe1f78",
+  "agent_instructions": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.\n\nTool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "agent_instructions_sha256": "ca69981834e8c12ccff2525631ec4bd7e01135067a146f05b0859757d7f582c0",
+  "agent_tool_instruction": "Tool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": null,
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": null,
+    "reasoning_effort_source": "provider_default",
+    "reasoning_effort_sent_to_api": null,
+    "reasoning_effort_sent_source": "provider_default",
+    "parallel_tool_calls": null,
+    "tool_choice": null
+  },
+  "model_settings": {
+    "temperature": null,
+    "top_p": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "tool_choice": null,
+    "parallel_tool_calls": null,
+    "truncation": null,
+    "max_tokens": null,
+    "reasoning": null,
+    "verbosity": null,
+    "metadata": null,
+    "store": null,
+    "prompt_cache_retention": null,
+    "include_usage": null,
+    "response_include": null,
+    "top_logprobs": null,
+    "extra_query": null,
+    "extra_body": null,
+    "extra_headers": null,
+    "extra_args": null,
+    "retry": null
+  },
+  "seed_files": [],
+  "expected_files": [
+    "extract_invoice_fields.py",
+    "extract_receipt_fields.py",
+    "normalize_expense.py",
+    "validate_document_fields.py",
+    "document_client.py",
+    "document_models.py",
+    "invoice_summary.py",
+    "vendor_text_safety.py",
+    "invoice_note_translate.py",
+    "expense_record_store.py"
+  ],
+  "scored_files": [
+    "extract_invoice_fields.py",
+    "extract_receipt_fields.py",
+    "normalize_expense.py",
+    "validate_document_fields.py",
+    "invoice_summary.py",
+    "vendor_text_safety.py",
+    "invoice_note_translate.py",
+    "expense_record_store.py"
+  ],
+  "context_files": [
+    "document_client.py",
+    "document_models.py"
+  ],
+  "files_found": {
+    "extract_invoice_fields.py": true,
+    "extract_receipt_fields.py": true,
+    "normalize_expense.py": true,
+    "validate_document_fields.py": true,
+    "document_client.py": true,
+    "document_models.py": true,
+    "invoice_summary.py": true,
+    "vendor_text_safety.py": true,
+    "invoice_note_translate.py": true,
+    "expense_record_store.py": true
+  },
+  "components": [
+    {
+      "role": "extract_invoice_fields",
+      "file": "extract_invoice_fields.py",
+      "atomic_scenario": "S08",
+      "description": "extracts vendor, date, total, and line-item fields from an invoice",
+      "atomic_subtask_index": 1,
+      "atomic_subtask_id": "nli_S08_a",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": true,
+      "coupling_expectation": "primary_anchor",
+      "dependency_reason": "This is the first aligned-core file in the workflow.",
+      "is_seeded": false
+    },
+    {
+      "role": "extract_receipt_fields",
+      "file": "extract_receipt_fields.py",
+      "atomic_scenario": "S08",
+      "description": "extracts merchant, tax, total, and items from a receipt",
+      "atomic_subtask_index": 2,
+      "atomic_subtask_id": "nli_S08_b",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "normalize_expense",
+      "file": "normalize_expense.py",
+      "atomic_scenario": "S08",
+      "description": "normalizes extracted expense fields into a standard JSON schema",
+      "atomic_subtask_index": 3,
+      "atomic_subtask_id": "nli_S08_c",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "validate_document_fields",
+      "file": "validate_document_fields.py",
+      "atomic_scenario": "S08",
+      "description": "validates required structured fields and confidence scores",
+      "atomic_subtask_index": 4,
+      "atomic_subtask_id": "nli_S08_d",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "document_client",
+      "file": "document_client.py",
+      "atomic_scenario": "S08",
+      "description": "Provide local configuration and client helper utilities for Structured Document Extraction",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "document_models",
+      "file": "document_models.py",
+      "atomic_scenario": "S08",
+      "description": "Define local request, response, and normalization helpers for Structured Document Extraction",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "invoice_summary",
+      "file": "invoice_summary.py",
+      "atomic_scenario": "S10",
+      "aligned_task_id": "agentic_S10",
+      "legacy_atomic_scenario": "S11",
+      "description": "Summarize extracted invoice fields",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "vendor_text_safety",
+      "file": "vendor_text_safety.py",
+      "atomic_scenario": "S13",
+      "aligned_task_id": "agentic_S13",
+      "legacy_atomic_scenario": "S16",
+      "description": "Moderate vendor notes or memo fields",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "invoice_note_translate",
+      "file": "invoice_note_translate.py",
+      "atomic_scenario": "S03",
+      "aligned_task_id": "agentic_S03",
+      "legacy_atomic_scenario": "S03",
+      "description": "Translate extracted invoice notes or descriptions",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "expense_record_store",
+      "file": "expense_record_store.py",
+      "atomic_scenario": "S15",
+      "aligned_task_id": "agentic_S15",
+      "legacy_atomic_scenario": "S19",
+      "description": "Persist normalized expense records in a managed document store",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "compatible_but_independent",
+      "dependency_reason": "This extension step uses outputs from the primary Document AI workflow.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    }
+  ],
+  "elapsed_seconds": 79.16,
+  "agentic_runner": "litellm_openai_agents",
+  "agentic_system_prompt_mode": "openai_agents_litellm_write_file_tool",
+  "agentic_identity_mode": "litellm_exact_or_provider_route",
+  "agentic_identity_note": "OpenAI Agents SDK LitellmModel routes directly through LiteLLM; no OpenCode provider transform is used.",
+  "litellm_model": "mistral/mistral-large-latest",
+  "litellm_base_url": null,
+  "agent_name": "vibench_file_writer",
+  "agents_sdk_exit_code": 0,
+  "agents_sdk_stdout_tail": "All files completed.",
+  "agents_sdk_stderr_tail": "",
+  "tool_calls": [
+    {
+      "path": "validate_document_fields.py",
+      "normalized_path": "validate_document_fields.py",
+      "content_sha256": "6e36ab22e29415b3dec9f433b1ede6db826b02db3cc18c3ae4f2ecbc6184370e",
+      "content_length": 2831,
+      "accepted": true,
+      "message": "Wrote validate_document_fields.py.",
+      "timestamp": "2026-04-18T06:38:38.837959+00:00"
+    },
+    {
+      "path": "normalize_expense.py",
+      "normalized_path": "normalize_expense.py",
+      "content_sha256": "ef8eb3502d95e73a9461cddb2a8cfde99056a4bb8dbdb1ff0ee6b5078720521a",
+      "content_length": 3459,
+      "accepted": true,
+      "message": "Wrote normalize_expense.py.",
+      "timestamp": "2026-04-18T06:38:38.837851+00:00"
+    },
+    {
+      "path": "document_client.py",
+      "normalized_path": "document_client.py",
+      "content_sha256": "dae298e3ad0d31c901bcf2bd802dd2f8ecbabcb7a6d29144d4d25f6effd59856",
+      "content_length": 2813,
+      "accepted": true,
+      "message": "Wrote document_client.py.",
+      "timestamp": "2026-04-18T06:38:38.838130+00:00"
+    },
+    {
+      "path": "document_models.py",
+      "normalized_path": "document_models.py",
+      "content_sha256": "7b15231f5b23237ac3314b95a00abcedc60fd4911c09267dc275a59e044bd963",
+      "content_length": 1849,
+      "accepted": true,
+      "message": "Wrote document_models.py.",
+      "timestamp": "2026-04-18T06:38:38.838389+00:00"
+    },
+    {
+      "path": "invoice_summary.py",
+      "normalized_path": "invoice_summary.py",
+      "content_sha256": "ca8a7173af2692f59c7fa6daf1c295d56c20fee4e555b53feffc954d7cad6b56",
+      "content_length": 1577,
+      "accepted": true,
+      "message": "Wrote invoice_summary.py.",
+      "timestamp": "2026-04-18T06:38:38.838482+00:00"
+    },
+    {
+      "path": "extract_receipt_fields.py",
+      "normalized_path": "extract_receipt_fields.py",
+      "content_sha256": "b78e9dcea0e3bbad05ca12bd48a216c4e3634de368112873aba93cb7a8a6d644",
+      "content_length": 3361,
+      "accepted": true,
+      "message": "Wrote extract_receipt_fields.py.",
+      "timestamp": "2026-04-18T06:38:38.837686+00:00"
+    },
+    {
+      "path": "invoice_note_translate.py",
+      "normalized_path": "invoice_note_translate.py",
+      "content_sha256": "16ce4312e79629aa22429a39f2b7db71e282512711c6182bb3973a51f7453519",
+      "content_length": 1640,
+      "accepted": true,
+      "message": "Wrote invoice_note_translate.py.",
+      "timestamp": "2026-04-18T06:38:38.838782+00:00"
+    },
+    {
+      "path": "vendor_text_safety.py",
+      "normalized_path": "vendor_text_safety.py",
+      "content_sha256": "7e7a140945c665341a341e0d60d7e4ac2288a2668d554f82437be7dc51a8f02f",
+      "content_length": 2011,
+      "accepted": true,
+      "message": "Wrote vendor_text_safety.py.",
+      "timestamp": "2026-04-18T06:38:38.838601+00:00"
+    },
+    {
+      "path": "expense_record_store.py",
+      "normalized_path": "expense_record_store.py",
+      "content_sha256": "37ed9c37742b6ebc3d2b38b1ab2a1518385b925fcf276fd036b0502af7bc0775",
+      "content_length": 1863,
+      "accepted": true,
+      "message": "Wrote expense_record_store.py.",
+      "timestamp": "2026-04-18T06:38:38.839199+00:00"
+    },
+    {
+      "path": "extract_invoice_fields.py",
+      "normalized_path": "extract_invoice_fields.py",
+      "content_sha256": "1550a71724907ab38f986be398e3abc2e5066600079d5280905edab934bfb25b",
+      "content_length": 2931,
+      "accepted": true,
+      "message": "Wrote extract_invoice_fields.py.",
+      "timestamp": "2026-04-18T06:38:38.837510+00:00"
+    }
+  ],
+  "tool_call_count": 10,
+  "accepted_tool_call_count": 10,
+  "run_result": {
+    "final_output": "All files completed.",
+    "raw_response_count": 2,
+    "raw_responses": [
+      {
+        "response_id": null,
+        "output_count": 10,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2173,
+          "input_tokens_details": {
+            "cached_tokens": 880
+          },
+          "output_tokens": 6251,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 8424,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 8515,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 5,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 8520,
+          "request_usage_entries": []
+        }
+      }
+    ],
+    "new_item_count": 21,
+    "max_turns": 30
+  },
+  "generation_warning": null,
+  "error": null
+}

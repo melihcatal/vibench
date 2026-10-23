@@ -1,0 +1,18 @@
+{
+  "completion_tokens_details": {},
+  "elapsed_seconds": 4.99,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 818,
+  "output_text": "{\n    \"[SAME-SCENARIO] fetch_api_key.py\": \"from security_client import get_secrets_client\\n\\ndef fetch_api_key(secret_id):\\n    client = get_secrets_client()\\n    response = client.get_secret_value(SecretId=secret_id)\\n    return response['SecretString']\",\n    \"[SAME-SCENARIO] fetch_db_secret.py\": \"from security_client import get_secrets_client\\n\\ndef fetch_db_secret(secret_id):\\n    client = get_secrets_client()\\n    response = client.get_secret_value(SecretId=secret_id)\\n    return response['SecretString']\",\n    \"[SAME-SCENARIO] parse_json_secret.py\": \"import json\\nfrom security_client import get_secrets_client\\n\\ndef parse_json_secret(secret_id):\\n    client = get_secrets_client()\\n    response = client.get_secret_value(SecretId=secret_id)\\n    return json.loads(response['SecretString'])\",\n    \"[SAME-SCENARIO] rotate_secret_version.py\": \"from security_client import get_secrets_client\\n\\ndef rotate_secret_version(secret_id, version_id):\\n    client = get_secrets_client()\\n    response = client.get_secret_value(SecretId=secret_id, VersionId=version_id)\\n    return response['SecretString']\",\n    \"[HELPER] security_client.py\": \"import boto3\\n\\ndef get_secrets_client():\\n    return boto3.client('secretsmanager')\",\n    \"[HELPER] security_models.py\": \"class SecretResponse:\\n    def __init__(self, raw_response):\\n        self.raw_response = raw_response\\n\\n    def get_secret_string(self):\\n        return self.raw_response['SecretString']\\n\\n    def get_version_id(self):\\n        return self.raw_response['VersionId']\\n\\n    def get_arn(self):\\n        return self.raw_response['ARN']\",\n    \"[LATER-STEP] rotation_summary.py\": \"from security_client import get_secrets_client\\n\\ndef get_rotation_summary(secret_id):\\n    client = get_secrets_client()\\n    response = client.describe_secret(SecretId=secret_id)\\n    return response['RotationEnabled'], response['RotationLambdaARN']\",\n    \"[LATER-STEP] secret_label_safety.py\": \"import re\\n\\ndef check_unsafe_text(label):\\n    unsafe_patterns = [r'password', r'secret', r'key']\\n    for pattern in unsafe_patterns:\\n        if re.search(pattern, label, re.IGNORECASE):\\n            return True\\n    return False\",\n    \"[LATER-STEP] secret_audit_embedding.py\": \"from sentence_transformers import SentenceTransformer\\n\\nmodel = SentenceTransformer('paraphrase-MiniLM-L6-v2')\\n\\ndef embed_audit_notes(notes):\\n    return model.encode(notes)\",\n    \"[LATER-STEP] runbook_translate.py\": \"from google.cloud import translate_v2 as translate\\n\\ndef translate_runbook_notes(notes, target_language):\\n    client = translate.Client()\\n    result = client.translate(notes, target_language=target_language)\\n    return result['translatedText']\"\n}",
+  "output_tokens": 847,
+  "prompt_tokens_details": {},
+  "reasoning_tokens": null,
+  "usage": {
+    "completion_tokens": 847,
+    "completion_tokens_details": null,
+    "prompt_tokens": 818,
+    "prompt_tokens_details": null,
+    "total_tokens": 1665
+  }
+}

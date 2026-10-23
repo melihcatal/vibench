@@ -1,0 +1,47 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "image_tokens": null,
+    "reasoning_tokens": 2965,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 1844,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 19.2,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 826,
+  "output_text": "```json\n{\n  \"synthesize_text.py\": \"import os\\nfrom speech_client import get_polly_client\\nfrom speech_models import SynthesisRequest\\n\\ndef synthesize_text(request: SynthesisRequest) -> bytes:\\n    polly_client = get_polly_client()\\n    response = polly_client.synthesize_speech(\\n        Text=request.text,\\n        OutputFormat=request.output_format,\\n        VoiceId=request.voice_id,\\n        Engine='standard' \\n    )\\n    return response['AudioStream'].read()\\n\",\n  \"synthesize_ssml.py\": \"import os\\nfrom speech_client import get_polly_client\\nfrom speech_models import SSMLSynthesisRequest\\n\\ndef synthesize_ssml(request: SSMLSynthesisRequest) -> bytes:\\n    polly_client = get_polly_client()\\n    response = polly_client.synthesize_speech(\\n        Text=request.ssml_text,\\n        OutputFormat=request.output_format,\\n        VoiceId=request.voice_id,\\n        TextType='ssml',\\n        Engine='neural'\\n    )\\n    return response['AudioStream'].read()\\n\",\n  \"select_voice.py\": \"import os\\nfrom speech_client import get_polly_client\\nfrom speech_models import Voice\\nfrom typing import List\\n\\ndef select_voice_by_locale(language_code: str) -> List[Voice]:\\n    polly_client = get_polly_client()\\n    response = polly_client.describe_voices(LanguageCode=language_code)\\n    voices = []\\n    for voice_data in response['Voices']:\\n        voices.append(Voice(\\n            id=voice_data['Id'],\\n            name=voice_data['Name'],\\n            language_code=voice_data['LanguageCode']\\n        ))\\n    return voices\\n\",\n  \"save_audio.py\": \"import os\\nfrom speech_client import get_s3_client\\n\\ndef save_audio_to_s3(audio_bytes: bytes, filename: str, s3_bucket_name: str) -> str:\\n    s3_client = get_s3_client()\\n    s3_client.put_object(\\n        Bucket=s3_bucket_name,\\n        Key=filename,\\n        Body=audio_bytes,\\n        ContentType='audio/mpeg'\\n    )\\n    return f\\\"s3://{s3_bucket_name}/{filename}\\\"\\n\",\n  \"speech_client.py\": \"import os\\nimport boto3\\nimport openai\\nfrom functools import lru_cache\\n\\n@lru_cache(maxsize=None)\\ndef get_aws_region() -> str:\\n    return os.environ.get('AWS_REGION', 'us-east-1')\\n\\n@lru_cache(maxsize=None)\\ndef get_polly_client():\\n    return boto3.client('polly', region_name=get_aws_region())\\n\\n@lru_cache(maxsize=None)\\ndef get_s3_client():\\n    return boto3.client('s3', region_name=get_aws_region())\\n\\n@lru_cache(maxsize=None)\\ndef get_translate_client():\\n    return boto3.client('translate', region_name=get_aws_region())\\n\\n@lru_cache(maxsize=None)\\ndef get_comprehend_client():\\n    return boto3.client('comprehend', region_name=get_aws_region())\\n\\n@lru_cache(maxsize=None)\\ndef get_transcribe_client():\\n    return boto3.client('transcribe', region_name=get_aws_region())\\n\\n@lru_cache(maxsize=None)\\ndef get_openai_client():\\n    api_key = os.environ.get('OPENAI_API_KEY')\\n    if not api_key:\\n        raise ValueError(\\\"OPENAI_API_KEY environment variable not set\\\")\\n    return openai.OpenAI(api_key=api_key)\\n\",\n  \"speech_models.py\": \"from pydantic import BaseModel\\nfrom typing import List, Optional\\n\\nclass SynthesisRequest(BaseModel):\\n    text: str\\n    voice_id: str\\n    output_format: str = \\\"mp3\\\"\\n\\nclass SSMLSynthesisRequest(BaseModel):\\n    ssml_text: str\\n    voice_id: str\\n    output_format: str = \\\"mp3\\\"\\n\\nclass Voice(BaseModel):\\n    id: str\\n    name: str\\n    language_code: str\\n\\nclass TranslationRequest(BaseModel):\\n    text: str\\n    source_language_code: str\\n    target_language_code: str\\n\\nclass SafetyCheckRequest(BaseModel):\\n    text: str\\n    language_code: str = \\\"en\\\"\\n\\nclass EmbeddingRequest(BaseModel):\\n    text: str\\n    model: str = \\\"text-embedding-3-small\\\"\\n\\nclass TranscriptionRequest(BaseModel):\\n    audio_file_uri: str \\n    output_bucket_name: str\\n    job_name: str\\n    language_code: str = \\\"en-US\\\"\\n    media_format: str = \\\"mp3\\\"\\n\",\n  \"script_translate.py\": \"import os\\nfrom speech_client import get_translate_client\\nfrom speech_models import TranslationRequest\\n\\ndef translate_script(request: TranslationRequest) -> str:\\n    translate_client = get_translate_client()\\n    response = translate_client.translate_text(\\n        Text=request.text,\\n        SourceLanguageCode=request.source_language_code,\\n        TargetLanguageCode=request.target_language_code\\n    )\\n    return response['TranslatedText']\\n\",\n  \"script_safety.py\": \"import os\\nfrom speech_client import get_comprehend_client\\nfrom speech_models import SafetyCheckRequest\\nfrom typing import List, Dict, Any\\n\\ndef check_script_safety(request: SafetyCheckRequest) -> List[Dict[str, Any]]:\\n    comprehend_client = get_comprehend_client()\\n    response = comprehend_client.detect_pii_entities(\\n        Text=request.text,\\n        LanguageCode=request.language_code\\n    )\\n    return response['Entities']\\n\",\n  \"script_embedding.py\": \"import os\\nfrom speech_client import get_openai_client\\nfrom speech_models import EmbeddingRequest\\nfrom typing import List\\n\\ndef embed_script(request: EmbeddingRequest) -> List[float]:\\n    openai_client = get_openai_client()\\n    response = openai_client.embeddings.create(\\n        input=[request.text],\\n        model=request.model\\n    )\\n    return response.data[0].embedding\\n\",\n  \"tts_qa_transcript.py\": \"import os\\nfrom speech_client import get_transcribe_client\\nfrom speech_models import TranscriptionRequest\\n\\ndef start_qa_transcription_job(request: TranscriptionRequest) -> Dict[str, str]:\\n    transcribe_client = get_transcribe_client()\\n    response = transcribe_client.start_transcription_job(\\n        TranscriptionJobName=request.job_name,\\n        LanguageCode=request.language_code,\\n        MediaFormat=request.media_format,\\n        Media={'MediaFileUri': request.audio_file_uri},\\n        OutputBucketName=request.output_bucket_name\\n    )\\n    return {\\n        'TranscriptionJobName': response['TranscriptionJob']['TranscriptionJobName'],\\n        'TranscriptionJobStatus': response['TranscriptionJob']['TranscriptionJobStatus']\\n    }\\n\"\n}\n```",
+  "output_tokens": 4809,
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "image_tokens": null,
+    "text_tokens": 826,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 2965,
+  "usage": {
+    "cache_read_input_tokens": null,
+    "completion_tokens": 4809,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "image_tokens": null,
+      "reasoning_tokens": 2965,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 1844,
+      "video_tokens": null
+    },
+    "prompt_tokens": 826,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "image_tokens": null,
+      "text_tokens": 826,
+      "video_tokens": null
+    },
+    "total_tokens": 5635
+  }
+}

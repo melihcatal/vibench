@@ -1,0 +1,7 @@
+import os
+
+# Configuration for Hosted LLM providers
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY')

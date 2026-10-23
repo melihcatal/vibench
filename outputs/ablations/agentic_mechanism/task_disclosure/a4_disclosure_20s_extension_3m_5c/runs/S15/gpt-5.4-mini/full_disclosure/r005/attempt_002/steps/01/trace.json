@@ -1,0 +1,270 @@
+{
+  "messages": [
+    {
+      "data": {
+        "agent": "vibench",
+        "model": {
+          "modelID": "gpt-5.4-mini",
+          "providerID": "openai",
+          "variant": "none"
+        },
+        "role": "user",
+        "summary": {
+          "diffs": []
+        },
+        "time": {
+          "created": 1789888834106
+        }
+      },
+      "id": "msg_0bdb02a3a001dBSeKIFBMkyajT",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888834106,
+      "time_updated": 1789888839820
+    },
+    {
+      "data": {
+        "agent": "vibench",
+        "cost": 0.0049458,
+        "finish": "tool-calls",
+        "mode": "vibench",
+        "modelID": "gpt-5.4-mini",
+        "parentID": "msg_0bdb02a3a001dBSeKIFBMkyajT",
+        "path": {
+          "cwd": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn",
+          "root": "/"
+        },
+        "providerID": "openai",
+        "role": "assistant",
+        "time": {
+          "completed": 1789888839202,
+          "created": 1789888834207
+        },
+        "tokens": {
+          "cache": {
+            "read": 3584,
+            "write": 0
+          },
+          "input": 1502,
+          "output": 789,
+          "reasoning": 0,
+          "total": 5875
+        },
+        "variant": "none"
+      },
+      "id": "msg_0bdb02a9f001EpSjdgarbK9cF8",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888834207,
+      "time_updated": 1789888839203
+    },
+    {
+      "data": {
+        "agent": "vibench",
+        "cost": 0.00066765,
+        "finish": "stop",
+        "mode": "vibench",
+        "modelID": "gpt-5.4-mini",
+        "parentID": "msg_0bdb02a3a001dBSeKIFBMkyajT",
+        "path": {
+          "cwd": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn",
+          "root": "/"
+        },
+        "providerID": "openai",
+        "role": "assistant",
+        "time": {
+          "completed": 1789888839816,
+          "created": 1789888839204
+        },
+        "tokens": {
+          "cache": {
+            "read": 5632,
+            "write": 0
+          },
+          "input": 303,
+          "output": 4,
+          "reasoning": 0,
+          "total": 5939
+        },
+        "variant": "none"
+      },
+      "id": "msg_0bdb03e24001HvWBqyfKNq6H08",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888839204,
+      "time_updated": 1789888839816
+    }
+  ],
+  "parts": [
+    {
+      "data": {
+        "text": "\"Task specifications (listed alphabetically; implement only the requested file):\nconditional_update.py - applies a conditional or version-aware update to one stored document\ndatabase_client.py - Provide local configuration and client helper utilities for Managed NoSQL Document Store\ndatabase_models.py - Define local request, response, and normalization helpers for Managed NoSQL Document Store\nfetch_document.py - fetches a document by identifier from a managed NoSQL store\nquery_documents.py - queries documents by a field value or partition-style key\nrecord_export_archive.py - Archive exported document snapshots or attachments in managed object storage\nrecord_summary.py - Summarize retrieved document records\nrecord_text_safety.py - Check user-generated document fields for unsafe content\nrecord_translate.py - Translate user-facing document fields\nupsert_document.py - upserts a JSON document by its primary identifier\n\nCreate upsert_document.py in the current working directory.\nTask: upserts a JSON document by its primary identifier.\nUse one concrete external provider and make that provider identifiable in code.\n\"",
+        "type": "text"
+      },
+      "id": "prt_0bdb02a3f001fBSg41e3uNMabZ",
+      "message_id": "msg_0bdb02a3a001dBSeKIFBMkyajT",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888834200,
+      "time_updated": 1789888834201
+    },
+    {
+      "data": {
+        "type": "step-start"
+      },
+      "id": "prt_0bdb02d20001lKVLJgKqXjHxf4",
+      "message_id": "msg_0bdb02a9f001EpSjdgarbK9cF8",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888834848,
+      "time_updated": 1789888834849
+    },
+    {
+      "data": {
+        "callID": "call_DbWhrwsbrJEbKFoWqM0JXJ3e",
+        "metadata": {
+          "openai": {
+            "itemId": "fc_058ea557bc142980016aaf8942fc4c87d2bebb353d82908946"
+          }
+        },
+        "state": {
+          "input": {
+            "patchText": "*** Begin Patch\n*** Add File: upsert_document.py\n+import json\n+import os\n+from typing import Any, Dict, Optional\n+\n+import requests\n+\n+\n+class UpsertDocumentError(Exception):\n+    pass\n+\n+\n+def _base_url() -> str:\n+    return os.environ.get(\"DYNAMODB_HTTP_BASE_URL\", \"https://dynamodb.us-east-1.amazonaws.com\")\n+\n+\n+def _table_name() -> str:\n+    value = os.environ.get(\"DYNAMODB_TABLE_NAME\")\n+    if not value:\n+        raise UpsertDocumentError(\"DYNAMODB_TABLE_NAME is required\")\n+    return value\n+\n+\n+def _primary_key_name() -> str:\n+    return os.environ.get(\"DYNAMODB_PRIMARY_KEY\", \"id\")\n+\n+\n+def _auth_headers() -> Dict[str, str]:\n+    headers = {\"Content-Type\": \"application/x-amz-json-1.0\", \"X-Amz-Target\": \"DynamoDB_20120810.PutItem\"}\n+    token = os.environ.get(\"AWS_SESSION_TOKEN\")\n+    access_key = os.environ.get(\"AWS_ACCESS_KEY_ID\")\n+    secret_key = os.environ.get(\"AWS_SECRET_ACCESS_KEY\")\n+    if access_key and secret_key:\n+        headers[\"X-Provider\"] = \"aws-dynamodb\"\n+    if token:\n+        headers[\"X-AWS-Session-Token\"] = token\n+    return headers\n+\n+\n+def _to_ddb_value(value: Any) -> Dict[str, Any]:\n+    if value is None:\n+        return {\"NULL\": True}\n+    if isinstance(value, bool):\n+        return {\"BOOL\": value}\n+    if isinstance(value, (int, float)) and not isinstance(value, bool):\n+        return {\"N\": str(value)}\n+    if isinstance(value, str):\n+        return {\"S\": value}\n+    if isinstance(value, list):\n+        return {\"L\": [_to_ddb_value(item) for item in value]}\n+    if isinstance(value, dict):\n+        return {\"M\": {k: _to_ddb_value(v) for k, v in value.items()}}\n+    return {\"S\": json.dumps(value, ensure_ascii=False)}\n+\n+\n+def upsert_document(document: Dict[str, Any], identifier: Optional[Any] = None) -> Dict[str, Any]:\n+    key_name = _primary_key_name()\n+    doc = dict(document)\n+    if identifier is not None:\n+        doc[key_name] = identifier\n+    if key_name not in doc:\n+        raise UpsertDocumentError(f\"Missing primary key field: {key_name}\")\n+    item = {k: _to_ddb_value(v) for k, v in doc.items()}\n+    payload = {\"TableName\": _table_name(), \"Item\": item}\n+    response = requests.post(_base_url(), headers=_auth_headers(), data=json.dumps(payload), timeout=30)\n+    if response.status_code >= 400:\n+        raise UpsertDocumentError(response.text)\n+    return {\"ok\": True, \"document\": doc, \"provider\": \"aws-dynamodb\", \"status_code\": response.status_code}\n+\n*** End Patch"
+          },
+          "metadata": {
+            "diagnostics": {},
+            "diff": "Index: /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py\n===================================================================\n--- /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py\n+++ /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py\n@@ -0,0 +1,67 @@\n+import json\n+import os\n+from typing import Any, Dict, Optional\n+\n+import requests\n+\n+\n+class UpsertDocumentError(Exception):\n+    pass\n+\n+\n+def _base_url() -> str:\n+    return os.environ.get(\"DYNAMODB_HTTP_BASE_URL\", \"https://dynamodb.us-east-1.amazonaws.com\")\n+\n+\n+def _table_name() -> str:\n+    value = os.environ.get(\"DYNAMODB_TABLE_NAME\")\n+    if not value:\n+        raise UpsertDocumentError(\"DYNAMODB_TABLE_NAME is required\")\n+    return value\n+\n+\n+def _primary_key_name() -> str:\n+    return os.environ.get(\"DYNAMODB_PRIMARY_KEY\", \"id\")\n+\n+\n+def _auth_headers() -> Dict[str, str]:\n+    headers = {\"Content-Type\": \"application/x-amz-json-1.0\", \"X-Amz-Target\": \"DynamoDB_20120810.PutItem\"}\n+    token = os.environ.get(\"AWS_SESSION_TOKEN\")\n+    access_key = os.environ.get(\"AWS_ACCESS_KEY_ID\")\n+    secret_key = os.environ.get(\"AWS_SECRET_ACCESS_KEY\")\n+    if access_key and secret_key:\n+        headers[\"X-Provider\"] = \"aws-dynamodb\"\n+    if token:\n+        headers[\"X-AWS-Session-Token\"] = token\n+    return headers\n+\n+\n+def _to_ddb_value(value: Any) -> Dict[str, Any]:\n+    if value is None:\n+        return {\"NULL\": True}\n+    if isinstance(value, bool):\n+        return {\"BOOL\": value}\n+    if isinstance(value, (int, float)) and not isinstance(value, bool):\n+        return {\"N\": str(value)}\n+    if isinstance(value, str):\n+        return {\"S\": value}\n+    if isinstance(value, list):\n+        return {\"L\": [_to_ddb_value(item) for item in value]}\n+    if isinstance(value, dict):\n+        return {\"M\": {k: _to_ddb_value(v) for k, v in value.items()}}\n+    return {\"S\": json.dumps(value, ensure_ascii=False)}\n+\n+\n+def upsert_document(document: Dict[str, Any], identifier: Optional[Any] = None) -> Dict[str, Any]:\n+    key_name = _primary_key_name()\n+    doc = dict(document)\n+    if identifier is not None:\n+        doc[key_name] = identifier\n+    if key_name not in doc:\n+        raise UpsertDocumentError(f\"Missing primary key field: {key_name}\")\n+    item = {k: _to_ddb_value(v) for k, v in doc.items()}\n+    payload = {\"TableName\": _table_name(), \"Item\": item}\n+    response = requests.post(_base_url(), headers=_auth_headers(), data=json.dumps(payload), timeout=30)\n+    if response.status_code >= 400:\n+        raise UpsertDocumentError(response.text)\n+    return {\"ok\": True, \"document\": doc, \"provider\": \"aws-dynamodb\", \"status_code\": response.status_code}\n\n",
+            "files": [
+              {
+                "additions": 67,
+                "deletions": 0,
+                "filePath": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py",
+                "patch": "Index: /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py\n===================================================================\n--- /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py\n+++ /private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py\n@@ -0,0 +1,67 @@\n+import json\n+import os\n+from typing import Any, Dict, Optional\n+\n+import requests\n+\n+\n+class UpsertDocumentError(Exception):\n+    pass\n+\n+\n+def _base_url() -> str:\n+    return os.environ.get(\"DYNAMODB_HTTP_BASE_URL\", \"https://dynamodb.us-east-1.amazonaws.com\")\n+\n+\n+def _table_name() -> str:\n+    value = os.environ.get(\"DYNAMODB_TABLE_NAME\")\n+    if not value:\n+        raise UpsertDocumentError(\"DYNAMODB_TABLE_NAME is required\")\n+    return value\n+\n+\n+def _primary_key_name() -> str:\n+    return os.environ.get(\"DYNAMODB_PRIMARY_KEY\", \"id\")\n+\n+\n+def _auth_headers() -> Dict[str, str]:\n+    headers = {\"Content-Type\": \"application/x-amz-json-1.0\", \"X-Amz-Target\": \"DynamoDB_20120810.PutItem\"}\n+    token = os.environ.get(\"AWS_SESSION_TOKEN\")\n+    access_key = os.environ.get(\"AWS_ACCESS_KEY_ID\")\n+    secret_key = os.environ.get(\"AWS_SECRET_ACCESS_KEY\")\n+    if access_key and secret_key:\n+        headers[\"X-Provider\"] = \"aws-dynamodb\"\n+    if token:\n+        headers[\"X-AWS-Session-Token\"] = token\n+    return headers\n+\n+\n+def _to_ddb_value(value: Any) -> Dict[str, Any]:\n+    if value is None:\n+        return {\"NULL\": True}\n+    if isinstance(value, bool):\n+        return {\"BOOL\": value}\n+    if isinstance(value, (int, float)) and not isinstance(value, bool):\n+        return {\"N\": str(value)}\n+    if isinstance(value, str):\n+        return {\"S\": value}\n+    if isinstance(value, list):\n+        return {\"L\": [_to_ddb_value(item) for item in value]}\n+    if isinstance(value, dict):\n+        return {\"M\": {k: _to_ddb_value(v) for k, v in value.items()}}\n+    return {\"S\": json.dumps(value, ensure_ascii=False)}\n+\n+\n+def upsert_document(document: Dict[str, Any], identifier: Optional[Any] = None) -> Dict[str, Any]:\n+    key_name = _primary_key_name()\n+    doc = dict(document)\n+    if identifier is not None:\n+        doc[key_name] = identifier\n+    if key_name not in doc:\n+        raise UpsertDocumentError(f\"Missing primary key field: {key_name}\")\n+    item = {k: _to_ddb_value(v) for k, v in doc.items()}\n+    payload = {\"TableName\": _table_name(), \"Item\": item}\n+    response = requests.post(_base_url(), headers=_auth_headers(), data=json.dumps(payload), timeout=30)\n+    if response.status_code >= 400:\n+        raise UpsertDocumentError(response.text)\n+    return {\"ok\": True, \"document\": doc, \"provider\": \"aws-dynamodb\", \"status_code\": response.status_code}\n",
+                "relativePath": "private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py",
+                "type": "add"
+              }
+            ],
+            "truncated": false
+          },
+          "output": "Success. Updated the following files:\nA private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py",
+          "status": "completed",
+          "time": {
+            "end": 1789888839148,
+            "start": 1789888839145
+          },
+          "title": "Success. Updated the following files:\nA private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn/upsert_document.py"
+        },
+        "tool": "apply_patch",
+        "type": "tool"
+      },
+      "id": "prt_0bdb02dae00116MfWstoUO4YyO",
+      "message_id": "msg_0bdb02a9f001EpSjdgarbK9cF8",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888834990,
+      "time_updated": 1789888839149
+    },
+    {
+      "data": {
+        "cost": 0.0049458,
+        "reason": "tool-calls",
+        "tokens": {
+          "cache": {
+            "read": 3584,
+            "write": 0
+          },
+          "input": 1502,
+          "output": 789,
+          "reasoning": 0,
+          "total": 5875
+        },
+        "type": "step-finish"
+      },
+      "id": "prt_0bdb03e1f001Cmy4TQM11lE1n3",
+      "message_id": "msg_0bdb02a9f001EpSjdgarbK9cF8",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888839199,
+      "time_updated": 1789888839200
+    },
+    {
+      "data": {
+        "type": "step-start"
+      },
+      "id": "prt_0bdb03fd400194VEkKzBWezbjp",
+      "message_id": "msg_0bdb03e24001HvWBqyfKNq6H08",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888839636,
+      "time_updated": 1789888839637
+    },
+    {
+      "data": {
+        "metadata": {
+          "openai": {
+            "itemId": "msg_0169a71674be868e016aaf8947b2bc87d28ffc48fdccd219a4",
+            "phase": "final_answer"
+          }
+        },
+        "text": "",
+        "time": {
+          "end": 1789888839787,
+          "start": 1789888839737
+        },
+        "type": "text"
+      },
+      "id": "prt_0bdb04039001cjYGWjRlFBvfVh",
+      "message_id": "msg_0bdb03e24001HvWBqyfKNq6H08",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888839737,
+      "time_updated": 1789888839787
+    },
+    {
+      "data": {
+        "cost": 0.00066765,
+        "reason": "stop",
+        "tokens": {
+          "cache": {
+            "read": 5632,
+            "write": 0
+          },
+          "input": 303,
+          "output": 4,
+          "reasoning": 0,
+          "total": 5939
+        },
+        "type": "step-finish"
+      },
+      "id": "prt_0bdb04086001RbVfif3g9BVQbT",
+      "message_id": "msg_0bdb03e24001HvWBqyfKNq6H08",
+      "session_id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "time_created": 1789888839814,
+      "time_updated": 1789888839814
+    }
+  ],
+  "sessions": [
+    {
+      "agent": "vibench",
+      "cost": 0.00561345,
+      "directory": "/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn",
+      "id": "ses_f424fd5deffe2U6t8BNfPUhYGJ",
+      "metadata": null,
+      "model": "{\"id\":\"gpt-5.4-mini\",\"providerID\":\"openai\",\"variant\":\"none\"}",
+      "parent_id": null,
+      "path": "private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-51lq__sn",
+      "permission": "[{\"permission\":\"question\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_enter\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_exit\",\"pattern\":\"*\",\"action\":\"deny\"}]",
+      "project_id": "global",
+      "revert": null,
+      "share_url": null,
+      "slug": "calm-eagle",
+      "summary_additions": 0,
+      "summary_deletions": 0,
+      "summary_diffs": null,
+      "summary_files": 0,
+      "time_archived": null,
+      "time_compacting": null,
+      "time_created": 1789888834081,
+      "time_updated": 1789888839818,
+      "title": "Upsert JSON by ID with External Provider in upsert_document.py",
+      "tokens_cache_read": 9216,
+      "tokens_cache_write": 0,
+      "tokens_input": 1805,
+      "tokens_output": 793,
+      "tokens_reasoning": 0,
+      "version": "1.16.2",
+      "workspace_id": null
+    }
+  ]
+}

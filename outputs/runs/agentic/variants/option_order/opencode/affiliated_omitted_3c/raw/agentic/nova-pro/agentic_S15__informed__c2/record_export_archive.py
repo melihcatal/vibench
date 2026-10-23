@@ -1,0 +1,11 @@
+from azure.storage.blob import BlobServiceClient
+
+
+def export_archive(file_path: str, container_name: str):
+    connect_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    blob_client = blob_service_client.get_blob_client(
+        container=container_name, blob=file_path
+    )
+    with open(file_path, "rb") as data:
+        blob_client.upload_blob(data)

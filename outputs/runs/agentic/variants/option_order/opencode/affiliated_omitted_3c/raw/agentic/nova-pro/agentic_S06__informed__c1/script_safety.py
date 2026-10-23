@@ -1,0 +1,13 @@
+import os
+import requests
+
+
+def check_safety(text):
+    api_key = os.getenv("PERSPECTIVE_API_KEY")
+    url = (
+        "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key="
+        + api_key
+    )
+    payload = {"comment": {"text": text}, "requestedAttributes": {"TOXICITY": {}}}
+    response = requests.post(url, json=payload)
+    return response.json()["attributeScores"]["TOXICITY"]["summaryScore"]["value"] < 0.5

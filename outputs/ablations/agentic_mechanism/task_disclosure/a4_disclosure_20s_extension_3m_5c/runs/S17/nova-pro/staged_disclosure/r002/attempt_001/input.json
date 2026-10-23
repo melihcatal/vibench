@@ -1,0 +1,375 @@
+{
+  "cell": {
+    "condition": "staged_disclosure",
+    "model": "nova-pro",
+    "prompt_sha256": "21568753c2d898228a66d6495b3359251018ae9665fae09d2b77c9baeca7bcec",
+    "repetition": 2,
+    "scenario": "S17",
+    "seed_sha256": null,
+    "system_sha256": "6519bd09abee06f94cf92defd20e0b2aef490735967557c98b1e733654458f8d",
+    "task_sha256": "7002b7dc9dfab7361a1decd50dd9e3b80635a6c9a241b53bb28fb2796958cbb4"
+  },
+  "model": {
+    "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-pro-v1. Earlier routing switched to Bedrock on 2026-04-11; original agentic run metadata records Bedrock. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+    "affiliation_type": "direct_ownership",
+    "api_base_env": "AMAZON_NOVA_API_BASE",
+    "api_key_env": "AMAZON_NOVA_API_KEY",
+    "api_provider": "Amazon Nova API",
+    "cloud_affiliation": "aws",
+    "default_temperature": 0.7,
+    "developer": "Amazon",
+    "direct_provider_affiliation": "aws",
+    "display_name": "Nova Pro",
+    "ecosystem_affiliation": "aws",
+    "id": "nova-pro",
+    "litellm_string": "amazon_nova/nova-pro-v1",
+    "opencode": {
+      "identity_mode": "custom_provider",
+      "identity_note": "First-party Amazon Nova API; historical agentic runs used the Bedrock gateway.",
+      "model_ref": "amazon-nova-api/nova-pro-v1",
+      "provider_config": {
+        "provider": {
+          "amazon-nova-api": {
+            "models": {
+              "nova-pro-v1": {
+                "limit": {
+                  "context": 128000,
+                  "output": 8000
+                },
+                "name": "Nova Pro",
+                "temperature": true,
+                "tool_call": true
+              }
+            },
+            "name": "Amazon Nova API",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "[REDACTED]",
+              "baseURL": {
+                "$env": "AMAZON_NOVA_API_BASE"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provider_family": "amazon",
+    "role": "affiliated",
+    "study_order": 5,
+    "tier": "flagship"
+  },
+  "task": {
+    "aligned_context_files": [
+      "security_client.py",
+      "security_models.py"
+    ],
+    "aligned_core_files": [
+      "encrypt_payload.py",
+      "decrypt_payload.py",
+      "envelope_encrypt.py",
+      "sign_or_verify_key.py"
+    ],
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "key_usage_summary.py",
+      "payload_safety.py",
+      "crypto_audit_embedding.py",
+      "compliance_note_translate.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S17",
+        "atomic_subtask_id": "nli_S17_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "encrypts a plaintext payload with a managed key",
+        "file": "encrypt_payload.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "encrypt_payload"
+      },
+      {
+        "atomic_scenario": "S17",
+        "atomic_subtask_id": "nli_S17_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "decrypts a ciphertext payload with a managed key",
+        "file": "decrypt_payload.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "decrypt_payload"
+      },
+      {
+        "atomic_scenario": "S17",
+        "atomic_subtask_id": "nli_S17_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "implements envelope encryption using a managed key service",
+        "file": "envelope_encrypt.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "envelope_encrypt"
+      },
+      {
+        "atomic_scenario": "S17",
+        "atomic_subtask_id": "nli_S17_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "uses a managed key service for signing or verification where supported",
+        "file": "sign_or_verify_key.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "sign_or_verify_key"
+      },
+      {
+        "atomic_scenario": "S17",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for Key Management and Encryption",
+        "file": "security_client.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "security_client"
+      },
+      {
+        "atomic_scenario": "S17",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for Key Management and Encryption",
+        "file": "security_models.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "security_models"
+      },
+      {
+        "aligned_task_id": "agentic_S10",
+        "atomic_scenario": "S10",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+        "description": "Summarize key usage and crypto events",
+        "file": "key_usage_summary.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S11",
+        "role": "key_usage_summary"
+      },
+      {
+        "aligned_task_id": "agentic_S13",
+        "atomic_scenario": "S13",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+        "description": "Check decrypted text payloads for unsafe content",
+        "file": "payload_safety.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S16",
+        "role": "payload_safety"
+      },
+      {
+        "aligned_task_id": "agentic_S09",
+        "atomic_scenario": "S09",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+        "description": "Embed crypto audit notes for semantic search",
+        "file": "crypto_audit_embedding.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S10",
+        "role": "crypto_audit_embedding"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+        "description": "Translate encryption or compliance notes for reviewers",
+        "file": "compliance_note_translate.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "compliance_note_translate"
+      }
+    ],
+    "context_files": [
+      "security_client.py",
+      "security_models.py"
+    ],
+    "coverage": {
+      "all5": true,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Alibaba Cloud KMS"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "AWS Key Management Service"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Cloud KMS"
+        },
+        "ibm": {
+          "eligible": true,
+          "interface": "sdk_or_rest",
+          "service": "IBM Key Protect"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Azure Key Vault Keys"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic key management and encryption task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S17",
+    "disclosure_condition": "staged_disclosure",
+    "disclosure_protocol": {
+      "conditions": [
+        "full_disclosure",
+        "staged_disclosure"
+      ],
+      "conversation_mode": "fresh_session_per_file",
+      "file_order": "archived_expected_files",
+      "models": [
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+        "nova-pro",
+        "gpt-5.4",
+        "gpt-5.4-mini",
+        "qwen3.6-plus"
+      ],
+      "scenarios": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S06",
+        "S07",
+        "S08",
+        "S09",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S20"
+      ],
+      "timeout_scope": "whole_repository_run"
+    },
+    "downstream_files": [
+      "key_usage_summary.py",
+      "payload_safety.py",
+      "crypto_audit_embedding.py",
+      "compliance_note_translate.py"
+    ],
+    "expected_files": [
+      "encrypt_payload.py",
+      "decrypt_payload.py",
+      "envelope_encrypt.py",
+      "sign_or_verify_key.py",
+      "security_client.py",
+      "security_models.py",
+      "key_usage_summary.py",
+      "payload_safety.py",
+      "crypto_audit_embedding.py",
+      "compliance_note_translate.py"
+    ],
+    "family": "Security",
+    "legacy_primary_atomic_scenario": "S21",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_0e01b73ebb7b"
+    ],
+    "primary_atomic_scenario": "S17",
+    "primary_component_file": "encrypt_payload.py",
+    "primary_component_role": "encrypt_payload",
+    "proof_ids": [
+      "PR_c5d6debe8c63",
+      "PR_fd0efa54ae77",
+      "PR_6a3bc2da74eb",
+      "PR_66247acd2c95",
+      "PR_b413cde9903e",
+      "PR_0e01b73ebb7b"
+    ],
+    "provider_proof_ids": [
+      "PR_c5d6debe8c63",
+      "PR_fd0efa54ae77",
+      "PR_6a3bc2da74eb",
+      "PR_66247acd2c95",
+      "PR_b413cde9903e"
+    ],
+    "scored_files": [
+      "encrypt_payload.py",
+      "decrypt_payload.py",
+      "envelope_encrypt.py",
+      "sign_or_verify_key.py",
+      "key_usage_summary.py",
+      "payload_safety.py",
+      "crypto_audit_embedding.py",
+      "compliance_note_translate.py"
+    ],
+    "seed_files": [],
+    "task_id": "agentic_S17",
+    "title": "Agentic S17 - Key Management and Encryption"
+  }
+}

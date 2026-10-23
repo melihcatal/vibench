@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 6.84,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 764,
+  "output_text": "{\"embed_text.py\":\"import os\\nfrom embeddings_client import get_embeddings_client\\nfrom embeddings_models import normalize_single_embedding\\n\\n\\ndef embed_text(text: str, model: str | None = None) -> list[float]:\\n    client = get_embeddings_client()\\n    model_name = model or os.getenv(\\\"OPENAI_EMBEDDING_MODEL\\\", \\\"text-embedding-3-small\\\")\\n    response = client.embeddings.create(model=model_name, input=text)\\n    return normalize_single_embedding(response)\\n\",\"embed_batch.py\":\"import os\\nfrom embeddings_client import get_embeddings_client\\nfrom embeddings_models import normalize_embedding_list\\n\\n\\ndef embed_batch(texts: list[str], model: str | None = None) -> list[list[float]]:\\n    client = get_embeddings_client()\\n    model_name = model or os.getenv(\\\"OPENAI_EMBEDDING_MODEL\\\", \\\"text-embedding-3-small\\\")\\n    response = client.embeddings.create(model=model_name, input=texts)\\n    return normalize_embedding_list(response)\\n\",\"similarity_score.py\":\"import math\\nfrom embed_text import embed_text\\n\\n\\ndef cosine_similarity(a: list[float], b: list[float]) -> float:\\n    if len(a) != len(b) or not a:\\n        return 0.0\\n    dot = sum(x * y for x, y in zip(a, b))\\n    norm_a = math.sqrt(sum(x * x for x in a))\\n    norm_b = math.sqrt(sum(y * y for y in b))\\n    if norm_a == 0.0 or norm_b == 0.0:\\n        return 0.0\\n    return dot / (norm_a * norm_b)\\n\\n\\ndef similarity_score(text_a: str, text_b: str, model: str | None = None) -> float:\\n    emb_a = embed_text(text_a, model=model)\\n    emb_b = embed_text(text_b, model=model)\\n    return cosine_similarity(emb_a, emb_b)\\n\",\"embed_for_search.py\":\"import os\\nfrom embeddings_client import get_embeddings_client\\nfrom embeddings_models import normalize_embedding_list, normalize_single_embedding\\n\\n\\ndef embed_for_search(query: str, documents: list[str], model: str | None = None) -> dict:\\n    client = get_embeddings_client()\\n    model_name = model or os.getenv(\\\"OPENAI_EMBEDDING_MODEL\\\", \\\"text-embedding-3-large\\\")\\n    query_response = client.embeddings.create(model=model_name, input=query)\\n    docs_response = client.embeddings.create(model=model_name, input=documents)\\n    return {\\n        \\\"query_embedding\\\": normalize_single_embedding(query_response),\\n        \\\"document_embeddings\\\": normalize_embedding_list(docs_response),\\n    }\\n\",\"embeddings_client.py\":\"import os\\nfrom functools import lru_cache\\nfrom openai import OpenAI\\n\\n\\n@lru_cache(maxsize=1)\\ndef get_embeddings_client() -> OpenAI:\\n    api_key = os.getenv(\\\"OPENAI_API_KEY\\\")\\n    base_url = os.getenv(\\\"OPENAI_BASE_URL\\\")\\n    if base_url:\\n        return OpenAI(api_key=api_key, base_url=base_url)\\n    return OpenAI(api_key=api_key)\\n\",\"embeddings_models.py\":\"from __future__ import annotations\\n\\nfrom collections.abc import Iterable\\nfrom typing import Any\\n\\n\\ndef _extract_data(response: Any) -> list[Any]:\\n    if response is None:\\n        return []\\n    data = getattr(response, \\\"data\\\", None)\\n    if data is None and isinstance(response, dict):\\n        data = response.get(\\\"data\\\", [])\\n    return list(data or [])\\n\\n\\ndef normalize_single_embedding(response: Any) -> list[float]:\\n    data = _extract_data(response)\\n    if not data:\\n        return []\\n    first = data[0]\\n    embedding = getattr(first, \\\"embedding\\\", None)\\n    if embedding is None and isinstance(first, dict):\\n        embedding = first.get(\\\"embedding\\\", [])\\n    return [float(x) for x in (embedding or [])]\\n\\n\\ndef normalize_embedding_list(response: Any) -> list[list[float]]:\\n    result: list[list[float]] = []\\n    for item in _extract_data(response):\\n        embedding = getattr(item, \\\"embedding\\\", None)\\n        if embedding is None and isinstance(item, dict):\\n            embedding = item.get(\\\"embedding\\\", [])\\n        result.append([float(x) for x in (embedding or [])])\\n    return result\\n\\n\\ndef coerce_texts(texts: Iterable[str]) -> list[str]:\\n    return [str(text) for text in texts]\\n\",\"embedding_job_summary.py\":\"from collections.abc import Iterable\\nfrom embeddings_client import get_embeddings_client\\nfrom embeddings_models import normalize_embedding_list\\n\\n\\ndef embedding_job_summary(texts: Iterable[str], model: str | None = None) -> dict:\\n    client = get_embeddings_client()\\n    model_name = model or \\\"text-embedding-3-small\\\"\\n    batch = [str(text) for text in texts]\\n    response = client.embeddings.create(model=model_name, input=batch)\\n    embeddings = normalize_embedding_list(response)\\n    dims = len(embeddings[0]) if embeddings else 0\\n    return {\\n        \\\"job_size\\\": len(batch),\\n        \\\"embedded_items\\\": len(embeddings),\\n        \\\"embedding_dimensions\\\": dims,\\n        \\\"model\\\": model_name,\\n    }\\n\",\"corpus_safety.py\":\"import re\\nfrom embeddings_client import get_embeddings_client\\n\\n_BLOCKLIST = [\\n    r\\\"\\\\bpassword\\\\b\\\",\\n    r\\\"\\\\bssn\\\\b\\\",\\n    r\\\"\\\\bcredit\\\\s*card\\\\b\\\",\\n    r\\\"\\\\bapi\\\\s*key\\\\b\\\",\\n]\\n\\n\\ndef corpus_safety(text: str) -> dict:\\n    lowered = text.lower()\\n    matches = [pattern for pattern in _BLOCKLIST if re.search(pattern, lowered)]\\n    client = get_embeddings_client()\\n    model_name = \\\"text-embedding-3-small\\\"\\n    _ = client.embeddings.create(model=model_name, input=text[:2000])\\n    return {\\n        \\\"safe\\\": not matches,\\n        \\\"matches\\\": matches,\\n        \\\"provider\\\": \\\"openai\\\",\\n        \\\"model\\\": model_name,\\n    }\\n\",\"multilingual_query_translate.py\":\"import os\\nfrom openai import OpenAI\\n\\n\\ndef multilingual_query_translate(query: str, target_language: str = \\\"en\\\") -> str:\\n    client = OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"), base_url=os.getenv(\\\"OPENAI_BASE_URL\\\"))\\n    model = os.getenv(\\\"OPENAI_TRANSLATION_MODEL\\\", \\\"gpt-4o-mini\\\")\\n    prompt = f\\\"Translate the following query into {target_language} while preserving search intent and named entities: {query}\\\"\\n    response = client.chat.completions.create(\\n        model=model,\\n        messages=[{\\\"role\\\": \\\"system\\\", \\\"content\\\": \\\"You translate search queries.\\\"}, {\\\"role\\\": \\\"user\\\", \\\"content\\\": prompt}],\\n        temperature=0,\\n    )\\n    return response.choices[0].message.content.strip()\\n\",\"retrieval_audio_brief.py\":\"import os\\nfrom openai import OpenAI\\n\\n\\ndef retrieval_audio_brief(results: list[dict], voice: str | None = None) -> dict:\\n    client = OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"), base_url=os.getenv(\\\"OPENAI_BASE_URL\\\"))\\n    summary_model = os.getenv(\\\"OPENAI_SUMMARY_MODEL\\\", \\\"gpt-4o-mini\\\")\\n    speech_model = os.getenv(\\\"OPENAI_TTS_MODEL\\\", \\\"gpt-4o-mini-tts\\\")\\n    brief_prompt = \\\"Summarize these retrieved search results into a concise spoken brief:\\\\n\\\" + \\\"\\\\n\\\".join(\\n        f\\\"- {item.get('title', '')}: {item.get('snippet', '')}\\\" for item in results\\n    )\\n    summary = client.chat.completions.create(\\n        model=summary_model,\\n        messages=[{\\\"role\\\": \\\"user\\\", \\\"content\\\": brief_prompt}],\\n        temperature=0.2,\\n    ).choices[0].message.content.strip()\\n    speech = client.audio.speech.create(\\n        model=speech_model,\\n        voice=voice or os.getenv(\\\"OPENAI_TTS_VOICE\\\", \\\"alloy\\\"),\\n        input=summary,\\n    )\\n    audio_bytes = speech.read() if hasattr(speech, \\\"read\\\") else b\\\"\\\"\\n    return {\\\"summary\\\": summary, \\\"audio_bytes\\\": audio_bytes, \\\"provider\\\": \\\"openai\\\", \\\"model\\\": speech_model}\\n\"}",
+  "output_tokens": 1916,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1916,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 764,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2680
+  }
+}

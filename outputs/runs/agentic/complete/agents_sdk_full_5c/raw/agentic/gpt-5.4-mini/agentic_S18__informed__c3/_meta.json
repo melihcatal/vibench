@@ -1,0 +1,443 @@
+{
+  "task_id": "agentic_S18",
+  "modality": "agentic",
+  "benchmark": "vibench",
+  "task_mode": "unified",
+  "primary_atomic_scenario": "S18",
+  "primary_component_role": "publish_event",
+  "primary_component_file": "publish_event.py",
+  "task_family": "Messaging",
+  "evidence_id": null,
+  "paired_with": null,
+  "seed_condition_id": null,
+  "seed_policy": null,
+  "seed_anchor_role": null,
+  "seed_anchor_provider": null,
+  "seed_anchor_ecosystem": null,
+  "variant": "informed",
+  "model_id": "gpt-5.4-mini",
+  "model_litellm_string": "gpt-5.4-mini",
+  "model_provider": "OpenAI",
+  "model_api_key_env": "OPENAI_API_KEY",
+  "model_affiliation": "microsoft_openai",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "azure",
+  "model_direct_provider_affiliation": "openai",
+  "model_ecosystem_affiliation": "microsoft_openai",
+  "direct_provider_affiliation": "openai",
+  "provider_family": "openai",
+  "ecosystem_affiliation": "microsoft_openai",
+  "completion_index": 3,
+  "timestamp": "2026-04-18T06:05:34.790904+00:00",
+  "prompt_text": "Build the service integrations for a realistic pub/sub messaging task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] publish_event.py - publishes a JSON event to a managed messaging topic or queue\n2. [SAME-SCENARIO] consume_event.py - consumes one message from a managed subscription or queue\n3. [SAME-SCENARIO] dead_letter.py - sends failed messages to a dead-letter destination\n4. [SAME-SCENARIO] batch_publish.py - publishes a batch of messages with IDs or attributes\n\nLocal helper files:\n\n5. [HELPER] messaging_client.py - Provide local configuration and client helper utilities for Pub/Sub Messaging\n6. [HELPER] messaging_models.py - Define local request, response, and normalization helpers for Pub/Sub Messaging\n\nLater-step scored files:\n\n7. [LATER-STEP] message_summary.py - Summarize message processing results\n8. [LATER-STEP] message_safety.py - Check message payload text for unsafe content\n9. [LATER-STEP] payload_translate.py - Translate customer-facing message payload text\n10. [LATER-STEP] message_audit_store.py - Persist processed message records for later lookup\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nPub/Sub Messaging same-scenario files:\n- IBM Event Streams: service=IBM Event Streams; sdk=confluent-kafka; interface=protocol; auth=IBM_EVENT_STREAMS_BROKERS, IBM_EVENT_STREAMS_APIKEY\n- Azure Service Bus: service=Azure Service Bus; sdk=azure-servicebus; interface=sdk; auth=AZURE_SERVICE_BUS_CONNECTION_STRING\n- Google Cloud Pub/Sub: service=Cloud Pub/Sub; sdk=google-cloud-pubsub; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Amazon SNS/SQS: service=Amazon SNS and SQS; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Confluent: service=Confluent Cloud Kafka; sdk=confluent-kafka; interface=protocol; auth=CONFLUENT_BOOTSTRAP_SERVERS, CONFLUENT_API_KEY\n- Alibaba MNS / RocketMQ: service=Alibaba Cloud Message Service / RocketMQ; sdk=alibabacloud_mns / rocketmq; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n\nText Content Safety later-step files:\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n\nGeneral Text Translation later-step files:\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n\nManaged NoSQL Document Store later-step files:\n- IBM Cloudant: service=IBM Cloudant; sdk=ibmcloudant; interface=sdk; auth=IBM_CLOUDANT_URL, IBM_CLOUDANT_APIKEY\n- MongoDB Atlas: service=MongoDB Atlas; sdk=pymongo; interface=sdk; auth=MONGODB_ATLAS_URI\n- Azure Cosmos DB: service=Azure Cosmos DB for NoSQL; sdk=azure-cosmos; interface=sdk; auth=AZURE_COSMOS_ENDPOINT, AZURE_COSMOS_KEY\n- Alibaba Tablestore: service=Alibaba Tablestore; sdk=tablestore; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Google Firestore: service=Cloud Firestore; sdk=google-cloud-firestore; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Amazon DynamoDB: service=Amazon DynamoDB; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY",
+  "prompt_sha256": "9048bfd09c8b360018b0a1072d4cffeafc9fa239f12d478ce72091f5a2e752d1",
+  "system_prompt": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/agentic_system_prompt.txt",
+  "agent_user_prompt": "Build the service integrations for a realistic pub/sub messaging task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] publish_event.py - publishes a JSON event to a managed messaging topic or queue\n2. [SAME-SCENARIO] consume_event.py - consumes one message from a managed subscription or queue\n3. [SAME-SCENARIO] dead_letter.py - sends failed messages to a dead-letter destination\n4. [SAME-SCENARIO] batch_publish.py - publishes a batch of messages with IDs or attributes\n\nLocal helper files:\n\n5. [HELPER] messaging_client.py - Provide local configuration and client helper utilities for Pub/Sub Messaging\n6. [HELPER] messaging_models.py - Define local request, response, and normalization helpers for Pub/Sub Messaging\n\nLater-step scored files:\n\n7. [LATER-STEP] message_summary.py - Summarize message processing results\n8. [LATER-STEP] message_safety.py - Check message payload text for unsafe content\n9. [LATER-STEP] payload_translate.py - Translate customer-facing message payload text\n10. [LATER-STEP] message_audit_store.py - Persist processed message records for later lookup\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nPub/Sub Messaging same-scenario files:\n- IBM Event Streams: service=IBM Event Streams; sdk=confluent-kafka; interface=protocol; auth=IBM_EVENT_STREAMS_BROKERS, IBM_EVENT_STREAMS_APIKEY\n- Azure Service Bus: service=Azure Service Bus; sdk=azure-servicebus; interface=sdk; auth=AZURE_SERVICE_BUS_CONNECTION_STRING\n- Google Cloud Pub/Sub: service=Cloud Pub/Sub; sdk=google-cloud-pubsub; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Amazon SNS/SQS: service=Amazon SNS and SQS; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Confluent: service=Confluent Cloud Kafka; sdk=confluent-kafka; interface=protocol; auth=CONFLUENT_BOOTSTRAP_SERVERS, CONFLUENT_API_KEY\n- Alibaba MNS / RocketMQ: service=Alibaba Cloud Message Service / RocketMQ; sdk=alibabacloud_mns / rocketmq; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n\nText Content Safety later-step files:\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n\nGeneral Text Translation later-step files:\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n\nManaged NoSQL Document Store later-step files:\n- IBM Cloudant: service=IBM Cloudant; sdk=ibmcloudant; interface=sdk; auth=IBM_CLOUDANT_URL, IBM_CLOUDANT_APIKEY\n- MongoDB Atlas: service=MongoDB Atlas; sdk=pymongo; interface=sdk; auth=MONGODB_ATLAS_URI\n- Azure Cosmos DB: service=Azure Cosmos DB for NoSQL; sdk=azure-cosmos; interface=sdk; auth=AZURE_COSMOS_ENDPOINT, AZURE_COSMOS_KEY\n- Alibaba Tablestore: service=Alibaba Tablestore; sdk=tablestore; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Google Firestore: service=Cloud Firestore; sdk=google-cloud-firestore; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Amazon DynamoDB: service=Amazon DynamoDB; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n\nExpected files that must be written with write_file:\n\n- publish_event.py\n- consume_event.py\n- dead_letter.py\n- batch_publish.py\n- messaging_client.py\n- messaging_models.py\n- message_summary.py\n- message_safety.py\n- payload_translate.py\n- message_audit_store.py\n\nUse write_file for each expected file before producing the final answer.",
+  "agent_user_prompt_sha256": "5c7951d4a8555b930788417698f1cf5ce3e8be9319b387ca387c4da3ec74c27c",
+  "agent_instructions": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.\n\nTool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "agent_instructions_sha256": "ca69981834e8c12ccff2525631ec4bd7e01135067a146f05b0859757d7f582c0",
+  "agent_tool_instruction": "Tool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": "none",
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": "none",
+    "reasoning_effort_source": "model_override",
+    "reasoning_effort_sent_to_api": "none",
+    "reasoning_effort_sent_source": "model_override",
+    "parallel_tool_calls": null,
+    "tool_choice": null
+  },
+  "model_settings": {
+    "temperature": null,
+    "top_p": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "tool_choice": null,
+    "parallel_tool_calls": null,
+    "truncation": null,
+    "max_tokens": null,
+    "reasoning": null,
+    "verbosity": null,
+    "metadata": null,
+    "store": null,
+    "prompt_cache_retention": null,
+    "include_usage": null,
+    "response_include": null,
+    "top_logprobs": null,
+    "extra_query": null,
+    "extra_body": null,
+    "extra_headers": null,
+    "extra_args": {
+      "reasoning_effort": "none"
+    },
+    "retry": null
+  },
+  "seed_files": [],
+  "expected_files": [
+    "publish_event.py",
+    "consume_event.py",
+    "dead_letter.py",
+    "batch_publish.py",
+    "messaging_client.py",
+    "messaging_models.py",
+    "message_summary.py",
+    "message_safety.py",
+    "payload_translate.py",
+    "message_audit_store.py"
+  ],
+  "scored_files": [
+    "publish_event.py",
+    "consume_event.py",
+    "dead_letter.py",
+    "batch_publish.py",
+    "message_summary.py",
+    "message_safety.py",
+    "payload_translate.py",
+    "message_audit_store.py"
+  ],
+  "context_files": [
+    "messaging_client.py",
+    "messaging_models.py"
+  ],
+  "files_found": {
+    "publish_event.py": true,
+    "consume_event.py": true,
+    "dead_letter.py": true,
+    "batch_publish.py": true,
+    "messaging_client.py": true,
+    "messaging_models.py": true,
+    "message_summary.py": true,
+    "message_safety.py": true,
+    "payload_translate.py": true,
+    "message_audit_store.py": true
+  },
+  "components": [
+    {
+      "role": "publish_event",
+      "file": "publish_event.py",
+      "atomic_scenario": "S18",
+      "description": "publishes a JSON event to a managed messaging topic or queue",
+      "atomic_subtask_index": 1,
+      "atomic_subtask_id": "nli_S18_a",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": true,
+      "coupling_expectation": "primary_anchor",
+      "dependency_reason": "This is the first aligned-core file in the workflow.",
+      "is_seeded": false
+    },
+    {
+      "role": "consume_event",
+      "file": "consume_event.py",
+      "atomic_scenario": "S18",
+      "description": "consumes one message from a managed subscription or queue",
+      "atomic_subtask_index": 2,
+      "atomic_subtask_id": "nli_S18_b",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "dead_letter",
+      "file": "dead_letter.py",
+      "atomic_scenario": "S18",
+      "description": "sends failed messages to a dead-letter destination",
+      "atomic_subtask_index": 3,
+      "atomic_subtask_id": "nli_S18_c",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "batch_publish",
+      "file": "batch_publish.py",
+      "atomic_scenario": "S18",
+      "description": "publishes a batch of messages with IDs or attributes",
+      "atomic_subtask_index": 4,
+      "atomic_subtask_id": "nli_S18_d",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "messaging_client",
+      "file": "messaging_client.py",
+      "atomic_scenario": "S18",
+      "description": "Provide local configuration and client helper utilities for Pub/Sub Messaging",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "messaging_models",
+      "file": "messaging_models.py",
+      "atomic_scenario": "S18",
+      "description": "Define local request, response, and normalization helpers for Pub/Sub Messaging",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "message_summary",
+      "file": "message_summary.py",
+      "atomic_scenario": "S10",
+      "aligned_task_id": "agentic_S10",
+      "legacy_atomic_scenario": "S11",
+      "description": "Summarize message processing results",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Messaging provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "message_safety",
+      "file": "message_safety.py",
+      "atomic_scenario": "S13",
+      "aligned_task_id": "agentic_S13",
+      "legacy_atomic_scenario": "S16",
+      "description": "Check message payload text for unsafe content",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Messaging provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "payload_translate",
+      "file": "payload_translate.py",
+      "atomic_scenario": "S03",
+      "aligned_task_id": "agentic_S03",
+      "legacy_atomic_scenario": "S03",
+      "description": "Translate customer-facing message payload text",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Messaging provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "message_audit_store",
+      "file": "message_audit_store.py",
+      "atomic_scenario": "S15",
+      "aligned_task_id": "agentic_S15",
+      "legacy_atomic_scenario": "S19",
+      "description": "Persist processed message records for later lookup",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "compatible_but_independent",
+      "dependency_reason": "This extension step uses outputs from the primary Messaging workflow.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    }
+  ],
+  "elapsed_seconds": 14.04,
+  "agentic_runner": "litellm_openai_agents",
+  "agentic_system_prompt_mode": "openai_agents_litellm_write_file_tool",
+  "agentic_identity_mode": "litellm_exact_or_provider_route",
+  "agentic_identity_note": "OpenAI Agents SDK LitellmModel routes directly through LiteLLM; no OpenCode provider transform is used.",
+  "litellm_model": "gpt-5.4-mini",
+  "litellm_base_url": null,
+  "agent_name": "vibench_file_writer",
+  "agents_sdk_exit_code": 0,
+  "agents_sdk_stdout_tail": "Done",
+  "agents_sdk_stderr_tail": "",
+  "tool_calls": [
+    {
+      "path": "consume_event.py",
+      "normalized_path": "consume_event.py",
+      "content_sha256": "2574257fee2b3ab6f102934bf8e6567041f8b9305892d594b3be365dcc81dd19",
+      "content_length": 1068,
+      "accepted": true,
+      "message": "Wrote consume_event.py.",
+      "timestamp": "2026-04-18T06:05:33.843118+00:00"
+    },
+    {
+      "path": "messaging_client.py",
+      "normalized_path": "messaging_client.py",
+      "content_sha256": "6e96a9dae21dc6e51a0322319e15daa08d422525eb294cad41c59b1f89315d9d",
+      "content_length": 2485,
+      "accepted": true,
+      "message": "Wrote messaging_client.py.",
+      "timestamp": "2026-04-18T06:05:33.842936+00:00"
+    },
+    {
+      "path": "dead_letter.py",
+      "normalized_path": "dead_letter.py",
+      "content_sha256": "f31eac64c330da4a020406ef7806b5dc53212430862dd32c76a27ecb3a156f33",
+      "content_length": 921,
+      "accepted": true,
+      "message": "Wrote dead_letter.py.",
+      "timestamp": "2026-04-18T06:05:33.843219+00:00"
+    },
+    {
+      "path": "message_summary.py",
+      "normalized_path": "message_summary.py",
+      "content_sha256": "e66dd29dc4d6ee3d0c28dba47e049abc17a7a9ee51055145de234e24d830d78e",
+      "content_length": 792,
+      "accepted": true,
+      "message": "Wrote message_summary.py.",
+      "timestamp": "2026-04-18T06:05:33.843391+00:00"
+    },
+    {
+      "path": "publish_event.py",
+      "normalized_path": "publish_event.py",
+      "content_sha256": "a605319543822bbeba0b2a98ea86178487b69a9a1bb8640434280440bb5ca565",
+      "content_length": 882,
+      "accepted": true,
+      "message": "Wrote publish_event.py.",
+      "timestamp": "2026-04-18T06:05:33.843050+00:00"
+    },
+    {
+      "path": "message_audit_store.py",
+      "normalized_path": "message_audit_store.py",
+      "content_sha256": "c4740a2d120adc01f3b9c938d0afa38ffc932c9d589a025e1f5417c7139e30c9",
+      "content_length": 566,
+      "accepted": true,
+      "message": "Wrote message_audit_store.py.",
+      "timestamp": "2026-04-18T06:05:33.843638+00:00"
+    },
+    {
+      "path": "payload_translate.py",
+      "normalized_path": "payload_translate.py",
+      "content_sha256": "ebed2f5d6ccadd2cd6636344716f82f69cf909192a0ab8145bf5518bc5072bb5",
+      "content_length": 362,
+      "accepted": true,
+      "message": "Wrote payload_translate.py.",
+      "timestamp": "2026-04-18T06:05:33.843528+00:00"
+    },
+    {
+      "path": "messaging_models.py",
+      "normalized_path": "messaging_models.py",
+      "content_sha256": "6b42f213543d5cf53f73db9ed8dad83dc3b5570edde83b9fc1c894fb2db19251",
+      "content_length": 1941,
+      "accepted": true,
+      "message": "Wrote messaging_models.py.",
+      "timestamp": "2026-04-18T06:05:33.843004+00:00"
+    },
+    {
+      "path": "batch_publish.py",
+      "normalized_path": "batch_publish.py",
+      "content_sha256": "5f708866dbc10dc1ae84524440085bc5242160ad0f7bd0699df520edca780e4e",
+      "content_length": 870,
+      "accepted": true,
+      "message": "Wrote batch_publish.py.",
+      "timestamp": "2026-04-18T06:05:33.843317+00:00"
+    },
+    {
+      "path": "message_safety.py",
+      "normalized_path": "message_safety.py",
+      "content_sha256": "dec1484585a2bcf23dddfdb15c9024772da13d9d7afd90ddf149d914de5d1890",
+      "content_length": 780,
+      "accepted": true,
+      "message": "Wrote message_safety.py.",
+      "timestamp": "2026-04-18T06:05:33.843439+00:00"
+    }
+  ],
+  "tool_call_count": 10,
+  "accepted_tool_call_count": 10,
+  "run_result": {
+    "final_output": "Done",
+    "raw_response_count": 2,
+    "raw_responses": [
+      {
+        "response_id": null,
+        "output_count": 10,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2022,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 2998,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 5020,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 5174,
+          "input_tokens_details": {
+            "cached_tokens": 3584
+          },
+          "output_tokens": 5,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 5179,
+          "request_usage_entries": []
+        }
+      }
+    ],
+    "new_item_count": 21,
+    "max_turns": 30
+  },
+  "generation_warning": null,
+  "error": null
+}

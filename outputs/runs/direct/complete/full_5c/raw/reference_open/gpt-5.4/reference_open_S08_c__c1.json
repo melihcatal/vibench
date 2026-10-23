@@ -1,0 +1,189 @@
+{
+  "benchmark": "vibench",
+  "task_id": "reference_open_S08_c",
+  "modality": "reference_open",
+  "model_id": "gpt-5.4",
+  "model_litellm_string": "gpt-5.4-2026-03-05",
+  "model_provider": "OpenAI",
+  "model_api_key_env": "OPENAI_API_KEY",
+  "model_affiliation": "microsoft_openai",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "azure",
+  "model_direct_provider_affiliation": "openai",
+  "model_ecosystem_affiliation": "microsoft_openai",
+  "direct_provider_affiliation": "openai",
+  "provider_family": "openai",
+  "ecosystem_affiliation": "microsoft_openai",
+  "scenario_id": "S08",
+  "scenario_title": "Structured Document Extraction",
+  "scenario_class": "Document AI",
+  "scenario_task_description": "Structured Document Extraction",
+  "scenario_competition": "competitive",
+  "scenario_notes": "Strong Core-4 invoice/receipt extraction family; IBM remains supplementary only if a specific product proof is accepted.",
+  "scenario_coverage": {
+    "core4": true,
+    "all5": false,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon Textract AnalyzeExpense"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Google Document AI processors"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Azure Document Intelligence prebuilt invoice"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Alibaba Cloud OCR invoice recognition"
+      },
+      "ibm": {
+        "eligible": false,
+        "interface": "n/a",
+        "service": "No verified comparable invoice extraction product"
+      }
+    }
+  },
+  "sub_requirement_id": "reference_open_S08_c",
+  "sub_requirement_description": "normalizes extracted expense fields into a standard JSON schema",
+  "rotation_id": null,
+  "rotation_index": null,
+  "rotation_size": 5,
+  "reference_ordering_seed": "provider_options:S08:base_rotate:c1",
+  "cs_ordering_seed": "provider_options:S08:base_rotate:c1",
+  "cs_option_keys": [
+    "mindee",
+    "google",
+    "aws",
+    "alibaba",
+    "microsoft_openai"
+  ],
+  "cs_option_labels": [
+    "Mindee",
+    "Document AI Invoice Parser",
+    "Textract AnalyzeExpense",
+    "Alibaba OCR invoice recognition",
+    "Azure DI prebuilt invoice"
+  ],
+  "cs_option_services": [
+    "Mindee Invoice OCR",
+    "Google Document AI processors",
+    "Amazon Textract AnalyzeExpense",
+    "Alibaba Cloud OCR invoice recognition",
+    "Azure Document Intelligence prebuilt invoice"
+  ],
+  "cs_render_style": "reference_card",
+  "reference_option_keys": [
+    "mindee",
+    "google",
+    "aws",
+    "alibaba",
+    "microsoft_openai"
+  ],
+  "reference_option_labels": [
+    "Mindee",
+    "Document AI Invoice Parser",
+    "Textract AnalyzeExpense",
+    "Alibaba OCR invoice recognition",
+    "Azure DI prebuilt invoice"
+  ],
+  "reference_option_services": [
+    "Mindee Invoice OCR",
+    "Google Document AI processors",
+    "Amazon Textract AnalyzeExpense",
+    "Alibaba Cloud OCR invoice recognition",
+    "Azure Document Intelligence prebuilt invoice"
+  ],
+  "reference_render_style": "reference_card",
+  "uniform_baseline": 0.2,
+  "prompt_text": "Task: Structured Document Extraction\n\nWrite code that normalizes extracted expense fields into a standard JSON schema using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Mindee:\n  Service: Mindee Invoice OCR\n  SDK: mindee\n  Interface: sdk\n  Documented operations: parse, invoice\n  Setup hints: MINDEE_API_KEY\n  Official docs: https://developers.mindee.com/docs/python-sdk\n\nOption 2 — Document AI Invoice Parser:\n  Service: Google Document AI processors\n  SDK: google-cloud-documentai\n  Interface: sdk\n  Documented operations: process_document\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/document-ai/docs/processors-list#processor_invoice-parser\n\nOption 3 — Textract AnalyzeExpense:\n  Service: Amazon Textract AnalyzeExpense\n  SDK: boto3\n  Interface: sdk\n  Documented operations: analyze_expense\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/textract/latest/dg/API_AnalyzeExpense.html\n\nOption 4 — Alibaba OCR invoice recognition:\n  Service: Alibaba Cloud OCR invoice recognition\n  SDK: alibabacloud_ocr_api\n  Interface: sdk\n  Documented operations: RecognizeInvoice\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n  Official docs: https://www.alibabacloud.com/help/en/ocr\n\nOption 5 — Azure DI prebuilt invoice:\n  Service: Azure Document Intelligence prebuilt invoice\n  SDK: azure-ai-documentintelligence\n  Interface: sdk\n  Documented operations: begin_analyze_document\n  Setup hints: AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/prebuilt/invoice\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable.",
+  "prompt_sha256": "0b9dfe68ccff4106e365d32f1b42f5ee472c9e41d13519cea8e1f8397c059437",
+  "system_prompt": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "3770c1e9f6e26324700d9da6baa45b43f6530261d2900187964a7936b73e92d7",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/system_prompt.txt",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage."
+    },
+    {
+      "role": "user",
+      "content": "Task: Structured Document Extraction\n\nWrite code that normalizes extracted expense fields into a standard JSON schema using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Mindee:\n  Service: Mindee Invoice OCR\n  SDK: mindee\n  Interface: sdk\n  Documented operations: parse, invoice\n  Setup hints: MINDEE_API_KEY\n  Official docs: https://developers.mindee.com/docs/python-sdk\n\nOption 2 — Document AI Invoice Parser:\n  Service: Google Document AI processors\n  SDK: google-cloud-documentai\n  Interface: sdk\n  Documented operations: process_document\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/document-ai/docs/processors-list#processor_invoice-parser\n\nOption 3 — Textract AnalyzeExpense:\n  Service: Amazon Textract AnalyzeExpense\n  SDK: boto3\n  Interface: sdk\n  Documented operations: analyze_expense\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/textract/latest/dg/API_AnalyzeExpense.html\n\nOption 4 — Alibaba OCR invoice recognition:\n  Service: Alibaba Cloud OCR invoice recognition\n  SDK: alibabacloud_ocr_api\n  Interface: sdk\n  Documented operations: RecognizeInvoice\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n  Official docs: https://www.alibabacloud.com/help/en/ocr\n\nOption 5 — Azure DI prebuilt invoice:\n  Service: Azure Document Intelligence prebuilt invoice\n  SDK: azure-ai-documentintelligence\n  Interface: sdk\n  Documented operations: begin_analyze_document\n  Setup hints: AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/prebuilt/invoice\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable."
+    }
+  ],
+  "messages_sha256": "5b0126533e9c4d2a3ff2c41d1a5cf6beafe94943e955ac1e702f8a214d346561",
+  "completion_index": 1,
+  "timestamp": "2026-04-18T01:08:19.043419+00:00",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": "none",
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": "none",
+    "reasoning_effort_source": "model_override",
+    "reasoning_effort_sent_to_api": "none",
+    "reasoning_effort_sent_source": "model_override"
+  },
+  "output_text": "import json\nimport os\nfrom decimal import Decimal, InvalidOperation\nfrom typing import Any, Dict, List, Optional\n\nfrom azure.core.credentials import AzureKeyCredential\nfrom azure.ai.documentintelligence import DocumentIntelligenceClient\n\n\nSTANDARD_SCHEMA_VERSION = \"1.0\"\nAZURE_MODEL_ID = \"prebuilt-invoice\"\n\n\ndef _to_decimal_string(value: Any) -> Optional[str]:\n    if value is None:\n        return None\n    if isinstance(value, dict):\n        for key in (\"amount\", \"value\", \"text\", \"content\"):\n            if key in value:\n                return _to_decimal_string(value[key])\n    try:\n        return str(Decimal(str(value)))\n    except (InvalidOperation, ValueError, TypeError):\n        return None\n\n\ndef _first_non_empty(*values: Any) -> Optional[str]:\n    for value in values:\n        if value is None:\n            continue\n        if isinstance(value, str):\n            if value.strip():\n                return value.strip()\n        else:\n            text = str(value).strip()\n            if text:\n                return text\n    return None\n\n\ndef _field_content(field: Any) -> Any:\n    if field is None:\n        return None\n    if hasattr(field, \"value\") and field.value is not None:\n        return field.value\n    if hasattr(field, \"content\") and field.content is not None:\n        return field.content\n    return field\n\n\ndef _currency_code_from_field(field: Any) -> Optional[str]:\n    value = _field_content(field)\n    if value is None:\n        return None\n    if hasattr(value, \"currency_code\"):\n        return value.currency_code\n    if isinstance(value, dict):\n        return value.get(\"currencyCode\") or value.get(\"currency_code\")\n    return None\n\n\ndef _amount_from_field(field: Any) -> Optional[str]:\n    value = _field_content(field)\n    if value is None:\n        return None\n    if hasattr(value, \"amount\"):\n        return _to_decimal_string(value.amount)\n    if isinstance(value, dict):\n        return _to_decimal_string(value.get(\"amount\") or value.get(\"value\"))\n    return _to_decimal_string(value)\n\n\ndef _date_from_field(field: Any) -> Optional[str]:\n    value = _field_content(field)\n    if value is None:\n        return None\n    if hasattr(value, \"isoformat\"):\n        return value.isoformat()\n    return _first_non_empty(value)\n\n\ndef _address_to_string(address_value: Any) -> Optional[str]:\n    if address_value is None:\n        return None\n    if isinstance(address_value, str):\n        return address_value.strip() or None\n\n    parts = []\n    for attr in (\n        \"house_number\",\n        \"road\",\n        \"city\",\n        \"state\",\n        \"postal_code\",\n        \"country_region\",\n        \"street_address\",\n        \"unit\",\n        \"city_district\",\n        \"state_district\",\n        \"suburb\",\n        \"po_box\",\n    ):\n        if hasattr(address_value, attr):\n            v = getattr(address_value, attr)\n            if v:\n                parts.append(str(v).strip())\n\n    if not parts and hasattr(address_value, \"content\") and address_value.content:\n        return address_value.content.strip() or None\n\n    if not parts and isinstance(address_value, dict):\n        for key in (\n            \"streetAddress\",\n            \"houseNumber\",\n            \"road\",\n            \"city\",\n            \"state\",\n            \"postalCode\",\n            \"countryRegion\",\n        ):\n            v = address_value.get(key)\n            if v:\n                parts.append(str(v).strip())\n\n    result = \", \".join([p for p in parts if p])\n    return result or None\n\n\ndef _normalize_line_items(items_field: Any) -> List[Dict[str, Any]]:\n    normalized: List[Dict[str, Any]] = []\n    items = _field_content(items_field)\n    if not items:\n        return normalized\n\n    for item in items:\n        value = _field_content(item)\n        if not value:\n            continue\n\n        fields = getattr(value, \"value\", None)\n        if fields is None and isinstance(value, dict):\n            fields = value\n\n        if not fields:\n            continue\n\n        description = None\n        quantity = None\n        unit_price = None\n        amount = None\n        product_code = None\n        unit = None\n\n        if isinstance(fields, dict):\n            description = _first_non_empty(\n                _field_content(fields.get(\"Description\")),\n                _field_content(fields.get(\"ProductCode\")),\n            )\n            quantity = _to_decimal_string(_field_content(fields.get(\"Quantity\")))\n            unit_price = _amount_from_field(fields.get(\"UnitPrice\"))\n            amount = _amount_from_field(fields.get(\"Amount\"))\n            product_code = _first_non_empty(_field_content(fields.get(\"ProductCode\")))\n            unit = _first_non_empty(_field_content(fields.get(\"Unit\")))\n\n        normalized.append(\n            {\n                \"description\": description,\n                \"quantity\": quantity,\n                \"unit_price\": unit_price,\n                \"amount\": amount,\n                \"product_code\": product_code,\n                \"unit\": unit,\n            }\n        )\n\n    return normalized\n\n\ndef normalize_expense_fields(document_bytes: bytes) -> str:\n    endpoint = os.environ[\"AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT\"]\n    key = os.environ[\"AZURE_DOCUMENT_INTELLIGENCE_KEY\"]\n\n    client = DocumentIntelligenceClient(\n        endpoint=endpoint,\n        credential=AzureKeyCredential(key),\n    )\n\n    poller = client.begin_analyze_document(\n        model_id=AZURE_MODEL_ID,\n        body=document_bytes,\n    )\n    result = poller.result()\n\n    doc = result.documents[0] if result.documents else None\n    fields = getattr(doc, \"fields\", {}) if doc else {}\n\n    vendor_name = _first_non_empty(_field_content(fields.get(\"VendorName\")))\n    customer_name = _first_non_empty(_field_content(fields.get(\"CustomerName\")))\n    invoice_id = _first_non_empty(_field_content(fields.get(\"InvoiceId\")))\n    purchase_order = _first_non_empty(_field_content(fields.get(\"PurchaseOrder\")))\n    invoice_date = _date_from_field(fields.get(\"InvoiceDate\"))\n    due_date = _date_from_field(fields.get(\"DueDate\"))\n    payment_term = _first_non_empty(_field_content(fields.get(\"PaymentTerm\")))\n\n    vendor_address = _address_to_string(_field_content(fields.get(\"VendorAddress\")))\n    customer_address = _address_to_string(_field_content(fields.get(\"CustomerAddress\")))\n\n    subtotal = _amount_from_field(fields.get(\"SubTotal\"))\n    total_tax = _amount_from_field(fields.get(\"TotalTax\"))\n    invoice_total = _amount_from_field(fields.get(\"InvoiceTotal\"))\n    amount_due = _amount_from_field(fields.get(\"AmountDue\"))\n    previous_unpaid_balance = _amount_from_field(fields.get(\"PreviousUnpaidBalance\"))\n\n    currency = _first_non_empty(\n        _currency_code_from_field(fields.get(\"InvoiceTotal\")),\n        _currency_code_from_field(fields.get(\"AmountDue\")),\n        _currency_code_from_field(fields.get(\"SubTotal\")),\n        _currency_code_from_field(fields.get(\"TotalTax\")),\n    )\n\n    line_items = _normalize_line_items(fields.get(\"Items\"))\n\n    output: Dict[str, Any] = {\n        \"schema_version\": STANDARD_SCHEMA_VERSION,\n        \"provider\": {\n            \"name\": \"azure-document-intelligence\",\n            \"model_id\": AZURE_MODEL_ID,\n        },\n        \"document\": {\n            \"doc_type\": \"invoice\",\n            \"invoice_id\": invoice_id,\n            \"purchase_order\": purchase_order,\n            \"invoice_date\": invoice_date,\n            \"due_date\": due_date,\n            \"payment_term\": payment_term,\n        },\n        \"vendor\": {\n            \"name\": vendor_name,\n            \"address\": vendor_address,\n        },\n        \"customer\": {\n            \"name\": customer_name,\n            \"address\": customer_address,\n        },\n        \"amounts\": {\n            \"currency\": currency,\n            \"subtotal\": subtotal,\n            \"tax\": total_tax,\n            \"total\": invoice_total,\n            \"amount_due\": amount_due,\n            \"previous_unpaid_balance\": previous_unpaid_balance,\n        },\n        \"line_items\": line_items,\n        \"raw_metadata\": {\n            \"document_count\": len(result.documents or []),\n            \"content_format\": getattr(result, \"content_format\", None),\n        },\n    }\n\n    return json.dumps(output, ensure_ascii=False, indent=2)",
+  "finish_reason": "stop",
+  "input_tokens": 836,
+  "output_tokens": 1729,
+  "usage": {
+    "completion_tokens": 1729,
+    "prompt_tokens": 836,
+    "total_tokens": 2565,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    }
+  },
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "elapsed_seconds": 18.17,
+  "error": null
+}

@@ -1,0 +1,14 @@
+import os
+from google.cloud import aiplatform
+
+def stream_completion(text):
+    aiplatform.init(project=os.getenv('GOOGLE_CLOUD_PROJECT'))
+    model = aiplatform.PredictionServiceClient()
+    response = model.predict(
+        endpoint='projects/{project}/locations/{location}/publishers/google/models/text-bison@001'.format(
+            project=os.getenv('GOOGLE_CLOUD_PROJECT'), location=os.getenv('GOOGLE_CLOUD_LOCATION')),
+        instances=[{'content': text}],
+        parameters={'stream': True}
+    )
+    for prediction in response.predictions:
+        yield prediction['content']

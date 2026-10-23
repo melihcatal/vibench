@@ -1,0 +1,48 @@
+from threading import Thread
+from queue import Queue
+
+import azure.cognitiveservices.speech as speechsdk
+
+from speech_client import build_push_stream, load_speech_config
+from speech_models import normalize_transcript_event
+
+
+def stream_chunks(payload, config=None):
+    config = config or {}
+    speech_config = load_speech_config({**config, 'language_code': payload.get('language_code')})
+    sample_rate_hz = payload.get('sample_rate_hz', 16000)
+    stream = build_push_stream(sample_rate_hz)
+    recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config,
+        audio_config=speechsdk.audio.AudioConfig(stream=stream))
+    events = Queue()
+    recognizer.recognizing.connect(lambda e: events.put(normalize_transcript_event(e.result.text, False)))
+    recognizer.recognized.connect(lambda e: events.put(normalize_transcript_event(e.result.text, True))
+                                 if e.result.reason == speechsdk.ResultReason.RecognizedSpeech else None)
+    recognizer.session_stopped.connect(lambda e: events.put(None))
+    recognizer.canceled.connect(lambda e: events.put(RuntimeError('Azure speech recognition canceled')))
+
+    def feed():
+        try:
+            async_source = payload['audio_source']
+            for chunk in async_source:
+                stream.write(chunk)
+        except Exception as exc:
+            events.put(exc)
+        finally:
+            stream.close()
+
+    recognizer.start_continuous_recognition_async().get()
+    producer = Thread(target=feed, daemon=True)
+    producer.start()
+    try:
+        while True:
+            event = events.get(timeout=60)
+            if event is None:
+                break
+            if isinstance(event, Exception):
+                raise event
+            yield event
+    finally:
+        recognizer.stop_continuous_recognition_async().get()
+        stream.close()
+        producer.join(timeout=1)

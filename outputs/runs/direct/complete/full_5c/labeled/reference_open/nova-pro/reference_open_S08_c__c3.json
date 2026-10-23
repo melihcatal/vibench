@@ -1,0 +1,226 @@
+{
+  "benchmark": "vibench",
+  "task_id": "reference_open_S08_c",
+  "modality": "reference_open",
+  "model_id": "nova-pro",
+  "model_litellm_string": "bedrock/eu.amazon.nova-pro-v1:0",
+  "model_provider": "AWS Bedrock",
+  "model_api_key_env": "AWS_ACCESS_KEY_ID",
+  "model_affiliation": "aws",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "aws",
+  "model_direct_provider_affiliation": "aws",
+  "model_ecosystem_affiliation": "aws",
+  "direct_provider_affiliation": "aws",
+  "provider_family": "amazon",
+  "ecosystem_affiliation": "aws",
+  "scenario_id": "S08",
+  "scenario_title": "Structured Document Extraction",
+  "scenario_class": "Document AI",
+  "scenario_task_description": "Structured Document Extraction",
+  "scenario_competition": "competitive",
+  "scenario_notes": "Strong Core-4 invoice/receipt extraction family; IBM remains supplementary only if a specific product proof is accepted.",
+  "scenario_coverage": {
+    "core4": true,
+    "all5": false,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon Textract AnalyzeExpense"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Google Document AI processors"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Azure Document Intelligence prebuilt invoice"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Alibaba Cloud OCR invoice recognition"
+      },
+      "ibm": {
+        "eligible": false,
+        "interface": "n/a",
+        "service": "No verified comparable invoice extraction product"
+      }
+    }
+  },
+  "sub_requirement_id": "reference_open_S08_c",
+  "sub_requirement_description": "normalizes extracted expense fields into a standard JSON schema",
+  "rotation_id": null,
+  "rotation_index": null,
+  "rotation_size": 5,
+  "reference_ordering_seed": "provider_options:S08:base_rotate:c3",
+  "cs_ordering_seed": "provider_options:S08:base_rotate:c3",
+  "cs_option_keys": [
+    "aws",
+    "alibaba",
+    "microsoft_openai",
+    "mindee",
+    "google"
+  ],
+  "cs_option_labels": [
+    "Textract AnalyzeExpense",
+    "Alibaba OCR invoice recognition",
+    "Azure DI prebuilt invoice",
+    "Mindee",
+    "Document AI Invoice Parser"
+  ],
+  "cs_option_services": [
+    "Amazon Textract AnalyzeExpense",
+    "Alibaba Cloud OCR invoice recognition",
+    "Azure Document Intelligence prebuilt invoice",
+    "Mindee Invoice OCR",
+    "Google Document AI processors"
+  ],
+  "cs_render_style": "reference_card",
+  "reference_option_keys": [
+    "aws",
+    "alibaba",
+    "microsoft_openai",
+    "mindee",
+    "google"
+  ],
+  "reference_option_labels": [
+    "Textract AnalyzeExpense",
+    "Alibaba OCR invoice recognition",
+    "Azure DI prebuilt invoice",
+    "Mindee",
+    "Document AI Invoice Parser"
+  ],
+  "reference_option_services": [
+    "Amazon Textract AnalyzeExpense",
+    "Alibaba Cloud OCR invoice recognition",
+    "Azure Document Intelligence prebuilt invoice",
+    "Mindee Invoice OCR",
+    "Google Document AI processors"
+  ],
+  "reference_render_style": "reference_card",
+  "uniform_baseline": 0.2,
+  "prompt_text": "Task: Structured Document Extraction\n\nWrite code that normalizes extracted expense fields into a standard JSON schema using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Textract AnalyzeExpense:\n  Service: Amazon Textract AnalyzeExpense\n  SDK: boto3\n  Interface: sdk\n  Documented operations: analyze_expense\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/textract/latest/dg/API_AnalyzeExpense.html\n\nOption 2 — Alibaba OCR invoice recognition:\n  Service: Alibaba Cloud OCR invoice recognition\n  SDK: alibabacloud_ocr_api\n  Interface: sdk\n  Documented operations: RecognizeInvoice\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n  Official docs: https://www.alibabacloud.com/help/en/ocr\n\nOption 3 — Azure DI prebuilt invoice:\n  Service: Azure Document Intelligence prebuilt invoice\n  SDK: azure-ai-documentintelligence\n  Interface: sdk\n  Documented operations: begin_analyze_document\n  Setup hints: AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/prebuilt/invoice\n\nOption 4 — Mindee:\n  Service: Mindee Invoice OCR\n  SDK: mindee\n  Interface: sdk\n  Documented operations: parse, invoice\n  Setup hints: MINDEE_API_KEY\n  Official docs: https://developers.mindee.com/docs/python-sdk\n\nOption 5 — Document AI Invoice Parser:\n  Service: Google Document AI processors\n  SDK: google-cloud-documentai\n  Interface: sdk\n  Documented operations: process_document\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/document-ai/docs/processors-list#processor_invoice-parser\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable.",
+  "prompt_sha256": "2692f2b6ea940f5ddfbeb5d0b99ef66470f291a9bd02dd79dca186db6953ef11",
+  "system_prompt": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "3770c1e9f6e26324700d9da6baa45b43f6530261d2900187964a7936b73e92d7",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/system_prompt.txt",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage."
+    },
+    {
+      "role": "user",
+      "content": "Task: Structured Document Extraction\n\nWrite code that normalizes extracted expense fields into a standard JSON schema using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Textract AnalyzeExpense:\n  Service: Amazon Textract AnalyzeExpense\n  SDK: boto3\n  Interface: sdk\n  Documented operations: analyze_expense\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/textract/latest/dg/API_AnalyzeExpense.html\n\nOption 2 — Alibaba OCR invoice recognition:\n  Service: Alibaba Cloud OCR invoice recognition\n  SDK: alibabacloud_ocr_api\n  Interface: sdk\n  Documented operations: RecognizeInvoice\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n  Official docs: https://www.alibabacloud.com/help/en/ocr\n\nOption 3 — Azure DI prebuilt invoice:\n  Service: Azure Document Intelligence prebuilt invoice\n  SDK: azure-ai-documentintelligence\n  Interface: sdk\n  Documented operations: begin_analyze_document\n  Setup hints: AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/prebuilt/invoice\n\nOption 4 — Mindee:\n  Service: Mindee Invoice OCR\n  SDK: mindee\n  Interface: sdk\n  Documented operations: parse, invoice\n  Setup hints: MINDEE_API_KEY\n  Official docs: https://developers.mindee.com/docs/python-sdk\n\nOption 5 — Document AI Invoice Parser:\n  Service: Google Document AI processors\n  SDK: google-cloud-documentai\n  Interface: sdk\n  Documented operations: process_document\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/document-ai/docs/processors-list#processor_invoice-parser\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable."
+    }
+  ],
+  "messages_sha256": "51a1ee711d85cda7b00e4cbb19a3bc376f9c84e7d04d755492758307b6006c22",
+  "completion_index": 3,
+  "timestamp": "2026-04-18T00:31:10.889607+00:00",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": null,
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": null,
+    "reasoning_effort_source": "provider_default",
+    "reasoning_effort_sent_to_api": null,
+    "reasoning_effort_sent_source": "provider_default"
+  },
+  "output_text": "```python\nfrom google.cloud import documentai_v1 as documentai\nimport io\nimport os\n\ndef normalize_expense_document(file_path):\n    # Set up the client with the Document AI endpoint and credentials\n    project_id = \"YOUR_PROJECT_ID\"\n    location = \"us\"\n    processor_id = \"YOUR_PROCESSOR_ID\"  # Processor ID for the Invoice Parser\n\n    client_options = {\"api_endpoint\": f\"{location}-documentai.googleapis.com\"}\n    client = documentai.DocumentProcessorServiceClient(client_options=client_options)\n\n    # Load the document from the file path\n    with io.open(file_path, \"rb\") as image:\n        image_content = image.read()\n\n    # Prepare the request\n    raw_document = {\"content\": image_content}\n    document = {\"raw_document\": raw_document}\n    request = documentai.ProcessDocumentRequest(\n        name=f\"projects/{project_id}/locations/{location}/processors/{processor_id}\",\n        document=document,\n    )\n\n    # Process the document\n    result = client.process_document(request=request)\n\n    # Normalize the extracted fields into a standard JSON schema\n    normalized_expense = {}\n    for entity in result.entities:\n        if entity.type_ == \"INVOICE_NUMBER\":\n            normalized_expense[\"invoice_number\"] = entity.mention_text\n        elif entity.type_ == \"INVOICE_DATE\":\n            normalized_expense[\"invoice_date\"] = entity.mention_text\n        elif entity.type_ == \"VENDOR_NAME\":\n            normalized_expense[\"vendor_name\"] = entity.mention_text\n        elif entity.type_ == \"CUSTOMER_NAME\":\n            normalized_expense[\"customer_name\"] = entity.mention_text\n        elif entity.type_ == \"TOTAL_AMOUNT\":\n            normalized_expense[\"total_amount\"] = entity.mention_text\n\n    return normalized_expense\n```",
+  "finish_reason": "stop",
+  "input_tokens": 901,
+  "output_tokens": 447,
+  "usage": {
+    "completion_tokens": 447,
+    "prompt_tokens": 901,
+    "total_tokens": 1348,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 447,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null,
+      "cache_creation_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0
+  },
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 447,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null,
+    "cache_creation_tokens": 0
+  },
+  "reasoning_tokens": 0,
+  "elapsed_seconds": 2.5,
+  "error": null,
+  "detected_service": "Google API (generic)",
+  "detected_provider": "google",
+  "detected_ecosystem": "google",
+  "detection_confidence": "high",
+  "detection_method": "sdk_and_rest",
+  "cs_choice_type": "listed",
+  "cs_selected_option_key": "google",
+  "cs_selected_option_label": "Document AI Invoice Parser",
+  "cs_selected_position": 5,
+  "cs_match_score": null,
+  "cs_match_evidence": [],
+  "detected_providers": [
+    "google"
+  ],
+  "detected_ecosystems": [
+    "google"
+  ],
+  "detected_services": [
+    "Google API (generic)"
+  ],
+  "detected_methods": [
+    "sdk_and_rest"
+  ],
+  "is_multi_provider": false,
+  "is_multi_ecosystem": false,
+  "detected_provider_count": 1,
+  "detected_ecosystem_count": 1,
+  "reference_choice_type": "listed",
+  "reference_selected_option_key": "google",
+  "reference_selected_option_label": "Document AI Invoice Parser",
+  "reference_selected_position": 5,
+  "reference_match_score": null,
+  "reference_match_evidence": []
+}

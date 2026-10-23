@@ -1,0 +1,47 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "image_tokens": null,
+    "reasoning_tokens": 4706,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 1805,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 26.97,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 814,
+  "output_text": "```json\n{\n    \"embed_text.py\": \"import os\\nfrom typing import List\\nfrom embeddings_client import get_openai_embedding_client, OPENAI_EMBEDDING_MODEL\\n\\ndef embed_text(text: str) -> List[float]:\\n    client = get_openai_embedding_client()\\n    response = client.embeddings.create(\\n        input=[text],\\n        model=OPENAI_EMBEDDING_MODEL\\n    )\\n    return response.data[0].embedding\\n\",\n    \"embed_batch.py\": \"import os\\nfrom typing import List\\nfrom embeddings_client import get_openai_embedding_client, OPENAI_EMBEDDING_MODEL\\n\\ndef embed_batch(texts: List[str]) -> List[List[float]]:\\n    client = get_openai_embedding_client()\\n    response = client.embeddings.create(\\n        input=texts,\\n        model=OPENAI_EMBEDDING_MODEL\\n    )\\n    return [item.embedding for item in response.data]\\n\",\n    \"similarity_score.py\": \"import numpy as np\\nfrom typing import List\\nfrom embeddings_client import get_openai_embedding_client, OPENAI_EMBEDDING_MODEL\\n\\ndef _get_embedding(text: str) -> List[float]:\\n    client = get_openai_embedding_client()\\n    response = client.embeddings.create(\\n        input=[text],\\n        model=OPENAI_EMBEDDING_MODEL\\n    )\\n    return response.data[0].embedding\\n\\ndef compute_cosine_similarity(text1: str, text2: str) -> float:\\n    embedding1 = _get_embedding(text1)\\n    embedding2 = _get_embedding(text2)\\n\\n    vec1 = np.array(embedding1)\\n    vec2 = np.array(embedding2)\\n\\n    dot_product = np.dot(vec1, vec2)\\n    norm_a = np.linalg.norm(vec1)\\n    norm_b = np.linalg.norm(vec2)\\n\\n    if norm_a == 0 or norm_b == 0:\\n        return 0.0\\n\\n    return dot_product / (norm_a * norm_b)\\n\",\n    \"embed_for_search.py\": \"from typing import List, Tuple\\nfrom embeddings_client import get_openai_embedding_client, OPENAI_EMBEDDING_MODEL\\n\\ndef embed_for_search(query_text: str, document_texts: List[str]) -> Tuple[List[float], List[List[float]]]:\\n    client = get_openai_embedding_client()\\n    all_texts = [query_text] + document_texts\\n    response = client.embeddings.create(\\n        input=all_texts,\\n        model=OPENAI_EMBEDDING_MODEL\\n    )\\n    query_embedding = response.data[0].embedding\\n    document_embeddings = [item.embedding for item in response.data[1:]]\\n    return query_embedding, document_embeddings\\n\",\n    \"embeddings_client.py\": \"import os\\nimport openai\\n\\ndef get_openai_embedding_client():\\n    api_key = os.getenv(\\\"OPENAI_API_KEY\\\")\\n    if not api_key:\\n        raise ValueError(\\\"OPENAI_API_KEY environment variable not set.\\\")\\n    return openai.OpenAI(api_key=api_key)\\n\\nOPENAI_EMBEDDING_MODEL = \\\"text-embedding-3-small\\\"\\n\",\n    \"embeddings_models.py\": \"from typing import List, Dict, Any\\n\\n# A simplified model for an embedding response structure.\\n# This helper would typically normalize responses from a specific provider.\\n# For OpenAI, the SDK client directly returns convenient objects.\\ndef normalize_embedding_response(response_data: Dict[str, Any]) -> List[List[float]]:\\n    # Example: If needing to parse a raw HTTP response or a different SDK format\\n    # For OpenAI's Python SDK, response.data[i].embedding already gives the list of floats.\\n    # This function is a placeholder for potential normalization if needed.\\n    embeddings = []\\n    if \\\"data\\\" in response_data and isinstance(response_data[\\\"data\\\"], list):\\n        for item in response_data[\\\"data\\\"]:\\n            if \\\"embedding\\\" in item and isinstance(item[\\\"embedding\\\"], list):\\n                embeddings.append(item[\\\"embedding\\\"])\\n    return embeddings\\n\",\n    \"embedding_job_summary.py\": \"import os\\nimport openai\\n\\ndef summarize_embedding_job_results(results_text: str) -> str:\\n    client = openai.OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"))\\n    prompt = (\\n        \\\"Summarize the following embedding job results. \\\"\\n        \\\"Highlight key statistics, errors, and overall success/failure:\\\\n\\\\n\\\"\\n        f\\\"{results_text}\\\"\\n    )\\n    response = client.chat.completions.create(\\n        model=\\\"gpt-3.5-turbo\\\",\\n        messages=[\\n            {\\\"role\\\": \\\"system\\\", \\\"content\\\": \\\"You are a helpful assistant that summarizes technical reports concisely.\\\"}, \\n            {\\\"role\\\": \\\"user\\\", \\\"content\\\": prompt}\\n        ],\\n        temperature=0.7,\\n        max_tokens=500\\n    )\\n    return response.choices[0].message.content\\n\",\n    \"corpus_safety.py\": \"import os\\nimport openai\\nfrom typing import Dict, Any\\n\\ndef check_corpus_safety(text: str) -> Dict[str, Any]:\\n    client = openai.OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"))\\n    response = client.moderations.create(\\n        input=text,\\n        model=\\\"text-moderation-latest\\\"\\n    )\\n    return response.results[0].model_dump()\\n\",\n    \"multilingual_query_translate.py\": \"import os\\nfrom google.cloud import translate_v3 as translate\\n\\ndef translate_query(text: str, target_language_code: str, project_id: str = None) -> str:\\n    client = translate.TranslationServiceClient()\\n\\n    if project_id is None:\\n        project_id = os.getenv(\\\"GOOGLE_CLOUD_PROJECT\\\")\\n        if not project_id:\\n            raise ValueError(\\\"GOOGLE_CLOUD_PROJECT environment variable not set or project_id not provided.\\\")\\n\\n    location = \\\"global\\\"\\n    parent = f\\\"projects/{project_id}/locations/{location}\\\"\\n\\n    response = client.translate_text(\\n        request={\\n            \\\"parent\\\": parent,\\n            \\\"contents\\\": [text],\\n            \\\"target_language_code\\\": target_language_code,\\n            \\\"mime_type\\\": \\\"text/plain\\\",\\n        }\\n    )\\n    return response.translations[0].translated_text\\n\",\n    \"retrieval_audio_brief.py\": \"import os\\nimport openai\\nfrom typing import Union\\n\\ndef generate_audio_brief(text: str, output_path: Union[str, None] = None) -> bytes:\\n    client = openai.OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"))\\n    response = client.audio.speech.create(\\n        model=\\\"tts-1\\\",\\n        voice=\\\"alloy\\\",\\n        input=text\\n    )\\n    audio_bytes = response.content\\n    if output_path:\\n        with open(output_path, \\\"wb\\\") as f:\\n            f.write(audio_bytes)\\n    return audio_bytes\\n\"\n}\n```",
+  "output_tokens": 6511,
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "image_tokens": null,
+    "text_tokens": 814,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 4706,
+  "usage": {
+    "cache_read_input_tokens": null,
+    "completion_tokens": 6511,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "image_tokens": null,
+      "reasoning_tokens": 4706,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 1805,
+      "video_tokens": null
+    },
+    "prompt_tokens": 814,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "image_tokens": null,
+      "text_tokens": 814,
+      "video_tokens": null
+    },
+    "total_tokens": 7325
+  }
+}

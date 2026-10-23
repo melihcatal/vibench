@@ -1,0 +1,18 @@
+import asyncio
+import wave
+from ibm_watson import SpeechToTextV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+
+
+async def stream_microphone():
+    authenticator = IAMAuthenticator(os.getenv("IBM_STT_APIKEY"))
+    speech_to_text = SpeechToTextV1(authenticator=authenticator)
+    speech_to_text.set_service_url(os.getenv("IBM_STT_URL"))
+    with wave.open("audio.wav", "rb") as audio_file:
+        async for transcript in speech_to_text.recognize_using_websocket(
+            audio=audio_file, content_type="audio/wav"
+        ):
+            yield transcript
+
+
+asyncio.run(stream_microphone())

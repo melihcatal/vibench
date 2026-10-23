@@ -1,0 +1,26 @@
+# Targeted task-disclosure sensitivity analysis; no model calls without --execute.
+# 3 models x 6 scenarios x 2 conditions x 5 completions = 180 repositories.
+# Each repository has 10 fresh file-generation sessions: 1,800 sessions total.
+name: ablations/agentic_mechanism/task_disclosure/disclosure_6s_3m_5c
+benchmark: vibench
+type: agentic
+variants: [free]
+models:
+  - gemini-2.5-flash
+  - nova-pro
+  - gpt-5.4-mini
+# Coverage-based selection, not ranked by observed VIB or ablation outcomes.
+tasks:
+  - S03 # Text translation
+  - S04 # Batch speech-to-text
+  - S10 # LLM API inference
+  - S14 # Managed object storage
+  - S16 # Secrets management
+  - S20 # Logging
+conditions: [full_disclosure, staged_disclosure]
+completions: 5
+timeout: 300
+max_workers: 3
+max_consecutive_errors: 5
+# Sampling inherits the original direct and agentic YAML policies rather than
+# duplicating them here. Both GPT API reasoning and OpenCode variants are none.

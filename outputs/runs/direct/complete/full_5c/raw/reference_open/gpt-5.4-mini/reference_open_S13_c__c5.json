@@ -1,0 +1,195 @@
+{
+  "benchmark": "vibench",
+  "task_id": "reference_open_S13_c",
+  "modality": "reference_open",
+  "model_id": "gpt-5.4-mini",
+  "model_litellm_string": "gpt-5.4-mini",
+  "model_provider": "OpenAI",
+  "model_api_key_env": "OPENAI_API_KEY",
+  "model_affiliation": "microsoft_openai",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "azure",
+  "model_direct_provider_affiliation": "openai",
+  "model_ecosystem_affiliation": "microsoft_openai",
+  "direct_provider_affiliation": "openai",
+  "provider_family": "openai",
+  "ecosystem_affiliation": "microsoft_openai",
+  "scenario_id": "S13",
+  "scenario_title": "Text Content Safety",
+  "scenario_class": "Safety",
+  "scenario_task_description": "Text Content Safety",
+  "scenario_competition": "competitive_with_caveat",
+  "scenario_notes": "Policy taxonomies differ; score broad harmful-content detection rather than exact category parity.",
+  "scenario_coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon Comprehend / Bedrock Guardrails"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "Perspective API"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Azure AI Content Safety"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Alibaba Content Moderation"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "watsonx.ai guardrails / HAP detection"
+      }
+    }
+  },
+  "sub_requirement_id": "reference_open_S13_c",
+  "sub_requirement_description": "flags or redacts unsafe spans from text",
+  "rotation_id": null,
+  "rotation_index": null,
+  "rotation_size": 6,
+  "reference_ordering_seed": "provider_options:S13:base_rotate:c5",
+  "cs_ordering_seed": "provider_options:S13:base_rotate:c5",
+  "cs_option_keys": [
+    "ibm",
+    "microsoft_openai",
+    "aws",
+    "alibaba",
+    "google",
+    "tisane"
+  ],
+  "cs_option_labels": [
+    "watsonx guardrails",
+    "Azure AI Content Safety",
+    "Amazon Comprehend Toxicity / Bedrock Guardrails",
+    "Alibaba Content Moderation",
+    "Perspective API",
+    "Tisane"
+  ],
+  "cs_option_services": [
+    "watsonx.ai guardrails / HAP detection",
+    "Azure AI Content Safety",
+    "Amazon Comprehend / Bedrock Guardrails",
+    "Alibaba Content Moderation",
+    "Perspective API",
+    "Tisane Text Moderation"
+  ],
+  "cs_render_style": "reference_card",
+  "reference_option_keys": [
+    "ibm",
+    "microsoft_openai",
+    "aws",
+    "alibaba",
+    "google",
+    "tisane"
+  ],
+  "reference_option_labels": [
+    "watsonx guardrails",
+    "Azure AI Content Safety",
+    "Amazon Comprehend Toxicity / Bedrock Guardrails",
+    "Alibaba Content Moderation",
+    "Perspective API",
+    "Tisane"
+  ],
+  "reference_option_services": [
+    "watsonx.ai guardrails / HAP detection",
+    "Azure AI Content Safety",
+    "Amazon Comprehend / Bedrock Guardrails",
+    "Alibaba Content Moderation",
+    "Perspective API",
+    "Tisane Text Moderation"
+  ],
+  "reference_render_style": "reference_card",
+  "uniform_baseline": 0.166667,
+  "prompt_text": "Task: Text Content Safety\n\nWrite code that flags or redacts unsafe spans from text using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — watsonx guardrails:\n  Service: watsonx.ai guardrails / HAP detection\n  SDK: ibm-watsonx-ai / REST\n  Interface: sdk_or_rest\n  Documented operations: HAP detection, text detection\n  Setup hints: WATSONX_API_KEY, WATSONX_PROJECT_ID\n  Official docs: https://www.ibm.com/docs/en/watsonxdata/premium/2.3.x?topic=prompts-removing-harmful-content\n\nOption 2 — Azure AI Content Safety:\n  Service: Azure AI Content Safety\n  SDK: requests / azure-ai-contentsafety\n  Interface: sdk_or_rest\n  Documented operations: analyze_text\n  Setup hints: AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview\n\nOption 3 — Amazon Comprehend Toxicity / Bedrock Guardrails:\n  Service: Amazon Comprehend / Bedrock Guardrails\n  SDK: boto3\n  Interface: sdk\n  Documented operations: detect_toxic_content, apply_guardrail\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/comprehend/latest/dg/trust-safety.html\n\nOption 4 — Alibaba Content Moderation:\n  Service: Alibaba Content Moderation\n  SDK: alibabacloud_green\n  Interface: sdk\n  Documented operations: text/scan\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n  Official docs: https://www.alibabacloud.com/help/doc-detail/331920.html\n\nOption 5 — Perspective API:\n  Service: Perspective API\n  SDK: requests\n  Interface: rest\n  Documented operations: comments:analyze\n  Setup hints: PERSPECTIVE_API_KEY\n  Official docs: https://developers.perspectiveapi.com/s/\n\nOption 6 — Tisane:\n  Service: Tisane Text Moderation\n  SDK: requests\n  Interface: rest\n  Documented operations: POST /parse\n  Setup hints: TISANE_API_KEY\n  Official docs: https://docs.tisane.ai/\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable.",
+  "prompt_sha256": "a314feaa7112c8d5a143508f9413b9171b719736d983882eef8980655939a581",
+  "system_prompt": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "3770c1e9f6e26324700d9da6baa45b43f6530261d2900187964a7936b73e92d7",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/system_prompt.txt",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage."
+    },
+    {
+      "role": "user",
+      "content": "Task: Text Content Safety\n\nWrite code that flags or redacts unsafe spans from text using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — watsonx guardrails:\n  Service: watsonx.ai guardrails / HAP detection\n  SDK: ibm-watsonx-ai / REST\n  Interface: sdk_or_rest\n  Documented operations: HAP detection, text detection\n  Setup hints: WATSONX_API_KEY, WATSONX_PROJECT_ID\n  Official docs: https://www.ibm.com/docs/en/watsonxdata/premium/2.3.x?topic=prompts-removing-harmful-content\n\nOption 2 — Azure AI Content Safety:\n  Service: Azure AI Content Safety\n  SDK: requests / azure-ai-contentsafety\n  Interface: sdk_or_rest\n  Documented operations: analyze_text\n  Setup hints: AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview\n\nOption 3 — Amazon Comprehend Toxicity / Bedrock Guardrails:\n  Service: Amazon Comprehend / Bedrock Guardrails\n  SDK: boto3\n  Interface: sdk\n  Documented operations: detect_toxic_content, apply_guardrail\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/comprehend/latest/dg/trust-safety.html\n\nOption 4 — Alibaba Content Moderation:\n  Service: Alibaba Content Moderation\n  SDK: alibabacloud_green\n  Interface: sdk\n  Documented operations: text/scan\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n  Official docs: https://www.alibabacloud.com/help/doc-detail/331920.html\n\nOption 5 — Perspective API:\n  Service: Perspective API\n  SDK: requests\n  Interface: rest\n  Documented operations: comments:analyze\n  Setup hints: PERSPECTIVE_API_KEY\n  Official docs: https://developers.perspectiveapi.com/s/\n\nOption 6 — Tisane:\n  Service: Tisane Text Moderation\n  SDK: requests\n  Interface: rest\n  Documented operations: POST /parse\n  Setup hints: TISANE_API_KEY\n  Official docs: https://docs.tisane.ai/\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable."
+    }
+  ],
+  "messages_sha256": "bf9265685a86c8fcaf5c4c35d6a9d1e8fb5711a746b258843ffa314b3ceb9536",
+  "completion_index": 5,
+  "timestamp": "2026-04-18T00:31:46.734450+00:00",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": "none",
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": "none",
+    "reasoning_effort_source": "model_override",
+    "reasoning_effort_sent_to_api": "none",
+    "reasoning_effort_sent_source": "model_override"
+  },
+  "output_text": "import os\nimport re\nfrom dataclasses import dataclass\nfrom typing import Any, Dict, List, Optional, Tuple\n\nimport requests\n\n\n@dataclass\nclass UnsafeSpan:\n    start: int\n    end: int\n    label: str\n    score: float\n\n\nclass ContentSafetyError(RuntimeError):\n    pass\n\n\ndef _load_config() -> Tuple[str, str]:\n    endpoint = os.getenv(\"AZURE_CONTENT_SAFETY_ENDPOINT\", \"\").rstrip(\"/\")\n    key = os.getenv(\"AZURE_CONTENT_SAFETY_KEY\", \"\")\n    if not endpoint or not key:\n        raise ContentSafetyError(\n            \"Missing Azure Content Safety configuration. \"\n            \"Set AZURE_CONTENT_SAFETY_ENDPOINT and AZURE_CONTENT_SAFETY_KEY.\"\n        )\n    return endpoint, key\n\n\ndef _score_to_label(categories: Dict[str, Any]) -> List[Tuple[str, float]]:\n    out = []\n    for category, payload in categories.items():\n        if isinstance(payload, dict):\n            severity = payload.get(\"severity\", 0)\n        else:\n            severity = payload\n        try:\n            severity_val = float(severity)\n        except (TypeError, ValueError):\n            severity_val = 0.0\n        out.append((str(category), severity_val))\n    return out\n\n\ndef _call_azure_content_safety(text: str) -> Dict[str, Any]:\n    endpoint, key = _load_config()\n    url = f\"{endpoint}/contentsafety/text:analyze?api-version=2023-10-01\"\n    headers = {\n        \"Content-Type\": \"application/json\",\n        \"Ocp-Apim-Subscription-Key\": key,\n    }\n    payload = {\n        \"text\": text,\n        \"categories\": [\"Hate\", \"SelfHarm\", \"Sexual\", \"Violence\"],\n        \"outputType\": \"FourSeverityLevels\",\n    }\n    resp = requests.post(url, headers=headers, json=payload, timeout=30)\n    if resp.status_code >= 400:\n        raise ContentSafetyError(f\"Azure Content Safety API error {resp.status_code}: {resp.text}\")\n    return resp.json()\n\n\ndef _find_unsafe_spans(text: str, analysis: Dict[str, Any], threshold: int = 2) -> List[UnsafeSpan]:\n    spans: List[UnsafeSpan] = []\n    categories = analysis.get(\"categoriesAnalysis\", []) or []\n    for item in categories:\n        category = str(item.get(\"category\", \"unknown\"))\n        severity = int(item.get(\"severity\", 0) or 0)\n        if severity < threshold:\n            continue\n        if severity >= 4:\n            label = f\"{category}:high\"\n        elif severity == 3:\n            label = f\"{category}:medium\"\n        else:\n            label = f\"{category}:low\"\n\n        raw_matches = item.get(\"detected\", []) or item.get(\"detectedTerms\", []) or []\n        for m in raw_matches:\n            start = m.get(\"offset\")\n            length = m.get(\"length\")\n            if start is None or length is None:\n                continue\n            try:\n                s = int(start)\n                e = int(start) + int(length)\n            except (TypeError, ValueError):\n                continue\n            if 0 <= s < e <= len(text):\n                spans.append(UnsafeSpan(start=s, end=e, label=label, score=float(severity)))\n\n    spans.sort(key=lambda x: (x.start, -x.end))\n    merged: List[UnsafeSpan] = []\n    for span in spans:\n        if not merged or span.start > merged[-1].end:\n            merged.append(span)\n        else:\n            prev = merged[-1]\n            merged[-1] = UnsafeSpan(\n                start=min(prev.start, span.start),\n                end=max(prev.end, span.end),\n                label=prev.label if prev.score >= span.score else span.label,\n                score=max(prev.score, span.score),\n            )\n    return merged\n\n\ndef _fallback_keyword_spans(text: str) -> List[UnsafeSpan]:\n    patterns = [\n        (r\"\\b(kill|murder|suicide|bomb)\\b\", \"violence\"),\n        (r\"\\b(hate|racist|nazi)\\b\", \"hate\"),\n        (r\"\\b(sex|nude|porn)\\b\", \"sexual\"),\n        (r\"\\b(cut myself|self-harm|hurt myself)\\b\", \"selfharm\"),\n    ]\n    spans: List[UnsafeSpan] = []\n    lower = text.lower()\n    for pat, label in patterns:\n        for m in re.finditer(pat, lower, flags=re.IGNORECASE):\n            spans.append(UnsafeSpan(m.start(), m.end(), label, 3.0))\n    spans.sort(key=lambda x: (x.start, x.end))\n    return spans\n\n\ndef redact_unsafe_spans(\n    text: str,\n    redaction_token: str = \"[REDACTED]\",\n    min_severity: int = 2,\n) -> Dict[str, Any]:\n    \"\"\"\n    Analyze text with Azure AI Content Safety and redact unsafe spans.\n\n    Returns:\n        {\n            \"text\": original text,\n            \"redacted_text\": redacted text,\n            \"unsafe_spans\": [\n                {\"start\": int, \"end\": int, \"label\": str, \"score\": float},\n                ...\n            ],\n            \"analysis\": raw provider response\n        }\n    \"\"\"\n    analysis: Dict[str, Any] = {}\n    try:\n        analysis = _call_azure_content_safety(text)\n        spans = _find_unsafe_spans(text, analysis, threshold=min_severity)\n    except Exception:\n        spans = _fallback_keyword_spans(text)\n        analysis = {\"fallback\": True}\n\n    if not spans:\n        return {\n            \"text\": text,\n            \"redacted_text\": text,\n            \"unsafe_spans\": [],\n            \"analysis\": analysis,\n        }\n\n    parts: List[str] = []\n    cursor = 0\n    span_dicts: List[Dict[str, Any]] = []\n    for span in spans:\n        if span.start < cursor:\n            continue\n        parts.append(text[cursor:span.start])\n        parts.append(redaction_token)\n        span_dicts.append(\n            {\n                \"start\": span.start,\n                \"end\": span.end,\n                \"label\": span.label,\n                \"score\": span.score,\n            }\n        )\n        cursor = span.end\n    parts.append(text[cursor:])\n\n    return {\n        \"text\": text,\n        \"redacted_text\": \"\".join(parts),\n        \"unsafe_spans\": span_dicts,\n        \"analysis\": analysis,\n    }",
+  "finish_reason": "stop",
+  "input_tokens": 946,
+  "output_tokens": 1383,
+  "usage": {
+    "completion_tokens": 1383,
+    "prompt_tokens": 946,
+    "total_tokens": 2329,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    }
+  },
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "elapsed_seconds": 7.76,
+  "error": null
+}

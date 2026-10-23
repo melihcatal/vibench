@@ -1,0 +1,1 @@
+# Placeholder for translation memory embedding implementation

@@ -1,0 +1,22 @@
+{
+  "command": [
+    "opencode",
+    "run",
+    "--attach",
+    "http://127.0.0.1:51971",
+    "--format",
+    "json",
+    "-m",
+    "openai/gpt-5.4-mini",
+    "--agent",
+    "vibench",
+    "--variant",
+    "none",
+    "<prompt_text>"
+  ],
+  "elapsed_seconds": 4.2195778749883175,
+  "error": null,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "{\"type\":\"step_start\",\"timestamp\":1789860124989,\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"part\":{\"id\":\"prt_0bbfa193b001wyd8zi76zwIKXB\",\"messageID\":\"msg_0bbfa16c80015SXncqVug67dxa\",\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789860127344,\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"part\":{\"type\":\"tool\",\"tool\":\"bash\",\"callID\":\"call_DBoNa46GsQQb8Uqb071AR226\",\"state\":{\"status\":\"completed\",\"input\":{\"command\":\"python - <<'PY'\\nfrom pathlib import Path\\nPath('metrics_export_archive.py').write_text('''import os\\\\nfrom datetime import datetime, timezone\\\\nfrom typing import Optional\\\\n\\\\nimport boto3\\\\nfrom botocore.exceptions import BotoCoreError, ClientError\\\\n\\\\nS3_BUCKET_ENV = \\\"AWS_S3_BUCKET\\\"\\\\nS3_PREFIX_ENV = \\\"AWS_S3_PREFIX\\\"\\\\nAWS_REGION_ENV = \\\"AWS_REGION\\\"\\\\nAWS_PROFILE_ENV = \\\"AWS_PROFILE\\\"\\\\n\\\\n\\\\ndef _s3_client():\\\\n    session = boto3.Session(profile_name=os.getenv(AWS_PROFILE_ENV) or None, region_name=os.getenv(AWS_REGION_ENV) or None)\\\\n    return session.client(\\\"s3\\\")\\\\n\\\\n\\\\ndef archive_exported_metric_snapshot(source_path: str, object_key: Optional[str] = None) -> str:\\\\n    bucket = os.environ[S3_BUCKET_ENV]\\\\n    prefix = os.getenv(S3_PREFIX_ENV, \\\"metrics-archive\\\").strip(\\\"/\\\")\\\\n    key = object_key or f\\\"{prefix}/{datetime.now(timezone.utc).strftime('%Y/%m/%d/%H%M%S')}-{os.path.basename(source_path)}\\\"\\\\n    client = _s3_client()\\\\n    try:\\\\n        client.upload_file(source_path, bucket, key)\\\\n    except (BotoCoreError, ClientError) as exc:\\\\n        raise RuntimeError(f\\\"failed to archive snapshot to s3://{bucket}/{key}\\\") from exc\\\\n    return f\\\"s3://{bucket}/{key}\\\"\\\\n\\\\n\\\\n__all__ = [\\\"archive_exported_metric_snapshot\\\"]\\\\n''')\\nPY\",\"timeout\":120000,\"workdir\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-fmc3gxdz\",\"description\":\"Creates metrics export archive file\"},\"output\":\"(no output)\",\"metadata\":{\"output\":\"(no output)\",\"exit\":0,\"description\":\"Creates metrics export archive file\",\"truncated\":false},\"title\":\"Creates metrics export archive file\",\"time\":{\"start\":1789860127298,\"end\":1789860127343}},\"metadata\":{\"openai\":{\"itemId\":\"fc_0658646bc3eca181016aaf191d2c7c87d2876bce293ab95e78\"}},\"id\":\"prt_0bbfa1a04001CnQ2r2y0VryvdG\",\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"messageID\":\"msg_0bbfa16c80015SXncqVug67dxa\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789860127358,\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"part\":{\"id\":\"prt_0bbfa2277001xxO1diABOqFCv9\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bbfa16c80015SXncqVug67dxa\",\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"type\":\"step-finish\",\"tokens\":{\"total\":5359,\"input\":1335,\"output\":440,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":3584}},\"cost\":0.00325005}}\n{\"type\":\"step_start\",\"timestamp\":1789860127914,\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"part\":{\"id\":\"prt_0bbfa24a8001ZAmDB8ZyJPlnIw\",\"messageID\":\"msg_0bbfa227a0017MnkLPikVD5vu2\",\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"type\":\"step-start\"}}\n{\"type\":\"text\",\"timestamp\":1789860128106,\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"part\":{\"id\":\"prt_0bbfa24f9001QH81K8l7ZDAlgp\",\"messageID\":\"msg_0bbfa227a0017MnkLPikVD5vu2\",\"sessionID\":\"ses_f4405e944ffedgRbcnEvAQibbV\",\"type\":\"text\",\"text\":\"\",\"time\":{\"start\":1789860127993,\"end\":1789860128105},\"metadata\":{\"openai\":{\"itemId\":\"msg_083dc9e92729f4c1016aaf191ffb9087d29d8a256a334c0948\",\"phase\":\"final_answer\"}}}}\n"
+}

@@ -1,0 +1,15 @@
+import os
+from openai import AzureOpenAI
+
+client = AzureOpenAI(
+    api_key=os.getenv('AZURE_OPENAI_API_KEY'),
+    api_version='2023-05-15'
+)
+
+def translate_appeal(text, target_language='es'):
+    response = client.translations.create(
+        input=text,
+        model='text-translation-stable',
+        target_language=target_language
+    )
+    return response.translated_text

@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 5.43,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 764,
+  "output_text": "{\"embed_text.py\":\"import os\\nfrom typing import Sequence\\n\\nfrom embeddings_client import get_embeddings_client\\nfrom embeddings_models import normalize_embedding_response\\n\\nMODEL_ID = os.getenv(\\\"OPENAI_EMBEDDING_MODEL\\\", \\\"text-embedding-3-small\\\")\\n\\n\\ndef embed_text(text: str) -> Sequence[float]:\\n    client = get_embeddings_client()\\n    response = client.embeddings.create(model=MODEL_ID, input=text)\\n    normalized = normalize_embedding_response(response)\\n    return normalized[0]\\n\",\"embed_batch.py\":\"import os\\nfrom typing import List, Sequence\\n\\nfrom embeddings_client import get_embeddings_client\\nfrom embeddings_models import normalize_embedding_response\\n\\nMODEL_ID = os.getenv(\\\"OPENAI_EMBEDDING_MODEL\\\", \\\"text-embedding-3-small\\\")\\n\\n\\ndef embed_batch(texts: List[str]) -> List[Sequence[float]]:\\n    client = get_embeddings_client()\\n    response = client.embeddings.create(model=MODEL_ID, input=texts)\\n    return normalize_embedding_response(response)\\n\",\"similarity_score.py\":\"import math\\nfrom typing import Sequence\\n\\nfrom embed_text import embed_text\\n\\n\\ndef cosine_similarity(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:\\n    if len(vec_a) != len(vec_b):\\n        raise ValueError(\\\"Embedding vectors must have the same length\\\")\\n    dot = sum(a * b for a, b in zip(vec_a, vec_b))\\n    norm_a = math.sqrt(sum(a * a for a in vec_a))\\n    norm_b = math.sqrt(sum(b * b for b in vec_b))\\n    if norm_a == 0.0 or norm_b == 0.0:\\n        return 0.0\\n    return dot / (norm_a * norm_b)\\n\\n\\ndef similarity_score(text_a: str, text_b: str) -> float:\\n    emb_a = embed_text(text_a)\\n    emb_b = embed_text(text_b)\\n    return cosine_similarity(emb_a, emb_b)\\n\",\"embed_for_search.py\":\"import os\\nfrom typing import Dict, List, Sequence\\n\\nfrom embeddings_client import get_embeddings_client\\nfrom embeddings_models import normalize_embedding_response\\n\\nMODEL_ID = os.getenv(\\\"OPENAI_EMBEDDING_MODEL\\\", \\\"text-embedding-3-small\\\")\\n\\n\\ndef embed_for_search(query: str, documents: List[str]) -> Dict[str, Sequence[float]]:\\n    client = get_embeddings_client()\\n    response = client.embeddings.create(model=MODEL_ID, input=[query, *documents])\\n    embeddings = normalize_embedding_response(response)\\n    return {\\\"query_embedding\\\": embeddings[0], \\\"document_embeddings\\\": embeddings[1:]}\\n\",\"embeddings_client.py\":\"import os\\nfrom functools import lru_cache\\nfrom typing import Optional\\n\\nfrom openai import OpenAI\\n\\n\\n@lru_cache(maxsize=1)\\ndef get_embeddings_client(api_key: Optional[str] = None) -> OpenAI:\\n    key = api_key or os.getenv(\\\"OPENAI_API_KEY\\\")\\n    if not key:\\n        raise EnvironmentError(\\\"OPENAI_API_KEY is required\\\")\\n    base_url = os.getenv(\\\"OPENAI_BASE_URL\\\")\\n    if base_url:\\n        return OpenAI(api_key=key, base_url=base_url)\\n    return OpenAI(api_key=key)\\n\",\"embeddings_models.py\":\"from dataclasses import dataclass\\nfrom typing import Any, Dict, Iterable, List, Sequence\\n\\n\\n@dataclass\\nclass EmbeddingRequest:\\n    model: str\\n    input: Any\\n\\n\\n@dataclass\\nclass EmbeddingResponse:\\n    embeddings: List[Sequence[float]]\\n    model: str | None = None\\n\\n\\ndef normalize_embedding_response(response: Any) -> List[Sequence[float]]:\\n    if hasattr(response, \\\"data\\\"):\\n        return [item.embedding for item in response.data]\\n    if isinstance(response, dict) and \\\"data\\\" in response:\\n        return [item[\\\"embedding\\\"] for item in response[\\\"data\\\"]]\\n    if isinstance(response, Iterable):\\n        return list(response)\\n    raise TypeError(\\\"Unsupported embedding response type\\\")\\n\",\"embedding_job_summary.py\":\"import os\\nfrom collections import Counter\\nfrom typing import Any, Dict, List\\n\\nfrom openai import OpenAI\\n\\nMODEL_ID = os.getenv(\\\"OPENAI_CHAT_MODEL\\\", \\\"gpt-4.1-mini\\\")\\n\\n\\ndef embedding_job_summary(job_results: List[Dict[str, Any]]) -> str:\\n    total = len(job_results)\\n    statuses = Counter(item.get(\\\"status\\\", \\\"unknown\\\") for item in job_results)\\n    failures = [item for item in job_results if item.get(\\\"status\\\") not in {\\\"success\\\", \\\"completed\\\"}]\\n    client = OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"), base_url=os.getenv(\\\"OPENAI_BASE_URL\\\") or None)\\n    prompt = {\\n        \\\"total\\\": total,\\n        \\\"status_counts\\\": dict(statuses),\\n        \\\"failures\\\": failures[:10],\\n    }\\n    resp = client.responses.create(model=MODEL_ID, input=str(prompt))\\n    return resp.output_text\\n\",\"corpus_safety.py\":\"import os\\nfrom typing import List\\n\\nfrom openai import OpenAI\\n\\nMODEL_ID = os.getenv(\\\"OPENAI_CHAT_MODEL\\\", \\\"gpt-4.1-mini\\\")\\n\\n\\ndef corpus_safety(texts: List[str]) -> bool:\\n    client = OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"), base_url=os.getenv(\\\"OPENAI_BASE_URL\\\") or None)\\n    prompt = \\\"Assess whether the following corpus texts are safe to embed for semantic retrieval. Reply only SAFE or UNSAFE.\\\\n\\\\n\\\" + \\\"\\\\n\\\".join(texts[:50])\\n    resp = client.responses.create(model=MODEL_ID, input=prompt)\\n    return \\\"SAFE\\\" in resp.output_text.upper()\\n\",\"multilingual_query_translate.py\":\"import os\\nfrom typing import List\\n\\nfrom openai import OpenAI\\n\\nMODEL_ID = os.getenv(\\\"OPENAI_CHAT_MODEL\\\", \\\"gpt-4.1-mini\\\")\\n\\n\\ndef multilingual_query_translate(query: str, target_language: str = \\\"en\\\") -> str:\\n    client = OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"), base_url=os.getenv(\\\"OPENAI_BASE_URL\\\") or None)\\n    prompt = f\\\"Translate the following search query into {target_language} while preserving intent only: {query}\\\"\\n    resp = client.responses.create(model=MODEL_ID, input=prompt)\\n    return resp.output_text.strip()\\n\",\"retrieval_audio_brief.py\":\"import os\\nfrom typing import List\\n\\nfrom openai import OpenAI\\n\\nMODEL_ID = os.getenv(\\\"OPENAI_AUDIO_MODEL\\\", \\\"gpt-4o-mini-tts\\\")\\nVOICE = os.getenv(\\\"OPENAI_TTS_VOICE\\\", \\\"alloy\\\")\\n\\n\\ndef retrieval_audio_brief(search_results: List[str]) -> bytes:\\n    client = OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"), base_url=os.getenv(\\\"OPENAI_BASE_URL\\\") or None)\\n    text = \\\"Provide a short spoken brief summarizing these retrieved results:\\\\n\\\" + \\\"\\\\n\\\".join(search_results[:10])\\n    audio = client.audio.speech.create(model=MODEL_ID, voice=VOICE, input=text)\\n    return audio.read()\\n\"}",
+  "output_tokens": 1614,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1614,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 764,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2378
+  }
+}

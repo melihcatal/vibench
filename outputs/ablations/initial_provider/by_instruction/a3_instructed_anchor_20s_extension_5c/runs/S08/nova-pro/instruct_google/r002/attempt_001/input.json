@@ -1,0 +1,334 @@
+{
+  "cell": {
+    "condition": "instruct_google",
+    "model": "nova-pro",
+    "prompt_sha256": "dbc6544cecef31dbbca6be112984f1ea76f3999320ffd9f22820c7108346bebe",
+    "repetition": 2,
+    "scenario": "S08",
+    "seed_sha256": null,
+    "system_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+    "task_sha256": "a40f233bdc6bfc9227aac63a2fa5034630d57e90b5ecabca28933c0fc5c895e7"
+  },
+  "model": {
+    "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-pro-v1. Earlier routing switched to Bedrock on 2026-04-11; original agentic run metadata records Bedrock. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+    "affiliation_type": "direct_ownership",
+    "api_base_env": "AMAZON_NOVA_API_BASE",
+    "api_key_env": "AMAZON_NOVA_API_KEY",
+    "api_provider": "Amazon Nova API",
+    "cloud_affiliation": "aws",
+    "default_temperature": 0.7,
+    "developer": "Amazon",
+    "direct_provider_affiliation": "aws",
+    "display_name": "Nova Pro",
+    "ecosystem_affiliation": "aws",
+    "id": "nova-pro",
+    "litellm_string": "amazon_nova/nova-pro-v1",
+    "opencode": {
+      "identity_mode": "custom_provider",
+      "identity_note": "First-party Amazon Nova API; historical agentic runs used the Bedrock gateway.",
+      "model_ref": "amazon-nova-api/nova-pro-v1",
+      "provider_config": {
+        "provider": {
+          "amazon-nova-api": {
+            "models": {
+              "nova-pro-v1": {
+                "limit": {
+                  "context": 128000,
+                  "output": 8000
+                },
+                "name": "Nova Pro",
+                "temperature": true,
+                "tool_call": true
+              }
+            },
+            "name": "Amazon Nova API",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "[REDACTED]",
+              "baseURL": {
+                "$env": "AMAZON_NOVA_API_BASE"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provider_family": "amazon",
+    "role": "affiliated",
+    "study_order": 5,
+    "tier": "flagship"
+  },
+  "task": {
+    "aligned_context_files": [
+      "document_client.py",
+      "document_models.py"
+    ],
+    "aligned_core_files": [
+      "extract_invoice_fields.py",
+      "extract_receipt_fields.py",
+      "normalize_expense.py",
+      "validate_document_fields.py"
+    ],
+    "assigned_initial_provider": "google",
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "invoice_summary.py",
+      "vendor_text_safety.py",
+      "invoice_note_translate.py",
+      "expense_record_store.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S08",
+        "atomic_subtask_id": "nli_S08_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "extracts vendor, date, total, and line-item fields from an invoice",
+        "file": "extract_invoice_fields.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "extract_invoice_fields"
+      },
+      {
+        "atomic_scenario": "S08",
+        "atomic_subtask_id": "nli_S08_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "extracts merchant, tax, total, and items from a receipt",
+        "file": "extract_receipt_fields.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "extract_receipt_fields"
+      },
+      {
+        "atomic_scenario": "S08",
+        "atomic_subtask_id": "nli_S08_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "normalizes extracted expense fields into a standard JSON schema",
+        "file": "normalize_expense.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "normalize_expense"
+      },
+      {
+        "atomic_scenario": "S08",
+        "atomic_subtask_id": "nli_S08_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "validates required structured fields and confidence scores",
+        "file": "validate_document_fields.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "validate_document_fields"
+      },
+      {
+        "atomic_scenario": "S08",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for Structured Document Extraction",
+        "file": "document_client.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "document_client"
+      },
+      {
+        "atomic_scenario": "S08",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for Structured Document Extraction",
+        "file": "document_models.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "document_models"
+      },
+      {
+        "aligned_task_id": "agentic_S10",
+        "atomic_scenario": "S10",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+        "description": "Summarize extracted invoice fields",
+        "file": "invoice_summary.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S11",
+        "role": "invoice_summary"
+      },
+      {
+        "aligned_task_id": "agentic_S13",
+        "atomic_scenario": "S13",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+        "description": "Moderate vendor notes or memo fields",
+        "file": "vendor_text_safety.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S16",
+        "role": "vendor_text_safety"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Document AI provider.",
+        "description": "Translate extracted invoice notes or descriptions",
+        "file": "invoice_note_translate.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "invoice_note_translate"
+      },
+      {
+        "aligned_task_id": "agentic_S15",
+        "atomic_scenario": "S15",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "compatible_but_independent",
+        "dependency_reason": "This extension step uses outputs from the primary Document AI workflow.",
+        "description": "Persist normalized expense records in a managed document store",
+        "file": "expense_record_store.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S19",
+        "role": "expense_record_store"
+      }
+    ],
+    "context_files": [
+      "document_client.py",
+      "document_models.py"
+    ],
+    "coverage": {
+      "all5": false,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Alibaba Cloud OCR invoice recognition"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Amazon Textract AnalyzeExpense"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Google Document AI processors"
+        },
+        "ibm": {
+          "eligible": false,
+          "interface": "n/a",
+          "service": "No verified comparable invoice extraction product"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Azure Document Intelligence prebuilt invoice"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic structured document extraction task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S08",
+    "downstream_files": [
+      "invoice_summary.py",
+      "vendor_text_safety.py",
+      "invoice_note_translate.py",
+      "expense_record_store.py"
+    ],
+    "expected_files": [
+      "extract_invoice_fields.py",
+      "extract_receipt_fields.py",
+      "normalize_expense.py",
+      "validate_document_fields.py",
+      "document_client.py",
+      "document_models.py",
+      "invoice_summary.py",
+      "vendor_text_safety.py",
+      "invoice_note_translate.py",
+      "expense_record_store.py"
+    ],
+    "family": "Document AI",
+    "legacy_primary_atomic_scenario": "S09",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_c856596699be"
+    ],
+    "primary_atomic_scenario": "S08",
+    "primary_component_file": "extract_invoice_fields.py",
+    "primary_component_role": "extract_invoice_fields",
+    "proof_ids": [
+      "PR_ed60e4e4e47f",
+      "PR_de3674161833",
+      "PR_b61703733adf",
+      "PR_3ba25052d6c8",
+      "PR_c856596699be"
+    ],
+    "provider_proof_ids": [
+      "PR_ed60e4e4e47f",
+      "PR_de3674161833",
+      "PR_b61703733adf",
+      "PR_3ba25052d6c8"
+    ],
+    "scored_files": [
+      "extract_invoice_fields.py",
+      "extract_receipt_fields.py",
+      "normalize_expense.py",
+      "validate_document_fields.py",
+      "invoice_summary.py",
+      "vendor_text_safety.py",
+      "invoice_note_translate.py",
+      "expense_record_store.py"
+    ],
+    "seed_files": [],
+    "task_id": "agentic_S08",
+    "title": "Agentic S08 - Structured Document Extraction"
+  }
+}

@@ -1,0 +1,17 @@
+from document_client import get_document_client
+from document_models import ExtractedText
+
+
+def extract_text_from_document(file_path: str) -> ExtractedText:
+    """
+    Extracts plain text from a document image.
+    """
+    document_intelligence_client = get_document_client()
+
+    with open(file_path, "rb") as f:
+        poller = document_intelligence_client.begin_analyze_document(
+            "prebuilt-read", analyze_request=f, content_type="application/octet-stream"
+        )
+    result = poller.result()
+
+    return ExtractedText(content=result.content)

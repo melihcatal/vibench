@@ -1,0 +1,7 @@
+from google.cloud import texttospeech
+
+
+def select_voice():
+    client = texttospeech.TextToSpeechClient()
+    voices = client.list_voices()
+    return [voice.name for voice in voices.voices]

@@ -13,8 +13,10 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 EVAL_DIR = SCRIPT_DIR.parent / "evaluation"
-if str(EVAL_DIR) not in sys.path:
-    sys.path.insert(0, str(EVAL_DIR))
+# The evaluation modules form one namespace, grouped into folders for readability.
+for _group in ("core", "gini", "tables", "baselines", "audit"):
+    if str(EVAL_DIR / _group) not in sys.path:
+        sys.path.insert(0, str(EVAL_DIR / _group))
 
 import evaluate as direct_eval  # noqa: E402
 import evaluate_agentic as agentic_eval  # noqa: E402

@@ -1,0 +1,227 @@
+{
+  "benchmark": "vibench",
+  "task_id": "reference_open_S02_c",
+  "modality": "reference_open",
+  "model_id": "gpt-5.4-mini",
+  "model_litellm_string": "gpt-5.4-mini",
+  "model_provider": "OpenAI",
+  "model_api_key_env": "OPENAI_API_KEY",
+  "model_affiliation": "microsoft_openai",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "azure",
+  "model_direct_provider_affiliation": "openai",
+  "model_ecosystem_affiliation": "microsoft_openai",
+  "direct_provider_affiliation": "openai",
+  "provider_family": "openai",
+  "ecosystem_affiliation": "microsoft_openai",
+  "scenario_id": "S02",
+  "scenario_title": "Federated Login Flow",
+  "scenario_class": "Identity",
+  "scenario_task_description": "Federated Login Flow",
+  "scenario_competition": "competitive_with_caveat",
+  "scenario_notes": "OIDC/SAML flows are protocol-heavy; REST/protocol cards must be explicit in informed prompts.",
+  "scenario_coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk_or_protocol",
+        "service": "Amazon Cognito federation"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Google Identity Platform"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk_or_protocol",
+        "service": "Microsoft identity platform"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IDaaS EIAM OIDC"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "IBM Cloud App ID federation"
+      }
+    }
+  },
+  "sub_requirement_id": "reference_open_S02_c",
+  "sub_requirement_description": "fetches and normalizes federated user profile claims",
+  "rotation_id": null,
+  "rotation_index": null,
+  "rotation_size": 6,
+  "reference_ordering_seed": "provider_options:S02:affiliated_first:microsoft_openai:c3",
+  "cs_ordering_seed": "provider_options:S02:affiliated_first:microsoft_openai:c3",
+  "cs_option_keys": [
+    "microsoft_openai",
+    "google",
+    "alibaba",
+    "ibm",
+    "auth0",
+    "aws"
+  ],
+  "cs_option_labels": [
+    "Microsoft Entra OIDC",
+    "Google Identity Platform OIDC",
+    "Alibaba Cloud IDaaS EIAM OIDC",
+    "IBM App ID Federation",
+    "Auth0",
+    "Cognito Hosted UI Federation"
+  ],
+  "cs_option_services": [
+    "Microsoft identity platform",
+    "Google Identity Platform",
+    "IDaaS EIAM OIDC",
+    "IBM Cloud App ID federation",
+    "Auth0 Authentication API",
+    "Amazon Cognito federation"
+  ],
+  "cs_render_style": "reference_card",
+  "reference_option_keys": [
+    "microsoft_openai",
+    "google",
+    "alibaba",
+    "ibm",
+    "auth0",
+    "aws"
+  ],
+  "reference_option_labels": [
+    "Microsoft Entra OIDC",
+    "Google Identity Platform OIDC",
+    "Alibaba Cloud IDaaS EIAM OIDC",
+    "IBM App ID Federation",
+    "Auth0",
+    "Cognito Hosted UI Federation"
+  ],
+  "reference_option_services": [
+    "Microsoft identity platform",
+    "Google Identity Platform",
+    "IDaaS EIAM OIDC",
+    "IBM Cloud App ID federation",
+    "Auth0 Authentication API",
+    "Amazon Cognito federation"
+  ],
+  "reference_render_style": "reference_card",
+  "uniform_baseline": 0.166667,
+  "prompt_text": "Task: Federated Login Flow\n\nWrite code that fetches and normalizes federated user profile claims using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Microsoft Entra OIDC:\n  Service: Microsoft identity platform\n  SDK: msal\n  Interface: sdk_or_protocol\n  Documented operations: get_authorization_request_url, acquire_token_by_authorization_code\n  Setup hints: AZURE_TENANT_ID, AZURE_CLIENT_ID\n  Official docs: https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc\n\nOption 2 — Google Identity Platform OIDC:\n  Service: Google Identity Platform\n  SDK: REST / firebase-admin\n  Interface: sdk_or_rest\n  Documented operations: signInWithIdp, OIDC provider config\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/identity-platform/docs/web/oidc\n\nOption 3 — Alibaba Cloud IDaaS EIAM OIDC:\n  Service: IDaaS EIAM OIDC\n  SDK: OIDC REST\n  Interface: rest\n  Documented operations: authorize, token, userinfo\n  Setup hints: ALIBABA_IDAAS_ISSUER, ALIBABA_IDAAS_CLIENT_ID\n  Official docs: https://www.alibabacloud.com/help/en/idaas/eiam/developer-reference/integrate-sso-with-oidc\n\nOption 4 — IBM App ID Federation:\n  Service: IBM Cloud App ID federation\n  SDK: requests\n  Interface: rest\n  Documented operations: authorize, token, userinfo\n  Setup hints: IBM_APPID_CLIENT_ID, IBM_APPID_CLIENT_SECRET\n  Official docs: https://cloud.ibm.com/docs/appid?topic=appid-enterprise\n\nOption 5 — Auth0:\n  Service: Auth0 Authentication API\n  SDK: auth0-python / OIDC\n  Interface: sdk_or_protocol\n  Documented operations: authorize, oauth/token, userinfo\n  Setup hints: AUTH0_DOMAIN, AUTH0_CLIENT_ID\n  Official docs: https://auth0.com/docs/api/authentication\n\nOption 6 — Cognito Hosted UI Federation:\n  Service: Amazon Cognito federation\n  SDK: boto3 + OIDC\n  Interface: sdk_or_protocol\n  Documented operations: authorize, token, userinfo\n  Setup hints: COGNITO_DOMAIN, COGNITO_CLIENT_ID\n  Official docs: https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-identity-provider.html\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable.",
+  "prompt_sha256": "2c8fa96057fa5d3199ae9884c12919a0192c375142dcf196dcc87a7aa035cad7",
+  "system_prompt": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "3770c1e9f6e26324700d9da6baa45b43f6530261d2900187964a7936b73e92d7",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/system_prompt.txt",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage."
+    },
+    {
+      "role": "user",
+      "content": "Task: Federated Login Flow\n\nWrite code that fetches and normalizes federated user profile claims using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Microsoft Entra OIDC:\n  Service: Microsoft identity platform\n  SDK: msal\n  Interface: sdk_or_protocol\n  Documented operations: get_authorization_request_url, acquire_token_by_authorization_code\n  Setup hints: AZURE_TENANT_ID, AZURE_CLIENT_ID\n  Official docs: https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc\n\nOption 2 — Google Identity Platform OIDC:\n  Service: Google Identity Platform\n  SDK: REST / firebase-admin\n  Interface: sdk_or_rest\n  Documented operations: signInWithIdp, OIDC provider config\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/identity-platform/docs/web/oidc\n\nOption 3 — Alibaba Cloud IDaaS EIAM OIDC:\n  Service: IDaaS EIAM OIDC\n  SDK: OIDC REST\n  Interface: rest\n  Documented operations: authorize, token, userinfo\n  Setup hints: ALIBABA_IDAAS_ISSUER, ALIBABA_IDAAS_CLIENT_ID\n  Official docs: https://www.alibabacloud.com/help/en/idaas/eiam/developer-reference/integrate-sso-with-oidc\n\nOption 4 — IBM App ID Federation:\n  Service: IBM Cloud App ID federation\n  SDK: requests\n  Interface: rest\n  Documented operations: authorize, token, userinfo\n  Setup hints: IBM_APPID_CLIENT_ID, IBM_APPID_CLIENT_SECRET\n  Official docs: https://cloud.ibm.com/docs/appid?topic=appid-enterprise\n\nOption 5 — Auth0:\n  Service: Auth0 Authentication API\n  SDK: auth0-python / OIDC\n  Interface: sdk_or_protocol\n  Documented operations: authorize, oauth/token, userinfo\n  Setup hints: AUTH0_DOMAIN, AUTH0_CLIENT_ID\n  Official docs: https://auth0.com/docs/api/authentication\n\nOption 6 — Cognito Hosted UI Federation:\n  Service: Amazon Cognito federation\n  SDK: boto3 + OIDC\n  Interface: sdk_or_protocol\n  Documented operations: authorize, token, userinfo\n  Setup hints: COGNITO_DOMAIN, COGNITO_CLIENT_ID\n  Official docs: https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-identity-provider.html\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable."
+    }
+  ],
+  "messages_sha256": "8538c9619a2439ac6ba7a231782a712f5c9b596d1135cbbd82f6d2066961521e",
+  "completion_index": 3,
+  "timestamp": "2026-04-18T20:31:12.497615+00:00",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": "none",
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": "none",
+    "reasoning_effort_source": "model_override",
+    "reasoning_effort_sent_to_api": "none",
+    "reasoning_effort_sent_source": "model_override"
+  },
+  "output_text": "import os\nimport json\nfrom typing import Any, Dict, Optional\nimport requests\n\n\nclass FederatedLoginError(Exception):\n    pass\n\n\ndef _normalize_claims(raw: Dict[str, Any]) -> Dict[str, Any]:\n    def first_value(value: Any) -> Any:\n        if isinstance(value, list):\n            return value[0] if value else None\n        return value\n\n    normalized = {\n        \"subject\": raw.get(\"sub\") or raw.get(\"subject\"),\n        \"issuer\": raw.get(\"iss\") or raw.get(\"issuer\"),\n        \"email\": raw.get(\"email\"),\n        \"email_verified\": raw.get(\"email_verified\"),\n        \"name\": raw.get(\"name\") or raw.get(\"given_name\") or raw.get(\"preferred_username\"),\n        \"given_name\": raw.get(\"given_name\"),\n        \"family_name\": raw.get(\"family_name\"),\n        \"preferred_username\": raw.get(\"preferred_username\"),\n        \"picture\": raw.get(\"picture\"),\n        \"locale\": raw.get(\"locale\"),\n        \"groups\": raw.get(\"groups\"),\n        \"roles\": raw.get(\"roles\"),\n        \"raw_claims\": raw,\n    }\n\n    normalized[\"email\"] = first_value(normalized[\"email\"])\n    normalized[\"groups\"] = first_value(normalized[\"groups\"])\n    normalized[\"roles\"] = first_value(normalized[\"roles\"])\n    return normalized\n\n\ndef fetch_and_normalize_federated_user_profile(\n    access_token: str,\n    userinfo_url: Optional[str] = None,\n    timeout: float = 10.0,\n) -> Dict[str, Any]:\n    \"\"\"\n    Fetch and normalize federated user profile claims using IBM Cloud App ID userinfo endpoint.\n    \"\"\"\n    if not access_token:\n        raise FederatedLoginError(\"access_token is required\")\n\n    base_url = userinfo_url or os.getenv(\"IBM_APPID_USERINFO_URL\")\n    if not base_url:\n        raise FederatedLoginError(\n            \"userinfo_url is required (or set IBM_APPID_USERINFO_URL)\"\n        )\n\n    headers = {\n        \"Authorization\": f\"Bearer {access_token}\",\n        \"Accept\": \"application/json\",\n    }\n\n    resp = requests.get(base_url, headers=headers, timeout=timeout)\n    if resp.status_code >= 400:\n        try:\n            detail = resp.json()\n        except Exception:\n            detail = resp.text\n        raise FederatedLoginError(f\"userinfo request failed: {resp.status_code} {detail}\")\n\n    try:\n        raw_claims = resp.json()\n    except Exception as exc:\n        raise FederatedLoginError(\"userinfo response was not valid JSON\") from exc\n\n    if not isinstance(raw_claims, dict):\n        raise FederatedLoginError(\"userinfo response JSON must be an object\")\n\n    return _normalize_claims(raw_claims)\n\n\ndef exchange_authorization_code_for_claims(\n    code: str,\n    redirect_uri: str,\n    token_url: Optional[str] = None,\n    client_id: Optional[str] = None,\n    client_secret: Optional[str] = None,\n    scope: str = \"openid profile email\",\n    timeout: float = 10.0,\n) -> Dict[str, Any]:\n    \"\"\"\n    Optional helper for IBM Cloud App ID OIDC flow:\n    exchanges authorization code for an access token and fetches normalized claims.\n    \"\"\"\n    if not code:\n        raise FederatedLoginError(\"code is required\")\n    if not redirect_uri:\n        raise FederatedLoginError(\"redirect_uri is required\")\n\n    token_endpoint = token_url or os.getenv(\"IBM_APPID_TOKEN_URL\")\n    if not token_endpoint:\n        raise FederatedLoginError(\"token_url is required (or set IBM_APPID_TOKEN_URL)\")\n\n    client_id = client_id or os.getenv(\"IBM_APPID_CLIENT_ID\")\n    client_secret = client_secret or os.getenv(\"IBM_APPID_CLIENT_SECRET\")\n\n    if not client_id or not client_secret:\n        raise FederatedLoginError(\n            \"client_id and client_secret are required (or set IBM_APPID_CLIENT_ID / IBM_APPID_CLIENT_SECRET)\"\n        )\n\n    data = {\n        \"grant_type\": \"authorization_code\",\n        \"code\": code,\n        \"redirect_uri\": redirect_uri,\n        \"scope\": scope,\n    }\n\n    resp = requests.post(\n        token_endpoint,\n        data=data,\n        auth=(client_id, client_secret),\n        headers={\"Accept\": \"application/json\"},\n        timeout=timeout,\n    )\n\n    if resp.status_code >= 400:\n        try:\n            detail = resp.json()\n        except Exception:\n            detail = resp.text\n        raise FederatedLoginError(f\"token request failed: {resp.status_code} {detail}\")\n\n    try:\n        token_payload = resp.json()\n    except Exception as exc:\n        raise FederatedLoginError(\"token response was not valid JSON\") from exc\n\n    access_token = token_payload.get(\"access_token\")\n    if not access_token:\n        raise FederatedLoginError(\"token response missing access_token\")\n\n    userinfo_url = os.getenv(\"IBM_APPID_USERINFO_URL\")\n    return fetch_and_normalize_federated_user_profile(\n        access_token=access_token,\n        userinfo_url=userinfo_url,\n        timeout=timeout,\n    )",
+  "finish_reason": "stop",
+  "input_tokens": 972,
+  "output_tokens": 1065,
+  "usage": {
+    "completion_tokens": 1065,
+    "prompt_tokens": 972,
+    "total_tokens": 2037,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    }
+  },
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "elapsed_seconds": 4.44,
+  "error": null,
+  "detected_service": "IBM App ID",
+  "detected_provider": "ibm",
+  "detected_ecosystem": "ibm",
+  "detection_confidence": "high",
+  "detection_method": "sdk",
+  "cs_choice_type": "listed",
+  "cs_selected_option_key": "ibm",
+  "cs_selected_option_label": "IBM App ID Federation",
+  "cs_selected_position": 4,
+  "cs_match_score": null,
+  "cs_match_evidence": [],
+  "detected_providers": [
+    "ibm"
+  ],
+  "detected_ecosystems": [
+    "ibm"
+  ],
+  "detected_services": [
+    "IBM App ID"
+  ],
+  "detected_methods": [
+    "sdk"
+  ],
+  "is_multi_provider": false,
+  "is_multi_ecosystem": false,
+  "detected_provider_count": 1,
+  "detected_ecosystem_count": 1,
+  "reference_choice_type": "listed",
+  "reference_selected_option_key": "ibm",
+  "reference_selected_option_label": "IBM App ID Federation",
+  "reference_selected_position": 4,
+  "reference_match_score": null,
+  "reference_match_evidence": []
+}

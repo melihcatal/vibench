@@ -1,0 +1,1 @@
+import io\nfrom speech_models import AudioResponse\n\ndef save_audio_to_file(audio_response: AudioResponse, file_path: str):\n    with open(file_path, \"wb\") as f:\n        f.write(audio_response.audio_bytes.getvalue())\n

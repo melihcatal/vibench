@@ -1,0 +1,9 @@
+import os
+
+
+def select_platform_resource(model_family: str) -> str:
+    deployments = {
+        "gpt-4o": os.getenv("AZURE_GPT4O_DEPLOYMENT", "gpt-4o"),
+        "gpt-4-turbo": os.getenv("AZURE_GPT4T_DEPLOYMENT", "gpt-4-turbo"),
+    }
+    return deployments.get(model_family, "gpt-4o")

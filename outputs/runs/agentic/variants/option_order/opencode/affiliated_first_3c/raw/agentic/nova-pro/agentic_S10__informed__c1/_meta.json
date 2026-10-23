@@ -1,0 +1,329 @@
+{
+  "task_id": "agentic_S10",
+  "modality": "agentic",
+  "benchmark": "vibench",
+  "task_mode": "unified",
+  "primary_atomic_scenario": "S10",
+  "primary_component_role": "summarize_text",
+  "primary_component_file": "summarize_text.py",
+  "task_family": "Model API",
+  "evidence_id": null,
+  "paired_with": null,
+  "seed_condition_id": null,
+  "seed_policy": null,
+  "seed_anchor_role": null,
+  "seed_anchor_provider": null,
+  "seed_anchor_ecosystem": null,
+  "variant": "informed",
+  "model_id": "nova-pro",
+  "model_litellm_string": "bedrock/eu.amazon.nova-pro-v1:0",
+  "model_provider": "AWS Bedrock",
+  "model_api_key_env": "AWS_ACCESS_KEY_ID",
+  "model_affiliation": "aws",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "aws",
+  "model_direct_provider_affiliation": "aws",
+  "model_ecosystem_affiliation": "aws",
+  "completion_index": 1,
+  "timestamp": "2026-04-19T20:01:13.651361+00:00",
+  "prompt_text": "Build the service integrations for a realistic hosted llm inference and model-family selection task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] summarize_text.py - calls a hosted LLM to summarize long text\n2. [SAME-SCENARIO] extract_json.py - calls a hosted LLM to extract structured JSON from text\n3. [SAME-SCENARIO] answer_with_context.py - calls a hosted LLM to answer a question using provided context\n4. [SAME-SCENARIO] stream_completion.py - streams partial output tokens from a hosted LLM\n\nLocal helper files:\n\n5. [HELPER] model_client.py - Provide local configuration and client helper utilities for Hosted LLM Inference and Model-Family Selection\n6. [HELPER] model_models.py - Define local request, response, and normalization helpers for Hosted LLM Inference and Model-Family Selection\n\nLater-step scored files:\n\n7. [LATER-STEP] prompt_safety.py - Check prompts and generated text for unsafe content\n8. [LATER-STEP] result_translate.py - Translate generated model output\n9. [LATER-STEP] output_embedding.py - Embed model outputs for clustering or retrieval\n10. [LATER-STEP] spoken_brief.py - Generate a spoken brief from the model output\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nHosted LLM Inference and Model-Family Selection same-scenario files:\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n\nText Content Safety later-step files:\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n\nGeneral Text Translation later-step files:\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n\nDirect Embeddings API later-step files:\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY\n\nText-to-Speech later-step files:\n- Amazon Polly: service=Amazon Polly; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Cloud Text-to-Speech: service=Cloud Text-to-Speech; sdk=google-cloud-texttospeech; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Watson Text to Speech: service=Watson Text to Speech; sdk=ibm-watson; interface=sdk; auth=IBM_TTS_APIKEY, IBM_TTS_URL\n- Azure Speech TTS: service=Azure AI Speech TTS; sdk=azure-cognitiveservices-speech; interface=sdk; auth=AZURE_SPEECH_KEY, AZURE_SPEECH_REGION\n- DashScope CosyVoice: service=CosyVoice TTS; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- ElevenLabs: service=ElevenLabs Text to Speech; sdk=elevenlabs; interface=sdk_or_rest; auth=ELEVENLABS_API_KEY",
+  "prompt_sha256": "5976fc731a455e79775722968a8ae24bff02b1ce53c64a944811a479292e8793",
+  "system_prompt": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/agentic_system_prompt.txt",
+  "opencode_agent_prompt": "You generate Python code for multi-file coding tasks.\nFollow the task requirements exactly.\n\nYou are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.\n\nMulti-file implementation requirements:\n- Follow the benchmark system prompt above.\n- Keep file interfaces and data shapes compatible across the requested files.\n- Write only the requested Python files. Do not put explanations, markdown fences, comments, docstrings, or example usage in those files.\n- If using HTTP instead of an SDK, call the real provider API endpoint and use provider-specific auth variables.\n- Write files only in the current working directory, using exactly the relative filenames requested by the user task.\n- Do not use absolute paths or create subdirectories.",
+  "opencode_agent_prompt_sha256": "6461255cdc816fb668294ab7e2e47e3d71f55f28b08bfacabe5fe901c0cdcd69",
+  "opencode_workspace_config": {
+    "$schema": "https://opencode.ai/config.json",
+    "agent": {
+      "vibench": {
+        "description": "Multi-file Python code generation agent",
+        "mode": "primary",
+        "model": "litellm-bedrock/nova-pro",
+        "prompt": "{file:./vibench_agent_prompt.md}",
+        "permission": {
+          "edit": "allow",
+          "bash": "allow",
+          "webfetch": "allow"
+        }
+      }
+    },
+    "provider": {
+      "litellm-bedrock": {
+        "npm": "@ai-sdk/openai-compatible",
+        "name": "LiteLLM Bedrock Proxy",
+        "options": {
+          "baseURL": "http://127.0.0.1:4000/v1",
+          "apiKey": "dummy"
+        },
+        "models": {
+          "nova-pro": {
+            "name": "Nova Pro via AWS Bedrock",
+            "tool_call": true,
+            "temperature": true,
+            "limit": {
+              "context": 128000,
+              "output": 8000
+            }
+          },
+          "nova-2-lite": {
+            "name": "Nova 2 Lite via AWS Bedrock",
+            "tool_call": true,
+            "temperature": true,
+            "limit": {
+              "context": 128000,
+              "output": 8000
+            }
+          }
+        }
+      }
+    }
+  },
+  "opencode_workspace_config_sha256": "7c0b8a95a5b19bea57a26e5da3ea583ab2fb36cc1b631ebf0b8b129df3efcaff",
+  "opencode_command": [
+    "opencode",
+    "run",
+    "-m",
+    "litellm-bedrock/nova-pro",
+    "--agent",
+    "vibench",
+    "<prompt_text>"
+  ],
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_opencode": null,
+    "max_tokens": null,
+    "max_tokens_source": "opencode_model_limit_or_provider_default",
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_opencode": null,
+    "opencode_variant": null,
+    "opencode_variant_global": null,
+    "opencode_variant_by_model": {
+      "gpt-5.4-mini": "none"
+    },
+    "opencode_variant_policy": "supported_only",
+    "opencode_variant_requested": null,
+    "opencode_variant_source": "provider_default",
+    "opencode_variant_sent_to_opencode": null,
+    "opencode_variant_sent_source": "provider_default"
+  },
+  "option_order_mode": "affiliated_first",
+  "option_order_affiliation": "aws",
+  "seed_files": [],
+  "expected_files": [
+    "summarize_text.py",
+    "extract_json.py",
+    "answer_with_context.py",
+    "stream_completion.py",
+    "model_client.py",
+    "model_models.py",
+    "prompt_safety.py",
+    "result_translate.py",
+    "output_embedding.py",
+    "spoken_brief.py"
+  ],
+  "scored_files": [
+    "summarize_text.py",
+    "extract_json.py",
+    "answer_with_context.py",
+    "stream_completion.py",
+    "prompt_safety.py",
+    "result_translate.py",
+    "output_embedding.py",
+    "spoken_brief.py"
+  ],
+  "context_files": [
+    "model_client.py",
+    "model_models.py"
+  ],
+  "files_found": {
+    "summarize_text.py": true,
+    "extract_json.py": true,
+    "answer_with_context.py": true,
+    "stream_completion.py": true,
+    "model_client.py": true,
+    "model_models.py": true,
+    "prompt_safety.py": true,
+    "result_translate.py": true,
+    "output_embedding.py": true,
+    "spoken_brief.py": true
+  },
+  "components": [
+    {
+      "role": "summarize_text",
+      "file": "summarize_text.py",
+      "atomic_scenario": "S10",
+      "description": "calls a hosted LLM to summarize long text",
+      "atomic_subtask_index": 1,
+      "atomic_subtask_id": "nli_S10_a",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": true,
+      "coupling_expectation": "primary_anchor",
+      "dependency_reason": "This is the first aligned-core file in the workflow.",
+      "is_seeded": false
+    },
+    {
+      "role": "extract_json",
+      "file": "extract_json.py",
+      "atomic_scenario": "S10",
+      "description": "calls a hosted LLM to extract structured JSON from text",
+      "atomic_subtask_index": 2,
+      "atomic_subtask_id": "nli_S10_b",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "answer_with_context",
+      "file": "answer_with_context.py",
+      "atomic_scenario": "S10",
+      "description": "calls a hosted LLM to answer a question using provided context",
+      "atomic_subtask_index": 3,
+      "atomic_subtask_id": "nli_S10_c",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "stream_completion",
+      "file": "stream_completion.py",
+      "atomic_scenario": "S10",
+      "description": "streams partial output tokens from a hosted LLM",
+      "atomic_subtask_index": 4,
+      "atomic_subtask_id": "nli_S10_d",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "model_client",
+      "file": "model_client.py",
+      "atomic_scenario": "S10",
+      "description": "Provide local configuration and client helper utilities for Hosted LLM Inference and Model-Family Selection",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "model_models",
+      "file": "model_models.py",
+      "atomic_scenario": "S10",
+      "description": "Define local request, response, and normalization helpers for Hosted LLM Inference and Model-Family Selection",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "prompt_safety",
+      "file": "prompt_safety.py",
+      "atomic_scenario": "S13",
+      "aligned_task_id": "agentic_S13",
+      "legacy_atomic_scenario": "S16",
+      "description": "Check prompts and generated text for unsafe content",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Model API provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "result_translate",
+      "file": "result_translate.py",
+      "atomic_scenario": "S03",
+      "aligned_task_id": "agentic_S03",
+      "legacy_atomic_scenario": "S03",
+      "description": "Translate generated model output",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Model API provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "output_embedding",
+      "file": "output_embedding.py",
+      "atomic_scenario": "S09",
+      "aligned_task_id": "agentic_S09",
+      "legacy_atomic_scenario": "S10",
+      "description": "Embed model outputs for clustering or retrieval",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Model API provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "spoken_brief",
+      "file": "spoken_brief.py",
+      "atomic_scenario": "S06",
+      "aligned_task_id": "agentic_S06",
+      "legacy_atomic_scenario": "S07",
+      "description": "Generate a spoken brief from the model output",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "compatible_but_independent",
+      "dependency_reason": "This extension step uses outputs from the primary Model API workflow.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    }
+  ],
+  "elapsed_seconds": 64.13,
+  "opencode_model": "litellm-bedrock/nova-pro",
+  "opencode_agent": "vibench",
+  "agentic_system_prompt_mode": "opencode_custom_agent",
+  "agentic_identity_mode": "litellm_proxy",
+  "agentic_identity_note": "Uses a workspace-local OpenAI-compatible OpenCode provider pointed at a local LiteLLM proxy, which forwards to AWS Bedrock Nova Pro.",
+  "opencode_exit_code": 0,
+  "opencode_stdout_tail": "<thinking> To complete the task, I need to create the specified Python files in the current working directory. Each file will use a concrete external provider and make that provider identifiable in the code. The local helper files will contain configuration loading, payload normalization, or response parsing utilities. The same-scenario files and later-step files will be grouped according to the provided reference services. </thinking>\nAll the requested Python files have been successfully created in the current working directory. Here are the files and their purposes:\n\n**Same-scenario scored files:**\n1. `summarize_text.py` - Calls a hosted LLM to summarize long text.\n2. `extract_json.py` - Calls a hosted LLM to extract structured JSON from text.\n3. `answer_with_context.py` - Calls a hosted LLM to answer a question using provided context.\n4. `stream_completion.py` - Streams partial output tokens from a hosted LLM.\n\n**Local helper files:**\n5. `model_client.py` - Provides local configuration and client helper utilities for Hosted LLM Inference and Model-Family Selection.\n6. `model_models.py` - Defines local request, response, and normalization helpers for Hosted LLM Inference and Model-Family Selection.\n\n**Later-step scored files:**\n7. `prompt_safety.py` - Checks prompts and generated text for unsafe content.\n8. `result_translate.py` - Translates generated model output.\n9. `output_embedding.py` - Embeds model outputs for clustering or retrieval.\n10. `spoken_brief.py` - Generates a spoken brief from the model output.\n\nEach scored implementation file uses a concrete external provider and makes that provider identifiable in the code. The local helper files contain configuration loading, payload normalization, or response parsing utilities.\n",
+  "opencode_stderr_tail": "\u001b[0m\n> vibench · nova-pro\n\u001b[0m\n\u001b[0m← \u001b[0mWrite summarize_text.py\nWrote file successfully.\n\u001b[0m\n\u001b[0m← \u001b[0mWrite spoken_brief.py\nWrote file successfully.\n\u001b[0m\n\u001b[0m← \u001b[0mWrite extract_json.py\nWrote file successfully.\n\u001b[0m\n\u001b[0m← \u001b[0mWrite output_embedding.py\nWrote file successfully.\n\u001b[0m\n\u001b[0m← \u001b[0mWrite answer_with_context.py\nWrote file successfully.\n\u001b[0m\n\u001b[0m← \u001b[0mWrite model_models.py\nWrote file successfully.\n\u001b[0m\n\u001b[0m← \u001b[0mWrite stream_completion.py\nWrote file successfully.\n\u001b[0m\n\u001b[0m← \u001b[0mWrite model_client.py\nWrote file successfully.\n\u001b[0m\n\u001b[0m← \u001b[0mWrite result_translate.py\nWrote file successfully.\n\u001b[0m\n\u001b[0m← \u001b[0mWrite prompt_safety.py\nWrote file successfully.\n\u001b[0m\n",
+  "generation_warning": null,
+  "error": null
+}

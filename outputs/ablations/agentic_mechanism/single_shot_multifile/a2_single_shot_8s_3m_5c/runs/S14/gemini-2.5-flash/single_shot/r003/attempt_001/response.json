@@ -1,0 +1,47 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "image_tokens": null,
+    "reasoning_tokens": 5257,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 2266,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 32.78,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 830,
+  "output_text": "```json\n{\n    \"upload_object.py\": \"import os\\nfrom typing import Union, BinaryIO\\nfrom storage_client import get_s3_client\\nfrom storage_models import UploadResult\\n\\ndef upload_object(bucket_name: str, object_key: str, data: Union[bytes, BinaryIO], content_type: str) -> UploadResult:\\n    s3_client = get_s3_client()\\n    \\n    if isinstance(data, bytes):\\n        body = data\\n    else:\\n        data.seek(0)\\n        body = data.read()\\n\\n    response = s3_client.put_object(\\n        Bucket=bucket_name,\\n        Key=object_key,\\n        Body=body,\\n        ContentType=content_type\\n    )\\n    \\n    return UploadResult(\\n        etag=response.get('ETag', '').strip('\\\"'),\\n        version_id=response.get('VersionId')\\n    )\\n\",\n    \"presigned_download.py\": \"import os\\nfrom storage_client import get_s3_client\\nfrom storage_models import PresignedUrlResult\\n\\ndef create_presigned_download_url(bucket_name: str, object_key: str, expiration_seconds: int = 3600) -> PresignedUrlResult:\\n    s3_client = get_s3_client()\\n    url = s3_client.generate_presigned_url(\\n        ClientMethod='get_object',\\n        Params={\\n            'Bucket': bucket_name,\\n            'Key': object_key\\n        },\\n        ExpiresIn=expiration_seconds\\n    )\\n    return PresignedUrlResult(url=url)\\n\",\n    \"object_metadata.py\": \"import os\\nfrom storage_client import get_s3_client\\nfrom storage_models import ObjectMetadata, normalize_head_object_response\\n\\ndef get_object_metadata(bucket_name: str, object_key: str) -> ObjectMetadata:\\n    s3_client = get_s3_client()\\n    response = s3_client.head_object(\\n        Bucket=bucket_name,\\n        Key=object_key\\n    )\\n    return normalize_head_object_response(object_key, response)\\n\",\n    \"list_prefix.py\": \"import os\\nfrom storage_client import get_s3_client\\nfrom storage_models import ListObjectsResult, normalize_list_objects_response\\n\\ndef list_objects_by_prefix(bucket_name: str, prefix: str = '', delimiter: str = '/') -> ListObjectsResult:\\n    s3_client = get_s3_client()\\n    response = s3_client.list_objects_v2(\\n        Bucket=bucket_name,\\n        Prefix=prefix,\\n        Delimiter=delimiter\\n    )\\n    return normalize_list_objects_response(response)\\n\",\n    \"storage_client.py\": \"import os\\nimport boto3\\n\\ndef get_s3_client():\\n    return boto3.client(\\n        's3',\\n        region_name=os.environ.get('AWS_REGION', 'us-east-1')\\n    )\\n\\ndef get_textract_client():\\n    return boto3.client(\\n        'textract',\\n        region_name=os.environ.get('AWS_REGION', 'us-east-1')\\n    )\\n\\ndef get_translate_client():\\n    return boto3.client(\\n        'translate',\\n        region_name=os.environ.get('AWS_REGION', 'us-east-1')\\n    )\\n\\ndef get_bedrock_runtime_client():\\n    return boto3.client(\\n        'bedrock-runtime',\\n        region_name=os.environ.get('AWS_REGION', 'us-east-1')\\n    )\\n\",\n    \"storage_models.py\": \"from typing import Dict, Any, List, Optional\\nfrom datetime import datetime\\n\\nclass ObjectMetadata:\\n    def __init__(self, key: str, size_bytes: int, last_modified: datetime, etag: str, content_type: str):\\n        self.key = key\\n        self.size_bytes = size_bytes\\n        self.last_modified = last_modified\\n        self.etag = etag\\n        self.content_type = content_type\\n\\nclass PresignedUrlResult:\\n    def __init__(self, url: str):\\n        self.url = url\\n\\nclass UploadResult:\\n    def __init__(self, etag: str, version_id: Optional[str] = None):\\n        self.etag = etag\\n        self.version_id = version_id\\n\\nclass ListObjectsResult:\\n    def __init__(self, objects: List[ObjectMetadata], common_prefixes: List[str]):\\n        self.objects = objects\\n        self.common_prefixes = common_prefixes\\n\\ndef normalize_head_object_response(key: str, response: Dict[str, Any]) -> ObjectMetadata:\\n    return ObjectMetadata(\\n        key=key,\\n        size_bytes=response.get('ContentLength', 0),\\n        last_modified=response.get('LastModified', datetime.min),\\n        etag=response.get('ETag', '').strip('\\\"'),\\n        content_type=response.get('ContentType', 'application/octet-stream')\\n    )\\n\\ndef normalize_list_objects_response(response: Dict[str, Any]) -> ListObjectsResult:\\n    objects = []\\n    if 'Contents' in response:\\n        for content in response['Contents']:\\n            objects.append(\\n                ObjectMetadata(\\n                    key=content.get('Key', ''),\\n                    size_bytes=content.get('Size', 0),\\n                    last_modified=content.get('LastModified', datetime.min),\\n                    etag=content.get('ETag', '').strip('\\\"'),\\n                    content_type='application/octet-stream'\\n                )\\n            )\\n    common_prefixes = [p['Prefix'] for p in response.get('CommonPrefixes', [])]\\n    return ListObjectsResult(objects=objects, common_prefixes=common_prefixes)\\n\",\n    \"stored_document_ocr.py\": \"import os\\nfrom storage_client import get_textract_client\\n\\ndef run_ocr_on_s3_document(bucket_name: str, object_key: str) -> str:\\n    textract_client = get_textract_client()\\n    \\n    response = textract_client.detect_document_text(\\n        Document={\\n            'S3Object': {\\n                'Bucket': bucket_name,\\n                'Name': object_key\\n            }\\n        }\\n    )\\n\\n    extracted_text_blocks = []\\n    for item in response.get('Blocks', []):\\n        if item['BlockType'] == 'LINE' and 'Text' in item:\\n            extracted_text_blocks.append(item['Text'])\\n    \\n    return '\\\\n'.join(extracted_text_blocks)\\n\",\n    \"stored_text_translate.py\": \"import os\\nfrom storage_client import get_translate_client\\n\\ndef translate_text(text: str, source_language_code: str, target_language_code: str) -> str:\\n    translate_client = get_translate_client()\\n    response = translate_client.translate_text(\\n        Text=text,\\n        SourceLanguageCode=source_language_code,\\n        TargetLanguageCode=target_language_code\\n    )\\n    return response.get('TranslatedText', '')\\n\",\n    \"stored_asset_summary.py\": \"import os\\nimport json\\nfrom storage_client import get_bedrock_runtime_client\\n\\ndef summarize_text_with_bedrock(text_content: str, max_tokens: int = 500) -> str:\\n    bedrock_runtime_client = get_bedrock_runtime_client()\\n    \\n    prompt = f\\\"Human: Summarize the following text:\\\\n\\\\n{text_content}\\\\n\\\\nAssistant:\\\"\\n    \\n    body = json.dumps({\\n        \\\"prompt\\\": prompt,\\n        \\\"max_tokens_to_sample\\\": max_tokens,\\n        \\\"temperature\\\": 0.5,\\n        \\\"top_p\\\": 0.9\\n    })\\n    \\n    response = bedrock_runtime_client.invoke_model(\\n        body=body,\\n        modelId='anthropic.claude-instant-v1',\\n        accept='application/json',\\n        contentType='application/json'\\n    )\\n    \\n    response_body = json.loads(response['body'].read())\\n    return response_body.get('completion', '').strip()\\n\",\n    \"asset_metadata_embedding.py\": \"import os\\nimport json\\nfrom typing import List\\nfrom storage_client import get_bedrock_runtime_client\\n\\ndef embed_text_with_bedrock(text_to_embed: str) -> List[float]:\\n    bedrock_runtime_client = get_bedrock_runtime_client()\\n    \\n    body = json.dumps({\\n        \\\"inputText\\\": text_to_embed\\n    })\\n    \\n    response = bedrock_runtime_client.invoke_model(\\n        body=body,\\n        modelId='amazon.titan-embed-text-v1',\\n        accept='application/json',\\n        contentType='application/json'\\n    )\\n    \\n    response_body = json.loads(response['body'].read())\\n    return response_body.get('embedding', [])\\n\"\n}\n```",
+  "output_tokens": 7523,
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "image_tokens": null,
+    "text_tokens": 830,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 5257,
+  "usage": {
+    "cache_read_input_tokens": null,
+    "completion_tokens": 7523,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "image_tokens": null,
+      "reasoning_tokens": 5257,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 2266,
+      "video_tokens": null
+    },
+    "prompt_tokens": 830,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "image_tokens": null,
+      "text_tokens": 830,
+      "video_tokens": null
+    },
+    "total_tokens": 8353
+  }
+}

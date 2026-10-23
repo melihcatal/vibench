@@ -1,0 +1,20 @@
+{
+  "command": [
+    "opencode",
+    "run",
+    "--attach",
+    "http://127.0.0.1:60317",
+    "--format",
+    "json",
+    "-m",
+    "amazon-nova-api/nova-pro-v1",
+    "--agent",
+    "vibench",
+    "<prompt_text>"
+  ],
+  "elapsed_seconds": 6.824315333040431,
+  "error": null,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "{\"type\":\"step_start\",\"timestamp\":1789862212131,\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"part\":{\"id\":\"prt_0bc19f21f001Ej5KNRHUETCfNW\",\"messageID\":\"msg_0bc19eb63001fm0WOLY7qlq2DB\",\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"type\":\"step-start\"}}\n{\"type\":\"text\",\"timestamp\":1789862215153,\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"part\":{\"id\":\"prt_0bc19f220001J69vmhc2lvandy\",\"messageID\":\"msg_0bc19eb63001fm0WOLY7qlq2DB\",\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"type\":\"text\",\"text\":\"<thinking> To stream microphone audio and yield interim transcripts, I need to use a concrete external provider. I will use the Google Cloud Speech-to-Text API for this task. This API is identifiable by the import of the `google.cloud.speech` module and the use of the `SpeechClient` class. </thinking>\\n\",\"time\":{\"start\":1789862212128,\"end\":1789862215151}}}\n{\"type\":\"tool_use\",\"timestamp\":1789862215164,\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"part\":{\"type\":\"tool\",\"tool\":\"write\",\"callID\":\"tooluse_ojykR8orzR81Vbkh2opq54\",\"state\":{\"status\":\"completed\",\"input\":{\"filePath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-yaymcxcs/stream_microphone.py\",\"content\":\"import io\\nimport os\\nfrom google.cloud import speech\\nfrom google.cloud.speech import enums\\nfrom google.cloud.speech import types\\n\\nclient = speech.SpeechClient()\\n\\ndef stream_microphone():\\n    audio = io.BytesIO()\\n    with speech.SpeechClient() as client:\\n        config = types.RecognitionConfig(\\n            encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,\\n            sample_rate_hertz=16000,\\n            language_code='en-US',\\n            max_alternatives=1,\\n            enable_automatic_punctuation=True,\\n            interim_results=True)\\n\\n        streaming_config = types.StreamingRecognitionConfig(config=config)\\n\\n        with client.streaming_recognize(streaming_config) as stream:\\n            while True:\\n                chunk = audio.read(1024)\\n                if not chunk:\\n                    break\\n                audio.write(chunk)\\n                stream.send_audio(chunk)\\n                response = stream.next()\\n                for result in response.results:\\n                    yield result.alternatives[0].transcript\\n\\nif __name__ == '__main__':\\n    for transcript in stream_microphone():\\n        print(transcript)\"},\"output\":\"Wrote file successfully.\",\"metadata\":{\"diagnostics\":{},\"filepath\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-yaymcxcs/stream_microphone.py\",\"exists\":false,\"truncated\":false},\"title\":\"private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-yaymcxcs/stream_microphone.py\",\"time\":{\"start\":1789862215150,\"end\":1789862215155}},\"id\":\"prt_0bc19fdea001hkL9Yuw5U7KAIA\",\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"messageID\":\"msg_0bc19eb63001fm0WOLY7qlq2DB\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789862215164,\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"part\":{\"id\":\"prt_0bc19fdf4001tNlNQTBTnfYFlC\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0bc19eb63001fm0WOLY7qlq2DB\",\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"type\":\"step-finish\",\"tokens\":{\"total\":6861,\"input\":6416,\"output\":445,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0}}\n{\"type\":\"step_start\",\"timestamp\":1789862216481,\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"part\":{\"id\":\"prt_0bc1a031b001llxgdvHRf8G5e3\",\"messageID\":\"msg_0bc19fdf8001jGZqeDGHIIKY7K\",\"sessionID\":\"ses_f43e6151dffeGJX3w3NLc0oij8\",\"type\":\"step-start\"}}\n"
+}

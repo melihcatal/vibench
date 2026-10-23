@@ -1,0 +1,24 @@
+import boto3
+
+def extract_key_values(document):
+    textract_client = boto3.client('textract')
+    response = textract_client.analyze_document(
+        Document={'Bytes': document},
+        FeatureTypes=['FORMS'])
+    key_values = {}
+    for block in response['Blocks']:
+        if block['BlockType'] == 'KEY_VALUE_SET':
+            for relationship in block['Relationships']:
+                if relationship['Type'] == 'CHILD':
+                    key = None
+                    value = None
+                    for child_id in relationship['Ids']:
+                        child_block = next(b for b in response['Blocks'] if b['Id'] == child_id)
+                        if child_block['BlockType'] == 'WORD':
+                            if key is None:
+                                key = child_block['Text']
+                            else:
+                                value = child_block['Text']
+                    if key and value:
+                        key_values[key] = value
+    return key_values

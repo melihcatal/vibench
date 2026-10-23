@@ -1,0 +1,111 @@
+{
+  "scenario": "S19",
+  "condition": "anchor_aws",
+  "model_id": "nova-pro",
+  "role": "affiliated",
+  "prompt_variant": "original_NLI_plus_seed_notice",
+  "source_task_id": "agentic_S19",
+  "original_anchor_file": "query_metric_window.py",
+  "workspace_dir": "workspace",
+  "seed_file": "query_metric_window.py",
+  "seed_provider": "aws",
+  "seed_sha256": "e71646750b135ae3d7093b53bf5e5e4d35265a612eb646ed2011230a292358db",
+  "prompt_sha256": "677e12fa3e70c17ad3578e66b52e191a2a3c09d89a749a58508dc4d6db3c8420",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "original_prompt_sha256": "3d06e2e99fe22756d6f8dec50504a3166136724b002b487eca01ce9803544642",
+  "expected_generated_files": [
+    "aggregate_metric_stats.py",
+    "filter_metric_dimensions.py",
+    "compare_metric_series.py",
+    "observability_client.py",
+    "observability_models.py",
+    "metric_summary.py",
+    "metric_annotation_safety.py",
+    "dashboard_note_translate.py",
+    "metrics_export_archive.py"
+  ],
+  "expected_repository_files": [
+    "query_metric_window.py",
+    "aggregate_metric_stats.py",
+    "filter_metric_dimensions.py",
+    "compare_metric_series.py",
+    "observability_client.py",
+    "observability_models.py",
+    "metric_summary.py",
+    "metric_annotation_safety.py",
+    "dashboard_note_translate.py",
+    "metrics_export_archive.py"
+  ],
+  "downstream_atomic_scenarios": {
+    "metric_summary.py": "S10",
+    "metric_annotation_safety.py": "S13",
+    "dashboard_note_translate.py": "S03",
+    "metrics_export_archive.py": "S14"
+  },
+  "scored_files": [
+    "metric_summary.py",
+    "metric_annotation_safety.py",
+    "dashboard_note_translate.py",
+    "metrics_export_archive.py"
+  ],
+  "input_contract": {
+    "payload": [
+      "metric (provider-specific name/type)",
+      "start_time (Unix seconds)",
+      "end_time (Unix seconds)"
+    ],
+    "output": [
+      "points: [{timestamp (Unix seconds), value}]"
+    ],
+    "aws_config": [
+      "namespace",
+      "dimensions (optional)",
+      "period_seconds (optional, 60)",
+      "region (optional)"
+    ],
+    "google_config": [
+      "project_id",
+      "period_seconds (optional, 60)"
+    ],
+    "preconditions": "Matched scalar numeric gauge metric and time window; identify a single series in the test project. Use valid alignment periods and no more than 1440 CloudWatch datapoints. Time-window boundaries and aggregation semantics remain service-specific."
+  },
+  "evidence": {
+    "provider_key": "aws",
+    "ecosystem": "aws",
+    "label": "Amazon CloudWatch Metrics",
+    "service": "Amazon CloudWatch Metrics",
+    "sdk": "boto3",
+    "interface": "sdk",
+    "official_docs": [
+      {
+        "title": "GetMetricData",
+        "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_GetMetricData.html",
+        "proof_id": "PR_00b92884ba71"
+      },
+      {
+        "title": "ListMetrics",
+        "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html",
+        "proof_id": "PR_8889d60a392e"
+      }
+    ],
+    "operations": [
+      "get_metric_data",
+      "get_metric_statistics",
+      "list_metrics"
+    ],
+    "auth_env": [
+      "AWS_ACCESS_KEY_ID",
+      "AWS_SECRET_ACCESS_KEY",
+      "AWS_REGION"
+    ],
+    "eligible": true,
+    "notes": "Managed metrics query APIs for time-series retrieval and aggregation.",
+    "proof_ids": [
+      "PR_00b92884ba71",
+      "PR_8889d60a392e"
+    ]
+  },
+  "dependency_package": "boto3",
+  "sdk_migration": null,
+  "status": "prepared_not_live_validated"
+}

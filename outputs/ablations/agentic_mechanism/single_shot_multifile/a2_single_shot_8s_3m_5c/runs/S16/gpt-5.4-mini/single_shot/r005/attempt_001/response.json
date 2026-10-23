@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 8.78,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 769,
+  "output_text": "{\"fetch_api_key.py\":\"import json\\nfrom security_client import get_client, build_secret_path\\nfrom security_models import SecretResponse\\n\\n\\ndef fetch_api_key(secret_name: str, version: str = \\\"latest\\\") -> str:\\n    client = get_client()\\n    name = build_secret_path(secret_name, version)\\n    response = client.access_secret_version(name=name)\\n    payload = SecretResponse.from_google_secret_manager(response)\\n    data = payload.as_text().strip()\\n    if not data:\\n        raise ValueError(\\\"empty secret payload\\\")\\n    return data\\n\",\"fetch_db_secret.py\":\"import json\\nfrom security_client import get_client, build_secret_path\\nfrom security_models import SecretResponse, normalize_db_secret\\n\\n\\ndef fetch_db_secret(secret_name: str, version: str = \\\"latest\\\") -> dict:\\n    client = get_client()\\n    name = build_secret_path(secret_name, version)\\n    response = client.access_secret_version(name=name)\\n    payload = SecretResponse.from_google_secret_manager(response)\\n    data = normalize_db_secret(payload.as_text())\\n    return data\\n\",\"parse_json_secret.py\":\"import json\\nfrom security_client import get_client, build_secret_path\\nfrom security_models import SecretResponse, parse_json_payload\\n\\n\\ndef parse_json_secret(secret_name: str, version: str = \\\"latest\\\") -> dict:\\n    client = get_client()\\n    name = build_secret_path(secret_name, version)\\n    response = client.access_secret_version(name=name)\\n    payload = SecretResponse.from_google_secret_manager(response)\\n    return parse_json_payload(payload.as_text())\\n\",\"rotate_secret_version.py\":\"from security_client import get_client, build_secret_path\\nfrom security_models import SecretResponse\\n\\n\\ndef rotate_secret_version(secret_name: str, version: str) -> dict:\\n    client = get_client()\\n    name = build_secret_path(secret_name, version)\\n    response = client.access_secret_version(name=name)\\n    payload = SecretResponse.from_google_secret_manager(response)\\n    return {\\\"name\\\": name, \\\"length\\\": len(payload.as_text()), \\\"version\\\": version}\\n\",\"security_client.py\":\"import os\\nfrom functools import lru_cache\\nfrom google.cloud import secretmanager\\n\\n\\ndef get_project_id() -> str:\\n    project_id = os.getenv(\\\"GOOGLE_CLOUD_PROJECT\\\") or os.getenv(\\\"GCP_PROJECT\\\")\\n    if not project_id:\\n        raise EnvironmentError(\\\"GOOGLE_CLOUD_PROJECT is required\\\")\\n    return project_id\\n\\n\\ndef get_client() -> secretmanager.SecretManagerServiceClient:\\n    return secretmanager.SecretManagerServiceClient()\\n\\n\\ndef build_secret_path(secret_name: str, version: str = \\\"latest\\\") -> str:\\n    return f\\\"projects/{get_project_id()}/secrets/{secret_name}/versions/{version}\\\"\\n\",\"security_models.py\":\"import json\\nfrom dataclasses import dataclass\\nfrom typing import Any, Dict\\n\\n\\n@dataclass\\nclass SecretResponse:\\n    payload: Any\\n\\n    @classmethod\\n    def from_google_secret_manager(cls, response: Any) -> \\\"SecretResponse\\\":\\n        return cls(payload=response.payload.data)\\n\\n    def as_text(self) -> str:\\n        if isinstance(self.payload, bytes):\\n            return self.payload.decode(\\\"utf-8\\\")\\n        return str(self.payload)\\n\\n\\ndef parse_json_payload(raw: str) -> Dict[str, Any]:\\n    data = json.loads(raw)\\n    if not isinstance(data, dict):\\n        raise ValueError(\\\"JSON secret must be an object\\\")\\n    return data\\n\\n\\ndef normalize_db_secret(raw: str) -> Dict[str, Any]:\\n    data = parse_json_payload(raw)\\n    if \\\"uri\\\" not in data and not {\\\"username\\\", \\\"password\\\", \\\"host\\\"}.issubset(data):\\n        raise ValueError(\\\"database secret is missing required fields\\\")\\n    return data\\n\",\"rotation_summary.py\":\"import json\\nfrom collections import Counter\\nfrom security_models import parse_json_payload\\nfrom google.cloud import secretmanager\\n\\n\\ndef summarize_rotation_status(secret_name: str, project_id: str) -> dict:\\n    client = secretmanager.SecretManagerServiceClient()\\n    parent = f\\\"projects/{project_id}/secrets/{secret_name}\\\"\\n    versions = list(client.list_secret_versions(request={\\\"parent\\\": parent}))\\n    states = Counter(v.state.name for v in versions)\\n    return {\\\"secret\\\": secret_name, \\\"project_id\\\": project_id, \\\"states\\\": dict(states), \\\"total_versions\\\": len(versions)}\\n\",\"secret_label_safety.py\":\"import re\\nfrom google.cloud import secretmanager\\n\\n_UNSAFE = re.compile(r\\\"(password|passwd|token|apikey|secret|private key)\\\", re.IGNORECASE)\\n\\n\\ndef check_secret_labels_and_notes(secret_name: str, project_id: str) -> dict:\\n    client = secretmanager.SecretManagerServiceClient()\\n    name = f\\\"projects/{project_id}/secrets/{secret_name}\\\"\\n    secret = client.get_secret(request={\\\"name\\\": name})\\n    labels = dict(secret.labels)\\n    notes = getattr(secret, \\\"etag\\\", \\\"\\\") or \\\"\\\"\\n    unsafe = any(_UNSAFE.search(f\\\"{k} {v}\\\") for k, v in labels.items()) or bool(_UNSAFE.search(notes))\\n    return {\\\"secret\\\": secret_name, \\\"unsafe\\\": unsafe, \\\"labels\\\": labels}\\n\",\"secret_audit_embedding.py\":\"import os\\nfrom google.cloud import secretmanager\\nfrom vertexai.language_models import TextEmbeddingModel\\n\\n\\ndef embed_secret_audit_notes(secret_name: str, project_id: str) -> list:\\n    client = secretmanager.SecretManagerServiceClient()\\n    name = f\\\"projects/{project_id}/secrets/{secret_name}\\\"\\n    secret = client.get_secret(request={\\\"name\\\": name})\\n    text = f\\\"{secret.name} {dict(secret.labels)} {getattr(secret, 'etag', '')}\\\"\\n    model = TextEmbeddingModel.from_pretrained(\\\"text-embedding-004\\\")\\n    embedding = model.get_embeddings([text])[0]\\n    return list(embedding.values)\\n\",\"runbook_translate.py\":\"from google.cloud import translate_v3 as translate\\n\\n\\ndef translate_runbook_notes(text: str, target_language: str, project_id: str, location: str = \\\"global\\\") -> str:\\n    client = translate.TranslationServiceClient()\\n    parent = f\\\"projects/{project_id}/locations/{location}\\\"\\n    response = client.translate_text(request={\\\"parent\\\": parent, \\\"contents\\\": [text], \\\"mime_type\\\": \\\"text/plain\\\", \\\"target_language_code\\\": target_language})\\n    return response.translations[0].translated_text\\n\"}",
+  "output_tokens": 1454,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1454,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 769,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2223
+  }
+}

@@ -1,0 +1,1 @@
+# Placeholder for unsafe copy check implementation

@@ -1,0 +1,18 @@
+{
+  "completion_tokens_details": {},
+  "elapsed_seconds": 5.7,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 814,
+  "output_text": "{\n    \"moderate_text.py\": \"from safety_client import get_safety_client\\n\\ndef moderate_text(text):\\n    client = get_safety_client()\\n    response = client.moderate(text)\\n    return response['categories']\",\n    \"moderate_batch.py\": \"from safety_client import get_safety_client\\n\\ndef moderate_batch(texts):\\n    client = get_safety_client()\\n    results = [client.moderate(text)['categories'] for text in texts]\\n    return results\",\n    \"redact_unsafe.py\": \"from safety_client import get_safety_client\\n\\ndef redact_unsafe(text):\\n    client = get_safety_client()\\n    response = client.moderate(text)\\n    if response['flagged']:\\n        redacted_text = ''.join(['*' if span['unsafe'] else char for char in text])\\n        return redacted_text\\n    return text\",\n    \"safety_threshold.py\": \"from safety_client import get_safety_client\\n\\ndef safety_threshold(text, thresholds):\\n    client = get_safety_client()\\n    response = client.moderate(text)\\n    for category, score in response['categories'].items():\\n        if score > thresholds.get(category, 0):\\n            return False\\n    return True\",\n    \"safety_client.py\": \"import os\\nfrom google.cloud import language_v1\\n\\ndef get_safety_client():\\n    client = language_v1.LanguageServiceClient()\\n    return client\",\n    \"safety_models.py\": \"def normalize_response(response):\\n    normalized = {}\\n    for category, score in response.items():\\n        normalized[category] = score\\n    return normalized\",\n    \"moderation_summary.py\": \"from safety_client import get_safety_client\\n\\ndef moderation_summary(texts):\\n    client = get_safety_client()\\n    summaries = []\\n    for text in texts:\\n        response = client.moderate(text)\\n        summary = {category: score for category, score in response['categories'].items() if score > 0.5}\\n        summaries.append(summary)\\n    return summaries\",\n    \"appeal_translate.py\": \"from google.cloud import translate_v2 as translate\\n\\ndef appeal_translate(text, target_language):\\n    client = translate.Client()\\n    result = client.translate(text, target_language=target_language)\\n    return result['translatedText']\",\n    \"moderation_reason_embedding.py\": \"from sentence_transformers import SentenceTransformer\\n\\ndef moderation_reason_embedding(reason):\\n    model = SentenceTransformer('paraphrase-MiniLM-L6-v2')\\n    embedding = model.encode(reason)\\n    return embedding\",\n    \"reviewer_brief_audio.py\": \"from google.cloud import texttospeech\\n\\ndef reviewer_brief_audio(text):\\n    client = texttospeech.TextToSpeechClient()\\n    input_text = texttospeech.SynthesisInput(text=text)\\n    voice = texttospeech.VoiceSelectionParams(language_code='en-US', ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL)\\n    audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)\\n    response = client.synthesize_speech(input=input_text, voice=voice, audio_config=audio_config)\\n    return response.audio_content\"\n}",
+  "output_tokens": 837,
+  "prompt_tokens_details": {},
+  "reasoning_tokens": null,
+  "usage": {
+    "completion_tokens": 837,
+    "completion_tokens_details": null,
+    "prompt_tokens": 814,
+    "prompt_tokens_details": null,
+    "total_tokens": 1651
+  }
+}

@@ -1,0 +1,11 @@
+# runbook_translate.py
+import os
+import boto3
+from security_client import SecretManagerClient
+from security_models import SecretMetadataResult
+import json
+from dashscope import Client as DashScopeClient
+from dashscope.text import chat\n\n# Concrete DashScope provider signal: SDK import dashscope; auth via DASHSCOPE_API_KEY env var.
+\nCHAT_MODEL = 'qwen2'  # or any other supported model family\n\ndef translate_runbook(secret_id: str, source_lang: str = 'en', target_lang: str = 'zh') -> str:
+    \"\"\"Fetch the secret that holds a runbook, send its content to DashScope chat model for translation.\n    Returns the translated text.\n    \"\"\"\n    client = SecretManagerClient()\n    # Assume the secret stores the runbook as plain text (SecretString).\n    try:\n        resp = client.client.get_secret_value(SecretId=secret_id)\n        runbook_content = resp.get('SecretString')\n        if not runbook_content:\n            raise ValueError('Secret does not contain a SecretString field')\n    except Exception as exc:\n        raise RuntimeError(f'Failed to retrieve secret {secret_id}: {exc}')\n\n    # Prepare the chat request for translation.\n    prompt = f'You are an AI translator. Translate the following runbook from {source_lang} to {target_lang}. Preserve code fences and indentation.\\n\\n{runbook_content}'\n    payload = {\n        \"model\": CHAT_MODEL,\n        \"messages\": [\n            {\"role\": \"user\", \"content\": prompt},\n        ],\n    }\n    ds_client = DashScopeClient()  # reads DASHSCOPE_API_KEY\n    resp = ds_client.chat(payload)\n    # Extract the assistant message content.\n    translated = resp['data'][0]['content'][0]['text']\n    return translated\n\nif __name__ == '__main__':
+    # Example secret that holds a runbook.\n    secret_name = 'my-runbook-secret'\n    translated_runbook = translate_runbook(secret_name, source_lang='en', target_lang='es')\n    print('Translated runbook:')\n    print(translated_runbook)\n    # The output can be stored back into another secret, versioned, or sent to a documentation system.

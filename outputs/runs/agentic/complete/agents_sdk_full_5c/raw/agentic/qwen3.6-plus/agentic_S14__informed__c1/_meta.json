@@ -1,0 +1,593 @@
+{
+  "task_id": "agentic_S14",
+  "modality": "agentic",
+  "benchmark": "vibench",
+  "task_mode": "unified",
+  "primary_atomic_scenario": "S14",
+  "primary_component_role": "upload_object",
+  "primary_component_file": "upload_object.py",
+  "task_family": "Storage",
+  "evidence_id": null,
+  "paired_with": null,
+  "seed_condition_id": null,
+  "seed_policy": null,
+  "seed_anchor_role": null,
+  "seed_anchor_provider": null,
+  "seed_anchor_ecosystem": null,
+  "variant": "informed",
+  "model_id": "qwen3.6-plus",
+  "model_litellm_string": "dashscope/qwen3.6-plus",
+  "model_provider": "Alibaba DashScope",
+  "model_api_key_env": "DASHSCOPE_API_KEY",
+  "model_affiliation": "alibaba",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "alibaba",
+  "model_direct_provider_affiliation": "alibaba",
+  "model_ecosystem_affiliation": "alibaba",
+  "direct_provider_affiliation": "alibaba",
+  "provider_family": "alibaba",
+  "ecosystem_affiliation": "alibaba",
+  "completion_index": 1,
+  "timestamp": "2026-04-18T15:35:41.593958+00:00",
+  "prompt_text": "Build the service integrations for a realistic managed object storage task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] upload_object.py - uploads a file or byte stream to managed object storage\n2. [SAME-SCENARIO] presigned_download.py - creates a time-limited signed download URL for a stored object\n3. [SAME-SCENARIO] object_metadata.py - reads object metadata or head information from managed object storage\n4. [SAME-SCENARIO] list_prefix.py - lists stored objects under a bucket or container prefix\n\nLocal helper files:\n\n5. [HELPER] storage_client.py - Provide local configuration and client helper utilities for Managed Object Storage\n6. [HELPER] storage_models.py - Define local request, response, and normalization helpers for Managed Object Storage\n\nLater-step scored files:\n\n7. [LATER-STEP] stored_document_ocr.py - Run OCR on a stored document object\n8. [LATER-STEP] stored_text_translate.py - Translate text extracted from a stored document\n9. [LATER-STEP] stored_asset_summary.py - Summarize content extracted from a stored asset\n10. [LATER-STEP] asset_metadata_embedding.py - Embed object metadata and extracted text for search\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nManaged Object Storage same-scenario files:\n- Amazon S3: service=Amazon S3; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Backblaze B2: service=Backblaze B2 Cloud Storage; sdk=b2sdk; interface=sdk; auth=B2_APPLICATION_KEY_ID, B2_APPLICATION_KEY\n- Alibaba OSS: service=Alibaba Object Storage Service; sdk=oss2; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- IBM Cloud Object Storage: service=IBM Cloud Object Storage; sdk=ibm-cos-sdk; interface=sdk; auth=IBM_COS_ENDPOINT, IBM_COS_APIKEY\n- Google Cloud Storage: service=Cloud Storage; sdk=google-cloud-storage; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure Blob Storage: service=Azure Blob Storage; sdk=azure-storage-blob; interface=sdk; auth=AZURE_STORAGE_ACCOUNT_URL, AZURE_STORAGE_KEY\n\nOCR and Layout Extraction later-step files:\n- Amazon Textract: service=Amazon Textract; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Cloud OCR: service=Alibaba Cloud OCR; sdk=alibabacloud_ocr_api; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Azure Document Intelligence: service=Azure AI Document Intelligence; sdk=azure-ai-documentintelligence; interface=sdk; auth=AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n- Google Document AI: service=Google Document AI; sdk=google-cloud-documentai; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Mindee: service=Mindee Document OCR; sdk=mindee; interface=sdk; auth=MINDEE_API_KEY\n\nGeneral Text Translation later-step files:\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n\nDirect Embeddings API later-step files:\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY",
+  "prompt_sha256": "396db35eefe33e7b386e8efed1826747c2060812aff784928c4d633fb611ad81",
+  "system_prompt": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/agentic_system_prompt.txt",
+  "agent_user_prompt": "Build the service integrations for a realistic managed object storage task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] upload_object.py - uploads a file or byte stream to managed object storage\n2. [SAME-SCENARIO] presigned_download.py - creates a time-limited signed download URL for a stored object\n3. [SAME-SCENARIO] object_metadata.py - reads object metadata or head information from managed object storage\n4. [SAME-SCENARIO] list_prefix.py - lists stored objects under a bucket or container prefix\n\nLocal helper files:\n\n5. [HELPER] storage_client.py - Provide local configuration and client helper utilities for Managed Object Storage\n6. [HELPER] storage_models.py - Define local request, response, and normalization helpers for Managed Object Storage\n\nLater-step scored files:\n\n7. [LATER-STEP] stored_document_ocr.py - Run OCR on a stored document object\n8. [LATER-STEP] stored_text_translate.py - Translate text extracted from a stored document\n9. [LATER-STEP] stored_asset_summary.py - Summarize content extracted from a stored asset\n10. [LATER-STEP] asset_metadata_embedding.py - Embed object metadata and extracted text for search\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nManaged Object Storage same-scenario files:\n- Amazon S3: service=Amazon S3; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Backblaze B2: service=Backblaze B2 Cloud Storage; sdk=b2sdk; interface=sdk; auth=B2_APPLICATION_KEY_ID, B2_APPLICATION_KEY\n- Alibaba OSS: service=Alibaba Object Storage Service; sdk=oss2; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- IBM Cloud Object Storage: service=IBM Cloud Object Storage; sdk=ibm-cos-sdk; interface=sdk; auth=IBM_COS_ENDPOINT, IBM_COS_APIKEY\n- Google Cloud Storage: service=Cloud Storage; sdk=google-cloud-storage; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure Blob Storage: service=Azure Blob Storage; sdk=azure-storage-blob; interface=sdk; auth=AZURE_STORAGE_ACCOUNT_URL, AZURE_STORAGE_KEY\n\nOCR and Layout Extraction later-step files:\n- Amazon Textract: service=Amazon Textract; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Cloud OCR: service=Alibaba Cloud OCR; sdk=alibabacloud_ocr_api; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Azure Document Intelligence: service=Azure AI Document Intelligence; sdk=azure-ai-documentintelligence; interface=sdk; auth=AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n- Google Document AI: service=Google Document AI; sdk=google-cloud-documentai; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Mindee: service=Mindee Document OCR; sdk=mindee; interface=sdk; auth=MINDEE_API_KEY\n\nGeneral Text Translation later-step files:\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n\nDirect Embeddings API later-step files:\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY\n\nExpected files that must be written with write_file:\n\n- upload_object.py\n- presigned_download.py\n- object_metadata.py\n- list_prefix.py\n- storage_client.py\n- storage_models.py\n- stored_document_ocr.py\n- stored_text_translate.py\n- stored_asset_summary.py\n- asset_metadata_embedding.py\n\nUse write_file for each expected file before producing the final answer.",
+  "agent_user_prompt_sha256": "f31604f112250a42f56834651d4fdde41f2ab6024f8c087b057de24e556287e6",
+  "agent_instructions": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.\n\nTool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "agent_instructions_sha256": "ca69981834e8c12ccff2525631ec4bd7e01135067a146f05b0859757d7f582c0",
+  "agent_tool_instruction": "Tool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": null,
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": null,
+    "reasoning_effort_source": "provider_default",
+    "reasoning_effort_sent_to_api": null,
+    "reasoning_effort_sent_source": "provider_default",
+    "parallel_tool_calls": null,
+    "tool_choice": null
+  },
+  "model_settings": {
+    "temperature": null,
+    "top_p": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "tool_choice": null,
+    "parallel_tool_calls": null,
+    "truncation": null,
+    "max_tokens": null,
+    "reasoning": null,
+    "verbosity": null,
+    "metadata": null,
+    "store": null,
+    "prompt_cache_retention": null,
+    "include_usage": null,
+    "response_include": null,
+    "top_logprobs": null,
+    "extra_query": null,
+    "extra_body": null,
+    "extra_headers": null,
+    "extra_args": null,
+    "retry": null
+  },
+  "seed_files": [],
+  "expected_files": [
+    "upload_object.py",
+    "presigned_download.py",
+    "object_metadata.py",
+    "list_prefix.py",
+    "storage_client.py",
+    "storage_models.py",
+    "stored_document_ocr.py",
+    "stored_text_translate.py",
+    "stored_asset_summary.py",
+    "asset_metadata_embedding.py"
+  ],
+  "scored_files": [
+    "upload_object.py",
+    "presigned_download.py",
+    "object_metadata.py",
+    "list_prefix.py",
+    "stored_document_ocr.py",
+    "stored_text_translate.py",
+    "stored_asset_summary.py",
+    "asset_metadata_embedding.py"
+  ],
+  "context_files": [
+    "storage_client.py",
+    "storage_models.py"
+  ],
+  "files_found": {
+    "upload_object.py": true,
+    "presigned_download.py": true,
+    "object_metadata.py": true,
+    "list_prefix.py": true,
+    "storage_client.py": true,
+    "storage_models.py": true,
+    "stored_document_ocr.py": true,
+    "stored_text_translate.py": true,
+    "stored_asset_summary.py": true,
+    "asset_metadata_embedding.py": true
+  },
+  "components": [
+    {
+      "role": "upload_object",
+      "file": "upload_object.py",
+      "atomic_scenario": "S14",
+      "description": "uploads a file or byte stream to managed object storage",
+      "atomic_subtask_index": 1,
+      "atomic_subtask_id": "nli_S14_a",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": true,
+      "coupling_expectation": "primary_anchor",
+      "dependency_reason": "This is the first aligned-core file in the workflow.",
+      "is_seeded": false
+    },
+    {
+      "role": "presigned_download",
+      "file": "presigned_download.py",
+      "atomic_scenario": "S14",
+      "description": "creates a time-limited signed download URL for a stored object",
+      "atomic_subtask_index": 2,
+      "atomic_subtask_id": "nli_S14_b",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "object_metadata",
+      "file": "object_metadata.py",
+      "atomic_scenario": "S14",
+      "description": "reads object metadata or head information from managed object storage",
+      "atomic_subtask_index": 3,
+      "atomic_subtask_id": "nli_S14_c",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "list_prefix",
+      "file": "list_prefix.py",
+      "atomic_scenario": "S14",
+      "description": "lists stored objects under a bucket or container prefix",
+      "atomic_subtask_index": 4,
+      "atomic_subtask_id": "nli_S14_d",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "storage_client",
+      "file": "storage_client.py",
+      "atomic_scenario": "S14",
+      "description": "Provide local configuration and client helper utilities for Managed Object Storage",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "storage_models",
+      "file": "storage_models.py",
+      "atomic_scenario": "S14",
+      "description": "Define local request, response, and normalization helpers for Managed Object Storage",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "stored_document_ocr",
+      "file": "stored_document_ocr.py",
+      "atomic_scenario": "S07",
+      "aligned_task_id": "agentic_S07",
+      "legacy_atomic_scenario": "S08",
+      "description": "Run OCR on a stored document object",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "compatible_but_independent",
+      "dependency_reason": "This extension step uses outputs from the primary Storage workflow.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "stored_text_translate",
+      "file": "stored_text_translate.py",
+      "atomic_scenario": "S03",
+      "aligned_task_id": "agentic_S03",
+      "legacy_atomic_scenario": "S03",
+      "description": "Translate text extracted from a stored document",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Storage provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "stored_asset_summary",
+      "file": "stored_asset_summary.py",
+      "atomic_scenario": "S10",
+      "aligned_task_id": "agentic_S10",
+      "legacy_atomic_scenario": "S11",
+      "description": "Summarize content extracted from a stored asset",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Storage provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "asset_metadata_embedding",
+      "file": "asset_metadata_embedding.py",
+      "atomic_scenario": "S09",
+      "aligned_task_id": "agentic_S09",
+      "legacy_atomic_scenario": "S10",
+      "description": "Embed object metadata and extracted text for search",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Storage provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    }
+  ],
+  "elapsed_seconds": 310.37,
+  "agentic_runner": "litellm_openai_agents",
+  "agentic_system_prompt_mode": "openai_agents_litellm_write_file_tool",
+  "agentic_identity_mode": "litellm_exact_or_provider_route",
+  "agentic_identity_note": "OpenAI Agents SDK LitellmModel routes directly through LiteLLM; no OpenCode provider transform is used.",
+  "litellm_model": "dashscope/qwen3.6-plus",
+  "litellm_base_url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+  "agent_name": "vibench_file_writer",
+  "agents_sdk_exit_code": 0,
+  "agents_sdk_stdout_tail": "DONE",
+  "agents_sdk_stderr_tail": "",
+  "tool_calls": [
+    {
+      "path": "storage_client.py",
+      "normalized_path": "storage_client.py",
+      "content_sha256": "832e31be161ed6b5b4d1fe9580a4b5838ab9002f0f34d20ffbf7b91574b36ae0",
+      "content_length": 3199,
+      "accepted": true,
+      "message": "Wrote storage_client.py.",
+      "timestamp": "2026-04-18T15:30:53.561578+00:00"
+    },
+    {
+      "path": "storage_models.py",
+      "normalized_path": "storage_models.py",
+      "content_sha256": "84b60c1c415979400a07f468d3bcd03ab211cf9930e14a20335612e71a986df2",
+      "content_length": 5233,
+      "accepted": true,
+      "message": "Wrote storage_models.py.",
+      "timestamp": "2026-04-18T15:31:19.028218+00:00"
+    },
+    {
+      "path": "upload_object.py",
+      "normalized_path": "upload_object.py",
+      "content_sha256": "378866eebd1b2b07baa1d75fb634e4cce35b2fa80cf6636d488efb0650ad0b38",
+      "content_length": 6183,
+      "accepted": true,
+      "message": "Wrote upload_object.py.",
+      "timestamp": "2026-04-18T15:31:49.293428+00:00"
+    },
+    {
+      "path": "presigned_download.py",
+      "normalized_path": "presigned_download.py",
+      "content_sha256": "3060189b47ebdbe95421c23058720cced322b3d820e121d7987fde1485509b6f",
+      "content_length": 5165,
+      "accepted": true,
+      "message": "Wrote presigned_download.py.",
+      "timestamp": "2026-04-18T15:32:14.805978+00:00"
+    },
+    {
+      "path": "object_metadata.py",
+      "normalized_path": "object_metadata.py",
+      "content_sha256": "4e2d1b8df4d1d306f886219ef44ddd14d0beabf7f1cbd96851e8ca7eb1a210d7",
+      "content_length": 5124,
+      "accepted": true,
+      "message": "Wrote object_metadata.py.",
+      "timestamp": "2026-04-18T15:32:39.965629+00:00"
+    },
+    {
+      "path": "list_prefix.py",
+      "normalized_path": "list_prefix.py",
+      "content_sha256": "d5ecc34cc745cf1f958bcbede52dd8ce7082f9744384c5f4493c38b0b9c27c29",
+      "content_length": 6372,
+      "accepted": true,
+      "message": "Wrote list_prefix.py.",
+      "timestamp": "2026-04-18T15:33:09.854007+00:00"
+    },
+    {
+      "path": "stored_document_ocr.py",
+      "normalized_path": "stored_document_ocr.py",
+      "content_sha256": "d70fce95e36e30e061aab866b3c02873d9f18f2ec8e0fd6030ac27ef54157508",
+      "content_length": 6641,
+      "accepted": true,
+      "message": "Wrote stored_document_ocr.py.",
+      "timestamp": "2026-04-18T15:33:44.094980+00:00"
+    },
+    {
+      "path": "stored_text_translate.py",
+      "normalized_path": "stored_text_translate.py",
+      "content_sha256": "207c999f42182110d987db098736cebdb95327ce2671944f0b8d670ecf6f726f",
+      "content_length": 7420,
+      "accepted": true,
+      "message": "Wrote stored_text_translate.py.",
+      "timestamp": "2026-04-18T15:34:21.935238+00:00"
+    },
+    {
+      "path": "stored_asset_summary.py",
+      "normalized_path": "stored_asset_summary.py",
+      "content_sha256": "a91c0b2c51f6a5872e5005e7082fd4b27d953ada3860fb3b907570a633492771",
+      "content_length": 7017,
+      "accepted": true,
+      "message": "Wrote stored_asset_summary.py.",
+      "timestamp": "2026-04-18T15:34:56.807968+00:00"
+    },
+    {
+      "path": "asset_metadata_embedding.py",
+      "normalized_path": "asset_metadata_embedding.py",
+      "content_sha256": "542388b3597e7e5e0bd142362b399622a8cc0b46c0b755915ab8895ff07c7855",
+      "content_length": 8866,
+      "accepted": true,
+      "message": "Wrote asset_metadata_embedding.py.",
+      "timestamp": "2026-04-18T15:35:39.572945+00:00"
+    }
+  ],
+  "tool_call_count": 10,
+  "accepted_tool_call_count": 10,
+  "run_result": {
+    "final_output": "DONE",
+    "raw_response_count": 11,
+    "raw_responses": [
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2206,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 1189,
+          "output_tokens_details": {
+            "reasoning_tokens": 295
+          },
+          "total_tokens": 3395,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 3119,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 1373,
+          "output_tokens_details": {
+            "reasoning_tokens": 17
+          },
+          "total_tokens": 4492,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4494,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 1610,
+          "output_tokens_details": {
+            "reasoning_tokens": 20
+          },
+          "total_tokens": 6104,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 6103,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 1327,
+          "output_tokens_details": {
+            "reasoning_tokens": 66
+          },
+          "total_tokens": 7430,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 7384,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 1331,
+          "output_tokens_details": {
+            "reasoning_tokens": 20
+          },
+          "total_tokens": 8715,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 8714,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 1598,
+          "output_tokens_details": {
+            "reasoning_tokens": 21
+          },
+          "total_tokens": 10312,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 10310,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 1853,
+          "output_tokens_details": {
+            "reasoning_tokens": 130
+          },
+          "total_tokens": 12163,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 12054,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 2032,
+          "output_tokens_details": {
+            "reasoning_tokens": 24
+          },
+          "total_tokens": 14086,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 14082,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 1857,
+          "output_tokens_details": {
+            "reasoning_tokens": 19
+          },
+          "total_tokens": 15939,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 15940,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 2317,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 18257,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 2,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 18278,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 8,
+          "output_tokens_details": {
+            "reasoning_tokens": 2
+          },
+          "total_tokens": 18286,
+          "request_usage_entries": []
+        }
+      }
+    ],
+    "new_item_count": 31,
+    "max_turns": 30
+  },
+  "generation_warning": null,
+  "error": null
+}

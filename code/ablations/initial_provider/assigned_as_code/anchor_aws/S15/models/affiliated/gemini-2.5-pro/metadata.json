@@ -1,0 +1,102 @@
+{
+  "scenario": "S15",
+  "condition": "anchor_aws",
+  "model_id": "gemini-2.5-pro",
+  "role": "affiliated",
+  "prompt_variant": "original_NLI_plus_seed_notice",
+  "source_task_id": "agentic_S15",
+  "original_anchor_file": "upsert_document.py",
+  "workspace_dir": "workspace",
+  "seed_file": "upsert_document.py",
+  "seed_provider": "aws",
+  "seed_sha256": "eb26941749f9db125a8826d6c4e4ff81a48da53dc55f8628105a52a45f27d7d9",
+  "prompt_sha256": "f698ef379d37bb7697063dedf3ce4ec3d72db097f497dec725ece3185b1a2a66",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "original_prompt_sha256": "382ff6258da929dc6f2a9ea7ef8ccab389937437aa5eebb91f42825b5d21dee0",
+  "expected_generated_files": [
+    "fetch_document.py",
+    "query_documents.py",
+    "conditional_update.py",
+    "database_client.py",
+    "database_models.py",
+    "record_summary.py",
+    "record_text_safety.py",
+    "record_translate.py",
+    "record_export_archive.py"
+  ],
+  "expected_repository_files": [
+    "upsert_document.py",
+    "fetch_document.py",
+    "query_documents.py",
+    "conditional_update.py",
+    "database_client.py",
+    "database_models.py",
+    "record_summary.py",
+    "record_text_safety.py",
+    "record_translate.py",
+    "record_export_archive.py"
+  ],
+  "downstream_atomic_scenarios": {
+    "record_summary.py": "S10",
+    "record_text_safety.py": "S13",
+    "record_translate.py": "S03",
+    "record_export_archive.py": "S14"
+  },
+  "scored_files": [
+    "record_summary.py",
+    "record_text_safety.py",
+    "record_translate.py",
+    "record_export_archive.py"
+  ],
+  "input_contract": {
+    "payload": [
+      "id (string)",
+      "document (JSON object)"
+    ],
+    "output": [
+      "id"
+    ],
+    "aws_config": [
+      "table_name",
+      "key_field (optional, id)",
+      "region (optional)"
+    ],
+    "google_config": [
+      "project_id",
+      "collection"
+    ],
+    "preconditions": "DynamoDB table has a single string partition key; Firestore database is enabled. Replaces the stored document rather than merging; DynamoDB also materializes the partition-key field."
+  },
+  "evidence": {
+    "provider_key": "aws",
+    "ecosystem": "aws",
+    "label": "Amazon DynamoDB",
+    "service": "Amazon DynamoDB",
+    "sdk": "boto3",
+    "interface": "sdk",
+    "official_docs": [
+      {
+        "title": "Amazon DynamoDB",
+        "url": "https://docs.aws.amazon.com/dynamodb/",
+        "proof_id": "PR_dfd666bd2b5b"
+      }
+    ],
+    "operations": [
+      "put_item",
+      "get_item",
+      "query"
+    ],
+    "auth_env": [
+      "AWS_ACCESS_KEY_ID",
+      "AWS_SECRET_ACCESS_KEY"
+    ],
+    "eligible": true,
+    "notes": "Managed key-value/document store with Dynamo-specific request shapes.",
+    "proof_ids": [
+      "PR_dfd666bd2b5b"
+    ]
+  },
+  "dependency_package": "boto3",
+  "sdk_migration": null,
+  "status": "prepared_not_live_validated"
+}

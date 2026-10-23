@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIBench Explorer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── App Bar ─────────────────────────────────────────── -->
+<header class="app-bar">
+  <div class="app-bar-inner">
+    <div class="brand">
+      <span class="material-icons-outlined">science</span>
+      <span class="brand-text"><strong>VI</strong>Bench</span>
+      <span class="brand-version">current</span>
+    </div>
+    <nav class="app-tabs">
+      <button class="tab active" data-view="explorer-view">
+        <span class="material-icons-outlined">dataset</span>
+        Benchmark Explorer
+      </button>
+      <button class="tab" data-view="results-view">
+        <span class="material-icons-outlined">insights</span>
+        Results Summary
+      </button>
+      <button class="tab" data-view="ablations-view">
+        <span class="material-icons-outlined">science</span>
+        Ablations
+      </button>
+      <button class="tab" data-view="evaluator-view">
+        <span class="material-icons-outlined">rate_review</span>
+        Result Evaluator
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     VIEW 1: Benchmark Explorer
+     ═══════════════════════════════════════════════════════ -->
+<div id="explorer-view" class="view active">
+  <aside class="scenario-list" id="scenario-list">
+    <div class="list-header">
+      <span class="material-icons-outlined">list</span>
+      <span>Scenarios</span>
+    </div>
+  </aside>
+
+  <main class="scenario-detail" id="scenario-detail">
+    <div class="empty-state" id="scenario-empty">
+      <span class="material-icons-outlined" style="font-size:48px;color:var(--muted)">touch_app</span>
+      <p>Select a scenario from the list</p>
+    </div>
+    <div id="scenario-content" style="display:none;">
+      <div class="card scenario-header-card">
+        <h2 id="sc-title"></h2>
+        <div class="chip-row" id="sc-chips"></div>
+        <div class="meta-grid" id="sc-meta"></div>
+      </div>
+
+      <div class="inner-tabs" id="sc-tabs">
+        <button class="active" data-tab="tab-modalities">
+          <span class="material-icons-outlined">code</span>Modalities
+        </button>
+        <button data-tab="tab-providers">
+          <span class="material-icons-outlined">cloud</span>Provider Tools
+        </button>
+        <button data-tab="tab-agentic">
+          <span class="material-icons-outlined">account_tree</span>Agentic Mapping
+        </button>
+        <button data-tab="tab-evidence">
+          <span class="material-icons-outlined">verified</span>Evidence & Proofs
+        </button>
+      </div>
+
+      <div class="tab-pane active" id="tab-modalities"></div>
+      <div class="tab-pane" id="tab-providers"></div>
+      <div class="tab-pane" id="tab-agentic"></div>
+      <div class="tab-pane" id="tab-evidence"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     VIEW 2: Results Summary
+     ═══════════════════════════════════════════════════════ -->
+<div id="results-view" class="view results-layout">
+  <main class="results-main">
+    <div class="results-hero card">
+      <div>
+        <div class="eyebrow">Current VIBench Study</div>
+        <h1>Vertical-integration bias across direct and agentic code generation</h1>
+        <p>
+          This page summarizes the retained corrected benchmark runs, including
+          direct VIB, agentic aligned-core VIB, direct-to-agentic transitions,
+          lock-in/leakage, and option-order/omission ablations.
+        </p>
+      </div>
+      <div class="results-source" id="results-source">Loading...</div>
+    </div>
+
+    <div class="results-metric-grid" id="results-metric-grid"></div>
+
+    <div class="card results-markdown-card">
+      <div class="card-header">
+        <span class="material-icons-outlined">article</span>
+        <span>Paper-facing Results Report</span>
+      </div>
+      <div id="results-summary-content" class="results-summary-content">
+        <div class="empty-state">
+          <span class="material-icons-outlined" style="font-size:48px;color:var(--muted)">hourglass_empty</span>
+          <p>Loading results summary...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     VIEW 3: Result Evaluator  (sidebar layout)
+     ═══════════════════════════════════════════════════════ -->
+<div id="ablations-view" class="view">
+  <div class="ablations-wrap">
+    <div class="ablations-head">
+      <h2>Ablations</h2>
+      <p class="ablations-sub">
+        Every robustness check that backs the paper, with the concern it answers,
+        the runs behind it, and its derived tables. Config-variant ablations can
+        be opened in the result browser; campaign ablations ship their own run
+        trees under <code>outputs/ablations/</code>.
+      </p>
+      <div class="ablation-filters">
+        <label>Kind
+          <select id="ablation-kind">
+            <option value="">all</option>
+            <option value="config variant">config variant</option>
+            <option value="campaign">campaign</option>
+            <option value="re-analysis">re-analysis</option>
+          </select>
+        </label>
+        <span id="ablation-count" class="ablation-count"></span>
+      </div>
+    </div>
+    <div class="ablations-body">
+      <div id="ablation-list" class="ablation-list"></div>
+      <div id="ablation-detail" class="ablation-detail">
+        <div class="empty-state">Select an ablation.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="evaluator-view" class="view eval-layout">
+
+  <!-- LEFT: sidebar with filters + result list -->
+  <aside class="eval-sidebar" id="eval-sidebar">
+    <div class="eval-sidebar-header">
+      <div class="eval-filter-row eval-run-row">
+        <div class="multi-select" id="sel-run" data-placeholder="Run..."></div>
+      </div>
+      <div class="eval-filter-row">
+        <div class="multi-select" id="sel-model" data-placeholder="Model..."></div>
+        <div class="multi-select" id="sel-modality" data-placeholder="Modality"></div>
+      </div>
+      <div class="eval-filter-row">
+        <div class="multi-select" id="sel-scenario" data-placeholder="Scenario"></div>
+        <div class="multi-select" id="sel-subtask" data-placeholder="Subtask"></div>
+        <select id="sel-filter" title="Filter">
+          <option value="all">All</option>
+          <option value="unknown">Unknown</option>
+          <option value="low_conf">Low conf</option>
+          <option value="unevaluated">Unevaluated</option>
+          <option value="flagged">Flagged</option>
+        </select>
+        <select id="sel-sort" title="Sort">
+          <option value="default">Default</option>
+          <option value="modality">Modality</option>
+          <option value="scenario">Scenario</option>
+          <option value="confidence">Confidence</option>
+          <option value="ecosystem">Ecosystem</option>
+        </select>
+      </div>
+      <div class="eval-filter-row eval-stats-row">
+        <span class="progress-pill" id="eval-progress">0 / 0</span>
+        <div class="eval-toolbar-actions">
+          <button class="btn-icon btn-icon-sm" id="btn-upload-eval" title="Upload evaluations">
+            <span class="material-icons-outlined">upload_file</span>
+          </button>
+          <input type="file" id="file-upload-eval" accept=".json" style="display:none">
+          <button class="btn-icon btn-icon-sm" id="btn-download-eval" title="Download evaluations">
+            <span class="material-icons-outlined">download</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="eval-result-list" id="eval-result-list">
+      <!-- filled by JS -->
+    </div>
+  </aside>
+
+  <!-- RIGHT: detail pane -->
+  <main class="eval-detail" id="eval-detail">
+    <div class="empty-state" id="eval-empty">
+      <span class="material-icons-outlined" style="font-size:48px;color:var(--muted)">psychology</span>
+      <p>Select a model and result to evaluate</p>
+    </div>
+    <div id="eval-content" style="display:none;">
+
+      <!-- detection info (top bar) -->
+      <div class="card detection-card" id="detection-row"></div>
+
+      <!-- prompt (collapsible) -->
+      <div class="card collapsible">
+        <div class="collapsible-header" id="prompt-header">
+          <span class="material-icons-outlined">description</span>
+          <span>Prompt</span>
+          <span class="material-icons-outlined expand-icon">expand_more</span>
+        </div>
+        <div class="collapsible-body" id="prompt-body">
+          <pre class="code-block code-light" id="prompt-text"></pre>
+        </div>
+      </div>
+
+      <!-- output (for direct) -->
+      <div class="card" id="output-card">
+        <div class="card-header">
+          <span class="material-icons-outlined">terminal</span>
+          <span>Model Output</span>
+          <span class="text-muted text-sm" id="output-meta"></span>
+        </div>
+        <pre class="code-block code-dark" id="output-text"></pre>
+      </div>
+
+      <!-- agentic files (for agentic) -->
+      <div id="agentic-files-section" style="display:none;"></div>
+
+      <!-- evaluation form -->
+      <div class="card eval-form-card">
+        <div class="card-header">
+          <span class="material-icons-outlined">fact_check</span>
+          <span>Manual Evaluation</span>
+        </div>
+        <div id="eval-form">
+          <div class="form-row">
+            <label>Detector correct?</label>
+            <div class="radio-group">
+              <label class="radio-label correct"><input type="radio" name="eval-correct" value="yes"><span class="material-icons-outlined">check_circle</span> Yes</label>
+              <label class="radio-label incorrect"><input type="radio" name="eval-correct" value="no"><span class="material-icons-outlined">cancel</span> No</label>
+              <label class="radio-label"><input type="radio" name="eval-correct" value=""><span class="material-icons-outlined">help_outline</span> Unset</label>
+            </div>
+          </div>
+
+          <div class="correction-fields" id="correction-fields">
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="corr-provider">Correct Provider</label>
+                <select id="corr-provider">
+                  <option value="">--</option>
+                  <option value="aws">AWS</option>
+                  <option value="google">Google</option>
+                  <option value="azure">Azure</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="alibaba">Alibaba</option>
+                  <option value="ibm">IBM</option>
+                  <option value="deepl">DeepL</option>
+                  <option value="deepgram">Deepgram</option>
+                  <option value="elevenlabs">ElevenLabs</option>
+                  <option value="mindee">Mindee</option>
+                  <option value="voyage">Voyage</option>
+                  <option value="cohere">Cohere</option>
+                  <option value="auth0">Auth0</option>
+                  <option value="okta">Okta</option>
+                  <option value="launchdarkly">LaunchDarkly</option>
+                  <option value="independent">Independent</option>
+                  <option value="unknown">Unknown</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="corr-ecosystem">Correct Ecosystem</label>
+                <select id="corr-ecosystem">
+                  <option value="">--</option>
+                  <option value="aws">AWS</option>
+                  <option value="google">Google</option>
+                  <option value="microsoft_openai">Microsoft/OpenAI</option>
+                  <option value="alibaba">Alibaba</option>
+                  <option value="ibm">IBM</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="independent">Independent</option>
+                  <option value="unknown">Unknown</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="corr-service">Correct Service</label>
+                <input type="text" id="corr-service" placeholder="e.g. Amazon Cognito">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field full-width">
+            <label for="eval-notes">Notes</label>
+            <textarea id="eval-notes" rows="2" placeholder="Optional notes..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" id="btn-save-eval">
+              <span class="material-icons-outlined">save</span> Save
+            </button>
+            <span class="save-status" id="save-status"></span>
+            <div class="spacer"></div>
+            <button class="btn btn-outline" id="btn-prev" disabled>
+              <span class="material-icons-outlined">arrow_back</span>
+            </button>
+            <button class="btn btn-outline" id="btn-next" disabled>
+              <span class="material-icons-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+
+<script src="app.js"></script>
+</body>
+</html>

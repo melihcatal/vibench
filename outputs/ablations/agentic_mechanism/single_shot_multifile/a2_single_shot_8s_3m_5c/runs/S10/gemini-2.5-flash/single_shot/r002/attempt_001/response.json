@@ -1,0 +1,47 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "image_tokens": null,
+    "reasoning_tokens": 2296,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 2367,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 19.65,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 838,
+  "output_text": "```json\n{\n  \"summarize_text.py\": \"import os\\nimport vertexai\\nfrom vertexai.generative_models import GenerativeModel\\nfrom model_client import get_gemini_model\\n\\ndef summarize_text(text: str) -> str:\\n    project_id = os.environ.get(\\\"GOOGLE_CLOUD_PROJECT_ID\\\")\\n    location = os.environ.get(\\\"GOOGLE_CLOUD_LOCATION\\\", \\\"us-central1\\\")\\n    \\n    model = get_gemini_model(project_id, location, \\\"gemini-pro\\\")\\n    \\n    prompt = f\\\"Summarize the following text:\\n\\n{text}\\\"\\n    \\n    response = model.generate_content(\\n        contents=prompt,\\n        generation_config={\\n            \\\"max_output_tokens\\\": 500,\\n            \\\"temperature\\\": 0.5,\\n            \\\"top_p\\\": 0.95,\\n        }\\n    )\\n    \\n    return response.text\\n\",\n  \"extract_json.py\": \"import os\\nimport vertexai\\nfrom vertexai.generative_models import GenerativeModel, Part, ResponseSchema, StructuralType\\nfrom model_client import get_gemini_model\\nimport json\\n\\ndef extract_json(text: str, json_schema: dict) -> dict:\\n    project_id = os.environ.get(\\\"GOOGLE_CLOUD_PROJECT_ID\\\")\\n    location = os.environ.get(\\\"GOOGLE_CLOUD_LOCATION\\\", \\\"us-central1\\\")\\n    \\n    model = get_gemini_model(project_id, location, \\\"gemini-pro\\\")\\n    \\n    prompt = f\\\"Extract information from the following text into a JSON object conforming to the provided JSON schema. Only return the JSON object.\\n\\nText: {text}\\n\\nSchema: {json.dumps(json_schema)}\\\"\\n    \\n    response_schema_obj = ResponseSchema.from_dict(json_schema)\\n\\n    response = model.generate_content(\\n        contents=prompt,\\n        generation_config={\\n            \\\"temperature\\\": 0.0,\\n            \\\"response_mime_type\\\": \\\"application/json\\\"\\n        }\\n    )\\n    \\n    try:\\n        return json.loads(response.text)\\n    except json.JSONDecodeError:\\n        return {}\\n\",\n  \"answer_with_context.py\": \"import os\\nimport vertexai\\nfrom vertexai.generative_models import GenerativeModel\\nfrom model_client import get_gemini_model\\n\\ndef answer_with_context(question: str, context: str) -> str:\\n    project_id = os.environ.get(\\\"GOOGLE_CLOUD_PROJECT_ID\\\")\\n    location = os.environ.get(\\\"GOOGLE_CLOUD_LOCATION\\\", \\\"us-central1\\\")\\n    \\n    model = get_gemini_model(project_id, location, \\\"gemini-pro\\\")\\n    \\n    prompt = f\\\"Using only the following context, answer the question. If the answer is not in the context, state that you cannot answer.\\n\\nContext: {context}\\n\\nQuestion: {question}\\n\\nAnswer:\\\"\\n    \\n    response = model.generate_content(\\n        contents=prompt,\\n        generation_config={\\n            \\\"max_output_tokens\\\": 200,\\n            \\\"temperature\\\": 0.2,\\n            \\\"top_p\\\": 0.9,\\n        }\\n    )\\n    \\n    return response.text\\n\",\n  \"stream_completion.py\": \"import os\\nimport vertexai\\nfrom vertexai.generative_models import GenerativeModel\\nfrom model_client import get_gemini_model\\nfrom typing import Iterator\\n\\ndef stream_completion(prompt: str) -> Iterator[str]:\\n    project_id = os.environ.get(\\\"GOOGLE_CLOUD_PROJECT_ID\\\")\\n    location = os.environ.get(\\\"GOOGLE_CLOUD_LOCATION\\\", \\\"us-central1\\\")\\n    \\n    model = get_gemini_model(project_id, location, \\\"gemini-pro\\\")\\n    \\n    responses = model.generate_content(\\n        contents=prompt,\\n        stream=True,\\n        generation_config={\\n            \\\"temperature\\\": 0.8,\\n            \\\"top_p\\\": 0.95,\\n        }\\n    )\\n    \\n    for response in responses:\\n        if response.text:\\n            yield response.text\\n\",\n  \"model_client.py\": \"import os\\nimport vertexai\\nimport openai\\nfrom vertexai.generative_models import GenerativeModel\\n\\n_gemini_models = {}\\n_openai_client = None\\n\\ndef get_gemini_model(project_id: str, location: str, model_name: str = \\\"gemini-pro\\\") -> GenerativeModel:\\n    key = f\\\"{project_id}-{location}-{model_name}\\\"\\n    if key not in _gemini_models:\\n        vertexai.init(project=project_id, location=location)\\n        _gemini_models[key] = GenerativeModel(model_name)\\n    return _gemini_models[key]\\n\\ndef get_openai_client() -> openai.OpenAI:\\n    global _openai_client\\n    if _openai_client is None:\\n        api_key = os.environ.get(\\\"OPENAI_API_KEY\\\")\\n        if not api_key:\\n            raise ValueError(\\\"OPENAI_API_KEY environment variable not set.\\\")\\n        _openai_client = openai.OpenAI(api_key=api_key)\\n    return _openai_client\\n\",\n  \"model_models.py\": \"class LLMRequest:\\n    def __init__(self, prompt: str, model_name: str = \\\"gemini-pro\\\", temperature: float = 0.7, max_output_tokens: int = 1024):\\n        self.prompt = prompt\\n        self.model_name = model_name\\n        self.temperature = temperature\\n        self.max_output_tokens = max_output_tokens\\n\\nclass LLMResponse:\\n    def __init__(self, text: str, model_name: str = \\\"gemini-pro\\\", finish_reason: str = None):\\n        self.text = text\\n        self.model_name = model_name\\n        self.finish_reason = finish_reason\\n\\nclass EmbeddingResult:\\n    def __init__(self, embedding: list[float], model_name: str):\\n        self.embedding = embedding\\n        self.model_name = model_name\\n\",\n  \"prompt_safety.py\": \"import os\\nimport openai\\nfrom model_client import get_openai_client\\n\\ndef check_safety(text: str) -> dict:\\n    client = get_openai_client()\\n    \\n    response = client.moderations.create(input=text)\\n    \\n    moderation_result = response.results[0]\\n    \\n    return {\\n        \\\"flagged\\\": moderation_result.flagged,\\n        \\\"categories\\\": {\\n            category: score \\n            for category, score in moderation_result.category_scores.model_dump().items()\\n        },\\n        \\\"category_flags\\\": {\\n            category: flag \\n            for category, flag in moderation_result.categories.model_dump().items()\\n        }\\n    }\\n\",\n  \"result_translate.py\": \"import os\\nfrom google.cloud import translate_v3\\n\\ndef translate_text(text: str, target_language: str) -> str:\\n    project_id = os.environ.get(\\\"GOOGLE_CLOUD_PROJECT_ID\\\")\\n    if not project_id:\\n        raise ValueError(\\\"GOOGLE_CLOUD_PROJECT_ID environment variable not set.\\\")\\n    \\n    client = translate_v3.TranslationServiceClient()\\n    \\n    parent = f\\\"projects/{project_id}/locations/global\\\"\\n    \\n    response = client.translate_text(\\n        request={\\n            \\\"parent\\\": parent,\\n            \\\"contents\\\": [text],\\n            \\\"mime_type\\\": \\\"text/plain\\\",\\n            \\\"target_language_code\\\": target_language,\\n        }\\n    )\\n    \\n    if response.translations:\\n        return response.translations[0].translated_text\\n    return text\\n\",\n  \"output_embedding.py\": \"import os\\nimport openai\\nfrom model_client import get_openai_client\\nfrom model_models import EmbeddingResult\\n\\ndef get_embedding(text: str, model_name: str = \\\"text-embedding-3-small\\\") -> EmbeddingResult:\\n    client = get_openai_client()\\n    \\n    response = client.embeddings.create(\\n        input=[text],\\n        model=model_name\\n    )\\n    \\n    return EmbeddingResult(\\n        embedding=response.data[0].embedding,\\n        model_name=model_name\\n    )\\n\",\n  \"spoken_brief.py\": \"import os\\nfrom google.cloud import texttospeech\\n\\ndef generate_spoken_brief(text: str, output_filepath: str) -> str:\\n    client = texttospeech.TextToSpeechClient()\\n    \\n    synthesis_input = texttospeech.SynthesisInput(text=text)\\n    \\n    voice = texttospeech.VoiceSelectionParams(\\n        language_code=\\\"en-US\\\", \\n        ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL\\n    )\\n    \\n    audio_config = texttospeech.AudioConfig(\\n        audio_encoding=texttospeech.AudioEncoding.MP3\\n    )\\n    \\n    response = client.synthesize_speech(\\n        input=synthesis_input,\\n        voice=voice,\\n        audio_config=audio_config\\n    )\\n    \\n    with open(output_filepath, \\\"wb\\\") as out:\\n        out.write(response.audio_content)\\n    \\n    return output_filepath\\n\"\n}\n```",
+  "output_tokens": 4663,
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "image_tokens": null,
+    "text_tokens": 838,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 2296,
+  "usage": {
+    "cache_read_input_tokens": null,
+    "completion_tokens": 4663,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "image_tokens": null,
+      "reasoning_tokens": 2296,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 2367,
+      "video_tokens": null
+    },
+    "prompt_tokens": 838,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "image_tokens": null,
+      "text_tokens": 838,
+      "video_tokens": null
+    },
+    "total_tokens": 5501
+  }
+}

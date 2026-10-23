@@ -1,0 +1,14 @@
+import os
+from ibm_watsonx_ai import WatsonxAI
+
+client = WatsonxAI(
+    api_key=os.getenv("WATSONX_API_KEY"), project_id=os.getenv("WATSONX_PROJECT_ID")
+)
+
+
+def generate_batch_embeddings(texts: list) -> list:
+    embeddings = []
+    for text in texts:
+        response = client.generate_embedding(text=text)
+        embeddings.append(response["embedding"])
+    return embeddings

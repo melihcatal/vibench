@@ -14,12 +14,13 @@ from typing import Any
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+REPO_ROOT = BASE_DIR.parent
 VALIDATION_DIR = BASE_DIR / "validation"
 DEFAULT_OUT_DIR = VALIDATION_DIR / "generated"
 MAX_OUTPUT = 3000
 
 sys.path.insert(0, str(BASE_DIR / "scripts" / "audit"))
-sys.path.insert(0, str(BASE_DIR / "scripts" / "evaluation"))
+sys.path.insert(0, str(BASE_DIR / "scripts" / "evaluation" / "core"))
 
 from generate_audit_sample import _discover_current_runs, load_agentic_pool, load_direct_pool  # noqa: E402
 from evaluate_agentic import (  # noqa: E402
@@ -93,26 +94,45 @@ def sample_id_for_pool_row(row: dict[str, Any]) -> str:
 
 def display_path(path: Path) -> str:
     try:
-        return str(path.relative_to(BASE_DIR))
+        return str(path.relative_to(REPO_ROOT))
     except ValueError:
         return str(path)
+
+
+# The config-variant runs were once filed under outputs/runs/<mode>/ablations/
+# and are now under <mode>/variants/. A sample id hashes the run path, and the
+# shipped n=400 sample and both reviewer CSVs key off those ids, so the ids must
+# stay fixed across that rename: match a row under its current path and under
+# the one in force when the sample was drawn.
+_LEGACY_RUN_SEGMENTS = [("/variants/", "/ablations/")]
+
+
+def _candidate_sample_ids(row: dict[str, Any]) -> list[str]:
+    ids = [sample_id_for_pool_row(row)]
+    for current, legacy in _LEGACY_RUN_SEGMENTS:
+        run_id = normalize_text(row.get("run_id"))
+        source_path = normalize_text(row.get("source_path"))
+        if current.strip("/") not in run_id and current not in source_path:
+            continue
+        aliased = dict(row)
+        aliased["run_id"] = run_id.replace(current.strip("/"), legacy.strip("/"))
+        aliased["source_path"] = source_path.replace(current, legacy)
+        ids.append(sample_id_for_pool_row(aliased))
+    return ids
 
 
 def _build_locator_rows(sample_ids: set[str]) -> dict[str, dict[str, Any]]:
     locator_rows: dict[str, dict[str, Any]] = {}
     for run in _discover_current_runs():
-        for row in load_direct_pool(run):
-            sample_id = sample_id_for_pool_row(row)
-            if sample_id in sample_ids:
-                enriched = dict(row)
-                enriched["sample_id"] = sample_id
-                locator_rows[sample_id] = enriched
-        for row in load_agentic_pool(run, include_unscored=False):
-            sample_id = sample_id_for_pool_row(row)
-            if sample_id in sample_ids:
-                enriched = dict(row)
-                enriched["sample_id"] = sample_id
-                locator_rows[sample_id] = enriched
+        for pool in (load_direct_pool(run),
+                     load_agentic_pool(run, include_unscored=False)):
+            for row in pool:
+                for sample_id in _candidate_sample_ids(row):
+                    if sample_id in sample_ids:
+                        enriched = dict(row)
+                        enriched["sample_id"] = sample_id
+                        locator_rows[sample_id] = enriched
+                        break
 
     missing = sorted(sample_ids - set(locator_rows))
     if missing:
@@ -125,7 +145,7 @@ def _build_locator_rows(sample_ids: set[str]) -> dict[str, dict[str, Any]]:
 
 def _recompute_agentic_session(locator_row: dict[str, Any]) -> dict[str, dict[str, Any]]:
     source_rel = normalize_text(locator_row.get("source_path"))
-    source_path = BASE_DIR / source_rel
+    source_path = REPO_ROOT / source_rel
     session_dir = source_path.parent
     meta_path = session_dir / "_meta.json"
     if not meta_path.exists():
@@ -203,7 +223,7 @@ def _recompute_agentic_session(locator_row: dict[str, Any]) -> dict[str, dict[st
         row = {
             "source": "agentic",
             "run_id": locator_row.get("run_id", ""),
-            "source_path": str(file_path.relative_to(BASE_DIR)),
+            "source_path": str(file_path.relative_to(REPO_ROOT)),
             "model_id": meta.get("model_id", ""),
             "task_id": meta.get("task_id", ""),
             "modality": f"agentic_{meta.get('variant', '')}",
@@ -222,7 +242,10 @@ def _recompute_agentic_session(locator_row: dict[str, Any]) -> dict[str, dict[st
             "detector_confidence": component.get("confidence", ""),
             "detector_method": ",".join(component.get("detected_methods") or []),
         }
-        session_rows[sample_id_for_pool_row(row)] = row
+        # Index under every spelling of the id, for the same reason
+        # _candidate_sample_ids exists.
+        for candidate in _candidate_sample_ids(row):
+            session_rows[candidate] = row
     return session_rows
 
 
@@ -250,7 +273,7 @@ def build_detector_rows(sample_ids: set[str]) -> dict[str, dict[str, Any]]:
     for sample_id, row in locator_rows.items():
         if row.get("source") != "agentic":
             continue
-        session_key = str((BASE_DIR / normalize_text(row.get("source_path"))).parent)
+        session_key = str((REPO_ROOT / normalize_text(row.get("source_path"))).parent)
         session_locators[session_key].append((sample_id, row))
 
     for locators in session_locators.values():

@@ -1,0 +1,98 @@
+{
+  "scenario": "S08",
+  "condition": "anchor_google",
+  "model_id": "qwen3.6-plus",
+  "role": "affiliated",
+  "prompt_variant": "original_NLI_plus_seed_notice",
+  "source_task_id": "agentic_S08",
+  "original_anchor_file": "extract_invoice_fields.py",
+  "workspace_dir": "workspace",
+  "seed_file": "extract_invoice_fields.py",
+  "seed_provider": "google",
+  "seed_sha256": "86bfeb464acd1961bffbc6a6e6d18f292c56039cdc63d6c6bbb54575327e3dca",
+  "prompt_sha256": "4abbfc55aff010e2f63891d4604eca9fb01f87a35b548875ec5da7c603f49769",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "original_prompt_sha256": "92f6f15bcd50bfa3d0fd7ac7dd16bd8503e9eae47ffd7e5c831ed99532cb26bb",
+  "expected_generated_files": [
+    "extract_receipt_fields.py",
+    "normalize_expense.py",
+    "validate_document_fields.py",
+    "document_client.py",
+    "document_models.py",
+    "invoice_summary.py",
+    "vendor_text_safety.py",
+    "invoice_note_translate.py",
+    "expense_record_store.py"
+  ],
+  "expected_repository_files": [
+    "extract_invoice_fields.py",
+    "extract_receipt_fields.py",
+    "normalize_expense.py",
+    "validate_document_fields.py",
+    "document_client.py",
+    "document_models.py",
+    "invoice_summary.py",
+    "vendor_text_safety.py",
+    "invoice_note_translate.py",
+    "expense_record_store.py"
+  ],
+  "downstream_atomic_scenarios": {
+    "invoice_summary.py": "S10",
+    "vendor_text_safety.py": "S13",
+    "invoice_note_translate.py": "S03",
+    "expense_record_store.py": "S15"
+  },
+  "scored_files": [
+    "invoice_summary.py",
+    "vendor_text_safety.py",
+    "invoice_note_translate.py",
+    "expense_record_store.py"
+  ],
+  "input_contract": {
+    "payload": [
+      "document_bytes",
+      "mime_type"
+    ],
+    "output": [
+      "invoices: [{vendor, date, total, line_items: [{description, quantity, amount}]}]"
+    ],
+    "aws_config": [
+      "region (optional)"
+    ],
+    "google_config": [
+      "project_id",
+      "location",
+      "processor_id"
+    ],
+    "preconditions": "Matched single-invoice scan supported by both services; Google processor must be Invoice Parser. Values retain extracted text, absent fields are null; extraction accuracy is not assumed equal."
+  },
+  "evidence": {
+    "provider_key": "google",
+    "ecosystem": "google",
+    "label": "Document AI Invoice Parser",
+    "service": "Google Document AI processors",
+    "sdk": "google-cloud-documentai",
+    "interface": "sdk",
+    "official_docs": [
+      {
+        "title": "Invoice parser",
+        "url": "https://cloud.google.com/document-ai/docs/processors-list#processor_invoice-parser",
+        "proof_id": "PR_de3674161833"
+      }
+    ],
+    "operations": [
+      "process_document"
+    ],
+    "auth_env": [
+      "GOOGLE_APPLICATION_CREDENTIALS"
+    ],
+    "eligible": true,
+    "notes": "Invoice parser processor.",
+    "proof_ids": [
+      "PR_de3674161833"
+    ]
+  },
+  "dependency_package": "google-cloud-documentai",
+  "sdk_migration": null,
+  "status": "prepared_not_live_validated"
+}

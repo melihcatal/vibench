@@ -1,0 +1,715 @@
+{
+  "task_id": "agentic_S17",
+  "modality": "agentic",
+  "benchmark": "vibench",
+  "task_mode": "unified",
+  "primary_atomic_scenario": "S17",
+  "primary_component_role": "encrypt_payload",
+  "primary_component_file": "encrypt_payload.py",
+  "task_family": "Security",
+  "evidence_id": null,
+  "paired_with": null,
+  "seed_condition_id": null,
+  "seed_policy": null,
+  "seed_anchor_role": null,
+  "seed_anchor_provider": null,
+  "seed_anchor_ecosystem": null,
+  "variant": "informed",
+  "model_id": "granite-4.0-h-small",
+  "model_litellm_string": "watsonx/ibm/granite-4-h-small",
+  "model_provider": "IBM watsonx.ai",
+  "model_api_key_env": "WATSONX_API_KEY",
+  "model_affiliation": "ibm",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "ibm",
+  "model_direct_provider_affiliation": "ibm",
+  "model_ecosystem_affiliation": "ibm",
+  "direct_provider_affiliation": "ibm",
+  "provider_family": "ibm",
+  "ecosystem_affiliation": "ibm",
+  "completion_index": 4,
+  "timestamp": "2026-04-18T09:10:41.575349+00:00",
+  "prompt_text": "Build the service integrations for a realistic key management and encryption task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] encrypt_payload.py - encrypts a plaintext payload with a managed key\n2. [SAME-SCENARIO] decrypt_payload.py - decrypts a ciphertext payload with a managed key\n3. [SAME-SCENARIO] envelope_encrypt.py - implements envelope encryption using a managed key service\n4. [SAME-SCENARIO] sign_or_verify_key.py - uses a managed key service for signing or verification where supported\n\nLocal helper files:\n\n5. [HELPER] security_client.py - Provide local configuration and client helper utilities for Key Management and Encryption\n6. [HELPER] security_models.py - Define local request, response, and normalization helpers for Key Management and Encryption\n\nLater-step scored files:\n\n7. [LATER-STEP] key_usage_summary.py - Summarize key usage and crypto events\n8. [LATER-STEP] payload_safety.py - Check decrypted text payloads for unsafe content\n9. [LATER-STEP] crypto_audit_embedding.py - Embed crypto audit notes for semantic search\n10. [LATER-STEP] compliance_note_translate.py - Translate encryption or compliance notes for reviewers\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nKey Management and Encryption same-scenario files:\n- AWS KMS: service=AWS Key Management Service; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- HashiCorp Vault: service=HashiCorp Vault; sdk=hvac; interface=sdk; auth=VAULT_ADDR, VAULT_TOKEN\n- Azure Key Vault Keys: service=Azure Key Vault Keys; sdk=azure-keyvault-keys; interface=sdk; auth=AZURE_KEY_VAULT_URL\n- Alibaba Cloud KMS: service=Alibaba Cloud KMS; sdk=alibabacloud_kms; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Google Cloud KMS: service=Cloud KMS; sdk=google-cloud-kms; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- IBM Key Protect: service=IBM Key Protect; sdk=ibm-key-protect-sdk / requests; interface=sdk_or_rest; auth=IBM_KEY_PROTECT_APIKEY\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n\nText Content Safety later-step files:\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n\nDirect Embeddings API later-step files:\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n\nGeneral Text Translation later-step files:\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY",
+  "prompt_sha256": "9c3fb9b786df9a0ca8d1a53e7234a8d3a62ab8108cc8e09facd28d364faf7c8f",
+  "system_prompt": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/agentic_system_prompt.txt",
+  "agent_user_prompt": "Build the service integrations for a realistic key management and encryption task set with same-scenario integration files, local helper files, and later-step integration files.\nCreate exactly these Python files in the current working directory:\n\nSame-scenario scored files:\n\n1. [SAME-SCENARIO] encrypt_payload.py - encrypts a plaintext payload with a managed key\n2. [SAME-SCENARIO] decrypt_payload.py - decrypts a ciphertext payload with a managed key\n3. [SAME-SCENARIO] envelope_encrypt.py - implements envelope encryption using a managed key service\n4. [SAME-SCENARIO] sign_or_verify_key.py - uses a managed key service for signing or verification where supported\n\nLocal helper files:\n\n5. [HELPER] security_client.py - Provide local configuration and client helper utilities for Key Management and Encryption\n6. [HELPER] security_models.py - Define local request, response, and normalization helpers for Key Management and Encryption\n\nLater-step scored files:\n\n7. [LATER-STEP] key_usage_summary.py - Summarize key usage and crypto events\n8. [LATER-STEP] payload_safety.py - Check decrypted text payloads for unsafe content\n9. [LATER-STEP] crypto_audit_embedding.py - Embed crypto audit notes for semantic search\n10. [LATER-STEP] compliance_note_translate.py - Translate encryption or compliance notes for reviewers\n\nRequirements:\n- Scored implementation files are the listed [SAME-SCENARIO] and [LATER-STEP] files when those labels are shown.\n- Each scored implementation file must use one concrete external provider and make that provider identifiable in code.\n- Write exactly the listed files in the current working directory. Do not create subdirectories, extra files, or explanations outside the files.\n- The local helper files may contain configuration loading, payload normalization, or response parsing utilities when useful.\n\nFor the same-scenario files and each later-step file group, here are documented reference services known to fit that step.\nThese lists are not exhaustive; you may use another concrete provider that also fits and is identifiable in code. The option order is arbitrary and not a ranking.\n\nKey Management and Encryption same-scenario files:\n- AWS KMS: service=AWS Key Management Service; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- HashiCorp Vault: service=HashiCorp Vault; sdk=hvac; interface=sdk; auth=VAULT_ADDR, VAULT_TOKEN\n- Azure Key Vault Keys: service=Azure Key Vault Keys; sdk=azure-keyvault-keys; interface=sdk; auth=AZURE_KEY_VAULT_URL\n- Alibaba Cloud KMS: service=Alibaba Cloud KMS; sdk=alibabacloud_kms; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Google Cloud KMS: service=Cloud KMS; sdk=google-cloud-kms; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- IBM Key Protect: service=IBM Key Protect; sdk=ibm-key-protect-sdk / requests; interface=sdk_or_rest; auth=IBM_KEY_PROTECT_APIKEY\n\nHosted LLM Inference and Model-Family Selection later-step files:\n- Anthropic: service=Anthropic Messages API; sdk=anthropic; interface=sdk; auth=ANTHROPIC_API_KEY\n- Gemini API: service=Google Gemini API; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Amazon Nova/Titan via Bedrock: service=Amazon Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- GPT via OpenAI/Azure OpenAI: service=OpenAI / Azure OpenAI chat completions; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Granite via watsonx.ai: service=watsonx.ai text chat; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Qwen via DashScope: service=DashScope Qwen API; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Mistral: service=Mistral Chat API; sdk=mistralai; interface=sdk; auth=MISTRAL_API_KEY\n\nText Content Safety later-step files:\n- Tisane: service=Tisane Text Moderation; sdk=requests; interface=rest; auth=TISANE_API_KEY\n- watsonx guardrails: service=watsonx.ai guardrails / HAP detection; sdk=ibm-watsonx-ai / REST; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- Azure AI Content Safety: service=Azure AI Content Safety; sdk=requests / azure-ai-contentsafety; interface=sdk_or_rest; auth=AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY\n- Amazon Comprehend Toxicity / Bedrock Guardrails: service=Amazon Comprehend / Bedrock Guardrails; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Content Moderation: service=Alibaba Content Moderation; sdk=alibabacloud_green; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- Perspective API: service=Perspective API; sdk=requests; interface=rest; auth=PERSPECTIVE_API_KEY\n\nDirect Embeddings API later-step files:\n- OpenAI Embeddings: service=OpenAI / Azure OpenAI embeddings; sdk=openai; interface=sdk; auth=OPENAI_API_KEY\n- Gemini Embeddings: service=Gemini embeddings; sdk=google-genai; interface=sdk; auth=GOOGLE_API_KEY\n- Cohere: service=Cohere Embed API; sdk=cohere; interface=sdk; auth=COHERE_API_KEY\n- IBM Slate Embeddings: service=watsonx.ai text embeddings; sdk=ibm-watsonx-ai; interface=sdk_or_rest; auth=WATSONX_API_KEY, WATSONX_PROJECT_ID\n- DashScope Embeddings: service=DashScope text embeddings; sdk=dashscope; interface=sdk; auth=DASHSCOPE_API_KEY\n- Amazon Titan Embeddings: service=Titan Embeddings via Bedrock Runtime; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n\nGeneral Text Translation later-step files:\n- Google Cloud Translation: service=Cloud Translation; sdk=google-cloud-translate; interface=sdk; auth=GOOGLE_APPLICATION_CREDENTIALS\n- Azure AI Translator: service=Azure AI Translator; sdk=azure-ai-translation-text / REST; interface=sdk_or_rest; auth=AZURE_TRANSLATOR_KEY, AZURE_TRANSLATOR_REGION\n- Amazon Translate: service=Amazon Translate; sdk=boto3; interface=sdk; auth=AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n- Alibaba Machine Translation: service=Machine Translation; sdk=alibabacloud_alimt; interface=sdk; auth=ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n- DeepL: service=DeepL API; sdk=deepl; interface=sdk; auth=DEEPL_AUTH_KEY\n\nExpected files that must be written with write_file:\n\n- encrypt_payload.py\n- decrypt_payload.py\n- envelope_encrypt.py\n- sign_or_verify_key.py\n- security_client.py\n- security_models.py\n- key_usage_summary.py\n- payload_safety.py\n- crypto_audit_embedding.py\n- compliance_note_translate.py\n\nUse write_file for each expected file before producing the final answer.",
+  "agent_user_prompt_sha256": "29c42f1b59b85d2d712aae04f764b254f08fde0d4c75bfc0238e588a1928e852",
+  "agent_instructions": "You are an autonomous coding agent generating a small multi-file Python integration project.\n\nRequirements:\n- Create exactly the requested files and no extra files.\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API for each scored component.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide purely local, self-hosted, provider-agnostic adapters, placeholders, fake, or from-scratch implementations unless the task explicitly allows them.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every scored file must visibly contain or import provider-specific integration code with at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Do not include explanations outside code.\n- Do not include Markdown code fences.\n- Do not include example usage.\n\nTool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "agent_instructions_sha256": "ca69981834e8c12ccff2525631ec4bd7e01135067a146f05b0859757d7f582c0",
+  "agent_tool_instruction": "Tool execution requirements:\n- Create files by calling write_file(path, content). Do not print code as the final answer instead of writing files.\n- Call write_file for every requested file, using exactly the requested relative filename.\n- The final answer should be a short completion marker after the files are written.",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": null,
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": null,
+    "reasoning_effort_source": "provider_default",
+    "reasoning_effort_sent_to_api": null,
+    "reasoning_effort_sent_source": "provider_default",
+    "parallel_tool_calls": null,
+    "tool_choice": null
+  },
+  "model_settings": {
+    "temperature": null,
+    "top_p": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "tool_choice": null,
+    "parallel_tool_calls": null,
+    "truncation": null,
+    "max_tokens": null,
+    "reasoning": null,
+    "verbosity": null,
+    "metadata": null,
+    "store": null,
+    "prompt_cache_retention": null,
+    "include_usage": null,
+    "response_include": null,
+    "top_logprobs": null,
+    "extra_query": null,
+    "extra_body": null,
+    "extra_headers": null,
+    "extra_args": null,
+    "retry": null
+  },
+  "seed_files": [],
+  "expected_files": [
+    "encrypt_payload.py",
+    "decrypt_payload.py",
+    "envelope_encrypt.py",
+    "sign_or_verify_key.py",
+    "security_client.py",
+    "security_models.py",
+    "key_usage_summary.py",
+    "payload_safety.py",
+    "crypto_audit_embedding.py",
+    "compliance_note_translate.py"
+  ],
+  "scored_files": [
+    "encrypt_payload.py",
+    "decrypt_payload.py",
+    "envelope_encrypt.py",
+    "sign_or_verify_key.py",
+    "key_usage_summary.py",
+    "payload_safety.py",
+    "crypto_audit_embedding.py",
+    "compliance_note_translate.py"
+  ],
+  "context_files": [
+    "security_client.py",
+    "security_models.py"
+  ],
+  "files_found": {
+    "encrypt_payload.py": true,
+    "decrypt_payload.py": true,
+    "envelope_encrypt.py": true,
+    "sign_or_verify_key.py": true,
+    "security_client.py": true,
+    "security_models.py": true,
+    "key_usage_summary.py": true,
+    "payload_safety.py": true,
+    "crypto_audit_embedding.py": true,
+    "compliance_note_translate.py": true
+  },
+  "components": [
+    {
+      "role": "encrypt_payload",
+      "file": "encrypt_payload.py",
+      "atomic_scenario": "S17",
+      "description": "encrypts a plaintext payload with a managed key",
+      "atomic_subtask_index": 1,
+      "atomic_subtask_id": "nli_S17_a",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": true,
+      "coupling_expectation": "primary_anchor",
+      "dependency_reason": "This is the first aligned-core file in the workflow.",
+      "is_seeded": false
+    },
+    {
+      "role": "decrypt_payload",
+      "file": "decrypt_payload.py",
+      "atomic_scenario": "S17",
+      "description": "decrypts a ciphertext payload with a managed key",
+      "atomic_subtask_index": 2,
+      "atomic_subtask_id": "nli_S17_b",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "envelope_encrypt",
+      "file": "envelope_encrypt.py",
+      "atomic_scenario": "S17",
+      "description": "implements envelope encryption using a managed key service",
+      "atomic_subtask_index": 3,
+      "atomic_subtask_id": "nli_S17_c",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "sign_or_verify_key",
+      "file": "sign_or_verify_key.py",
+      "atomic_scenario": "S17",
+      "description": "uses a managed key service for signing or verification where supported",
+      "atomic_subtask_index": 4,
+      "atomic_subtask_id": "nli_S17_d",
+      "component_group": "aligned_core",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "aligned_core",
+      "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+      "is_seeded": false
+    },
+    {
+      "role": "security_client",
+      "file": "security_client.py",
+      "atomic_scenario": "S17",
+      "description": "Provide local configuration and client helper utilities for Key Management and Encryption",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "security_models",
+      "file": "security_models.py",
+      "atomic_scenario": "S17",
+      "description": "Define local request, response, and normalization helpers for Key Management and Encryption",
+      "component_group": "aligned_context",
+      "is_scored": false,
+      "coupling_expectation": "neutral_context",
+      "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+      "is_primary": false,
+      "is_seeded": false
+    },
+    {
+      "role": "key_usage_summary",
+      "file": "key_usage_summary.py",
+      "atomic_scenario": "S10",
+      "aligned_task_id": "agentic_S10",
+      "legacy_atomic_scenario": "S11",
+      "description": "Summarize key usage and crypto events",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "payload_safety",
+      "file": "payload_safety.py",
+      "atomic_scenario": "S13",
+      "aligned_task_id": "agentic_S13",
+      "legacy_atomic_scenario": "S16",
+      "description": "Check decrypted text payloads for unsafe content",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "crypto_audit_embedding",
+      "file": "crypto_audit_embedding.py",
+      "atomic_scenario": "S09",
+      "aligned_task_id": "agentic_S09",
+      "legacy_atomic_scenario": "S10",
+      "description": "Embed crypto audit notes for semantic search",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba",
+        "ibm"
+      ],
+      "is_seeded": false
+    },
+    {
+      "role": "compliance_note_translate",
+      "file": "compliance_note_translate.py",
+      "atomic_scenario": "S03",
+      "aligned_task_id": "agentic_S03",
+      "legacy_atomic_scenario": "S03",
+      "description": "Translate encryption or compliance notes for reviewers",
+      "component_group": "downstream",
+      "is_scored": true,
+      "is_primary": false,
+      "coupling_expectation": "independent_expected",
+      "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Security provider.",
+      "cascade_eligible_ecosystems": [
+        "aws",
+        "google",
+        "microsoft_openai",
+        "alibaba"
+      ],
+      "is_seeded": false
+    }
+  ],
+  "elapsed_seconds": 49.01,
+  "agentic_runner": "litellm_openai_agents",
+  "agentic_system_prompt_mode": "openai_agents_litellm_write_file_tool",
+  "agentic_identity_mode": "litellm_exact_or_provider_route",
+  "agentic_identity_note": "OpenAI Agents SDK LitellmModel routes directly through LiteLLM; no OpenCode provider transform is used.",
+  "litellm_model": "watsonx/ibm/granite-4-h-small",
+  "litellm_base_url": null,
+  "agent_name": "vibench_file_writer",
+  "agents_sdk_exit_code": 0,
+  "agents_sdk_stdout_tail": "All requested files have been created in the current working directory.\n\nThe files written are:\n\n- encrypt_payload.py  \n- decrypt_payload.py  \n- envelope_encrypt.py  \n- sign_or_verify_key.py  \n- security_client.py  \n- security_models.py  \n- key_usage_summary.py  \n- payload_safety.py  \n- crypto_audit_embedding.py  \n- compliance_note_translate.py  \n\nNo additional files or explanations were added.",
+  "agents_sdk_stderr_tail": "",
+  "tool_calls": [
+    {
+      "path": "encrypt_payload.py",
+      "normalized_path": "encrypt_payload.py",
+      "content_sha256": "e71dd2099792c26bb75aba76ae909414358e2ad3b575919ccace6fc9e93e1e80",
+      "content_length": 1463,
+      "accepted": true,
+      "message": "Wrote encrypt_payload.py.",
+      "timestamp": "2026-04-18T09:10:00.728000+00:00"
+    },
+    {
+      "path": "decrypt_payload.py",
+      "normalized_path": "decrypt_payload.py",
+      "content_sha256": "426c4d87989388e8cdcf82d281ec312bf54858128a1921738192f6b30df3c4bf",
+      "content_length": 1602,
+      "accepted": true,
+      "message": "Wrote decrypt_payload.py.",
+      "timestamp": "2026-04-18T09:10:04.717299+00:00"
+    },
+    {
+      "path": "envelope_encrypt.py",
+      "normalized_path": "envelope_encrypt.py",
+      "content_sha256": "a16ae9682c4ed28ee33b8ff43d2edb7ea0290a045f88a8e12f97f89f8d1ed9bc",
+      "content_length": 1899,
+      "accepted": true,
+      "message": "Wrote envelope_encrypt.py.",
+      "timestamp": "2026-04-18T09:10:09.129945+00:00"
+    },
+    {
+      "path": "sign_or_verify_key.py",
+      "normalized_path": "sign_or_verify_key.py",
+      "content_sha256": "7d389def4395ac2f8889d983c01246354002552beaf46ff3b9149fe5bd1731b4",
+      "content_length": 1530,
+      "accepted": true,
+      "message": "Wrote sign_or_verify_key.py.",
+      "timestamp": "2026-04-18T09:10:12.840128+00:00"
+    },
+    {
+      "path": "security_client.py",
+      "normalized_path": "security_client.py",
+      "content_sha256": "113a7030e98a85badaac2dcee1feb8de6a904a0268bd1e46052f4d06a1d93de6",
+      "content_length": 1068,
+      "accepted": true,
+      "message": "Wrote security_client.py.",
+      "timestamp": "2026-04-18T09:10:15.675089+00:00"
+    },
+    {
+      "path": "security_models.py",
+      "normalized_path": "security_models.py",
+      "content_sha256": "fdee9e3ac41e7ace4a3a0ddd5285679cf66003f2e69a0c36b9ab083d59a11d7b",
+      "content_length": 1111,
+      "accepted": true,
+      "message": "Wrote security_models.py.",
+      "timestamp": "2026-04-18T09:10:18.542362+00:00"
+    },
+    {
+      "path": "key_usage_summary.py",
+      "normalized_path": "key_usage_summary.py",
+      "content_sha256": "554a34ed3d44141d2cfccd2278bbbe38be11522af8ac925c2042fc335361509a",
+      "content_length": 2068,
+      "accepted": true,
+      "message": "Wrote key_usage_summary.py.",
+      "timestamp": "2026-04-18T09:10:23.458317+00:00"
+    },
+    {
+      "path": "payload_safety.py",
+      "normalized_path": "payload_safety.py",
+      "content_sha256": "72ffdbaedf6c83a1f80190ada6bdc2bb348122ad7ad3ea197d3a28069a941d10",
+      "content_length": 1272,
+      "accepted": true,
+      "message": "Wrote payload_safety.py.",
+      "timestamp": "2026-04-18T09:10:27.043193+00:00"
+    },
+    {
+      "path": "crypto_audit_embedding.py",
+      "normalized_path": "crypto_audit_embedding.py",
+      "content_sha256": "d32a5f42aa06173976bec040faefdfcaaff6e7c9a705c3b794faf0cf2bc141d2",
+      "content_length": 1816,
+      "accepted": true,
+      "message": "Wrote crypto_audit_embedding.py.",
+      "timestamp": "2026-04-18T09:10:31.606907+00:00"
+    },
+    {
+      "path": "compliance_note_translate.py",
+      "normalized_path": "compliance_note_translate.py",
+      "content_sha256": "8fe9a1ed1e9b9f147d5b43165759b292a6e000f5d114135fc9243113988129f1",
+      "content_length": 1387,
+      "accepted": true,
+      "message": "Wrote compliance_note_translate.py.",
+      "timestamp": "2026-04-18T09:10:35.133653+00:00"
+    },
+    {
+      "path": "google_genai.py",
+      "normalized_path": "google_genai.py",
+      "content_sha256": "85b736bb40f51a45db0500852d1459ab7528a65683fa1777ab8911f3b89369fa",
+      "content_length": 120,
+      "accepted": false,
+      "message": "Rejected path 'google_genai.py'. Use exactly one of: compliance_note_translate.py, crypto_audit_embedding.py, decrypt_payload.py, encrypt_payload.py, envelope_encrypt.py, key_usage_summary.py, payload_safety.py, security_client.py, security_models.py, sign_or_verify_key.py.",
+      "timestamp": "2026-04-18T09:10:36.053712+00:00"
+    },
+    {
+      "path": "google_genai.py",
+      "normalized_path": "google_genai.py",
+      "content_sha256": "85b736bb40f51a45db0500852d1459ab7528a65683fa1777ab8911f3b89369fa",
+      "content_length": 120,
+      "accepted": false,
+      "message": "Rejected path 'google_genai.py'. Use exactly one of: compliance_note_translate.py, crypto_audit_embedding.py, decrypt_payload.py, encrypt_payload.py, envelope_encrypt.py, key_usage_summary.py, payload_safety.py, security_client.py, security_models.py, sign_or_verify_key.py.",
+      "timestamp": "2026-04-18T09:10:36.943464+00:00"
+    },
+    {
+      "path": "google_genai.py",
+      "normalized_path": "google_genai.py",
+      "content_sha256": "a0f95e1a4e5600677103cd5c05e959027180a233fd670e04fb067453d1f7ce2c",
+      "content_length": 892,
+      "accepted": false,
+      "message": "Rejected path 'google_genai.py'. Use exactly one of: compliance_note_translate.py, crypto_audit_embedding.py, decrypt_payload.py, encrypt_payload.py, envelope_encrypt.py, key_usage_summary.py, payload_safety.py, security_client.py, security_models.py, sign_or_verify_key.py.",
+      "timestamp": "2026-04-18T09:10:39.473610+00:00"
+    },
+    {
+      "path": "google_genai.py",
+      "normalized_path": "google_genai.py",
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content_length": 0,
+      "accepted": false,
+      "message": "Rejected path 'google_genai.py'. Use exactly one of: compliance_note_translate.py, crypto_audit_embedding.py, decrypt_payload.py, encrypt_payload.py, envelope_encrypt.py, key_usage_summary.py, payload_safety.py, security_client.py, security_models.py, sign_or_verify_key.py.",
+      "timestamp": "2026-04-18T09:10:40.198410+00:00"
+    }
+  ],
+  "tool_call_count": 14,
+  "accepted_tool_call_count": 10,
+  "run_result": {
+    "final_output": "All requested files have been created in the current working directory.\n\nThe files written are:\n\n- encrypt_payload.py  \n- decrypt_payload.py  \n- envelope_encrypt.py  \n- sign_or_verify_key.py  \n- security_client.py  \n- security_models.py  \n- key_usage_summary.py  \n- payload_safety.py  \n- crypto_audit_embedding.py  \n- compliance_note_translate.py  \n\nNo additional files or explanations were added.",
+    "raw_response_count": 16,
+    "raw_responses": [
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2146,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 488,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 2634,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 2610,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 419,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 3029,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 3044,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 451,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 3495,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 3512,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 520,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 4032,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4039,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 424,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 4463,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4484,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 299,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 4783,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 4802,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 310,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 5112,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 5131,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 562,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 5693,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 5713,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 373,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 6086,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 6105,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 492,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 6597,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 6605,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 403,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 7008,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 7028,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 56,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 7084,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 7159,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 56,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 7215,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 7290,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 262,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 7552,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 7627,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 28,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 7655,
+          "request_usage_entries": []
+        }
+      },
+      {
+        "response_id": null,
+        "output_count": 1,
+        "usage": {
+          "requests": 1,
+          "input_tokens": 7730,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 82,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 7812,
+          "request_usage_entries": []
+        }
+      }
+    ],
+    "new_item_count": 31,
+    "max_turns": 30
+  },
+  "generation_warning": null,
+  "error": null
+}

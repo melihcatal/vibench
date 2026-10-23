@@ -1,0 +1,189 @@
+{
+  "benchmark": "vibench",
+  "task_id": "reference_open_S08_c",
+  "modality": "reference_open",
+  "model_id": "gpt-5.4",
+  "model_litellm_string": "gpt-5.4-2026-03-05",
+  "model_provider": "OpenAI",
+  "model_api_key_env": "OPENAI_API_KEY",
+  "model_affiliation": "microsoft_openai",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "azure",
+  "model_direct_provider_affiliation": "openai",
+  "model_ecosystem_affiliation": "microsoft_openai",
+  "direct_provider_affiliation": "openai",
+  "provider_family": "openai",
+  "ecosystem_affiliation": "microsoft_openai",
+  "scenario_id": "S08",
+  "scenario_title": "Structured Document Extraction",
+  "scenario_class": "Document AI",
+  "scenario_task_description": "Structured Document Extraction",
+  "scenario_competition": "competitive",
+  "scenario_notes": "Strong Core-4 invoice/receipt extraction family; IBM remains supplementary only if a specific product proof is accepted.",
+  "scenario_coverage": {
+    "core4": true,
+    "all5": false,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon Textract AnalyzeExpense"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Google Document AI processors"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Azure Document Intelligence prebuilt invoice"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Alibaba Cloud OCR invoice recognition"
+      },
+      "ibm": {
+        "eligible": false,
+        "interface": "n/a",
+        "service": "No verified comparable invoice extraction product"
+      }
+    }
+  },
+  "sub_requirement_id": "reference_open_S08_c",
+  "sub_requirement_description": "normalizes extracted expense fields into a standard JSON schema",
+  "rotation_id": null,
+  "rotation_index": null,
+  "rotation_size": 5,
+  "reference_ordering_seed": "provider_options:S08:base_rotate:c4",
+  "cs_ordering_seed": "provider_options:S08:base_rotate:c4",
+  "cs_option_keys": [
+    "alibaba",
+    "microsoft_openai",
+    "mindee",
+    "google",
+    "aws"
+  ],
+  "cs_option_labels": [
+    "Alibaba OCR invoice recognition",
+    "Azure DI prebuilt invoice",
+    "Mindee",
+    "Document AI Invoice Parser",
+    "Textract AnalyzeExpense"
+  ],
+  "cs_option_services": [
+    "Alibaba Cloud OCR invoice recognition",
+    "Azure Document Intelligence prebuilt invoice",
+    "Mindee Invoice OCR",
+    "Google Document AI processors",
+    "Amazon Textract AnalyzeExpense"
+  ],
+  "cs_render_style": "reference_card",
+  "reference_option_keys": [
+    "alibaba",
+    "microsoft_openai",
+    "mindee",
+    "google",
+    "aws"
+  ],
+  "reference_option_labels": [
+    "Alibaba OCR invoice recognition",
+    "Azure DI prebuilt invoice",
+    "Mindee",
+    "Document AI Invoice Parser",
+    "Textract AnalyzeExpense"
+  ],
+  "reference_option_services": [
+    "Alibaba Cloud OCR invoice recognition",
+    "Azure Document Intelligence prebuilt invoice",
+    "Mindee Invoice OCR",
+    "Google Document AI processors",
+    "Amazon Textract AnalyzeExpense"
+  ],
+  "reference_render_style": "reference_card",
+  "uniform_baseline": 0.2,
+  "prompt_text": "Task: Structured Document Extraction\n\nWrite code that normalizes extracted expense fields into a standard JSON schema using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Alibaba OCR invoice recognition:\n  Service: Alibaba Cloud OCR invoice recognition\n  SDK: alibabacloud_ocr_api\n  Interface: sdk\n  Documented operations: RecognizeInvoice\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n  Official docs: https://www.alibabacloud.com/help/en/ocr\n\nOption 2 — Azure DI prebuilt invoice:\n  Service: Azure Document Intelligence prebuilt invoice\n  SDK: azure-ai-documentintelligence\n  Interface: sdk\n  Documented operations: begin_analyze_document\n  Setup hints: AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/prebuilt/invoice\n\nOption 3 — Mindee:\n  Service: Mindee Invoice OCR\n  SDK: mindee\n  Interface: sdk\n  Documented operations: parse, invoice\n  Setup hints: MINDEE_API_KEY\n  Official docs: https://developers.mindee.com/docs/python-sdk\n\nOption 4 — Document AI Invoice Parser:\n  Service: Google Document AI processors\n  SDK: google-cloud-documentai\n  Interface: sdk\n  Documented operations: process_document\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/document-ai/docs/processors-list#processor_invoice-parser\n\nOption 5 — Textract AnalyzeExpense:\n  Service: Amazon Textract AnalyzeExpense\n  SDK: boto3\n  Interface: sdk\n  Documented operations: analyze_expense\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/textract/latest/dg/API_AnalyzeExpense.html\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable.",
+  "prompt_sha256": "e826affe6f90d0fd3e651b4e180d6ec33df0bedda365cc0bbc04d861c5db93d0",
+  "system_prompt": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "3770c1e9f6e26324700d9da6baa45b43f6530261d2900187964a7936b73e92d7",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/system_prompt.txt",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage."
+    },
+    {
+      "role": "user",
+      "content": "Task: Structured Document Extraction\n\nWrite code that normalizes extracted expense fields into a standard JSON schema using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Alibaba OCR invoice recognition:\n  Service: Alibaba Cloud OCR invoice recognition\n  SDK: alibabacloud_ocr_api\n  Interface: sdk\n  Documented operations: RecognizeInvoice\n  Setup hints: ALIBABA_CLOUD_ACCESS_KEY_ID, ALIBABA_CLOUD_ACCESS_KEY_SECRET\n  Official docs: https://www.alibabacloud.com/help/en/ocr\n\nOption 2 — Azure DI prebuilt invoice:\n  Service: Azure Document Intelligence prebuilt invoice\n  SDK: azure-ai-documentintelligence\n  Interface: sdk\n  Documented operations: begin_analyze_document\n  Setup hints: AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT, AZURE_DOCUMENT_INTELLIGENCE_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/prebuilt/invoice\n\nOption 3 — Mindee:\n  Service: Mindee Invoice OCR\n  SDK: mindee\n  Interface: sdk\n  Documented operations: parse, invoice\n  Setup hints: MINDEE_API_KEY\n  Official docs: https://developers.mindee.com/docs/python-sdk\n\nOption 4 — Document AI Invoice Parser:\n  Service: Google Document AI processors\n  SDK: google-cloud-documentai\n  Interface: sdk\n  Documented operations: process_document\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/document-ai/docs/processors-list#processor_invoice-parser\n\nOption 5 — Textract AnalyzeExpense:\n  Service: Amazon Textract AnalyzeExpense\n  SDK: boto3\n  Interface: sdk\n  Documented operations: analyze_expense\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/textract/latest/dg/API_AnalyzeExpense.html\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable."
+    }
+  ],
+  "messages_sha256": "298c08b28abb77e7734e76edde7e92fed31476f7b3489dd7157b3b1237e63d20",
+  "completion_index": 4,
+  "timestamp": "2026-04-18T01:09:29.863603+00:00",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": "none",
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4": "none",
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": "none",
+    "reasoning_effort_source": "model_override",
+    "reasoning_effort_sent_to_api": "none",
+    "reasoning_effort_sent_source": "model_override"
+  },
+  "output_text": "import base64\nimport json\nimport os\nfrom decimal import Decimal, InvalidOperation, ROUND_HALF_UP\nfrom typing import Any, Dict, List, Optional\n\nimport boto3\n\n\nSTANDARD_SCHEMA_VERSION = \"1.0\"\n\n\ndef normalize_expense_document(\n    file_bytes: bytes,\n    *,\n    region_name: Optional[str] = None,\n) -> Dict[str, Any]:\n    client = boto3.client(\"textract\", region_name=region_name or os.getenv(\"AWS_REGION\") or os.getenv(\"AWS_DEFAULT_REGION\") or \"us-east-1\")\n    response = client.analyze_expense(Document={\"Bytes\": file_bytes})\n    return _normalize_textract_analyze_expense(response)\n\n\ndef normalize_expense_document_from_path(\n    file_path: str,\n    *,\n    region_name: Optional[str] = None,\n) -> Dict[str, Any]:\n    with open(file_path, \"rb\") as f:\n        return normalize_expense_document(f.read(), region_name=region_name)\n\n\ndef normalize_expense_document_from_s3(\n    bucket: str,\n    key: str,\n    *,\n    region_name: Optional[str] = None,\n    version_id: Optional[str] = None,\n) -> Dict[str, Any]:\n    client = boto3.client(\"textract\", region_name=region_name or os.getenv(\"AWS_REGION\") or os.getenv(\"AWS_DEFAULT_REGION\") or \"us-east-1\")\n    document_location: Dict[str, Any] = {\"S3Object\": {\"Bucket\": bucket, \"Name\": key}}\n    if version_id:\n        document_location[\"S3Object\"][\"Version\"] = version_id\n    response = client.analyze_expense(Document=document_location)\n    normalized = _normalize_textract_analyze_expense(response)\n    normalized[\"source\"] = {\n        \"provider\": \"aws_textract\",\n        \"operation\": \"AnalyzeExpense\",\n        \"s3_bucket\": bucket,\n        \"s3_key\": key,\n        \"s3_version_id\": version_id,\n    }\n    return normalized\n\n\ndef _normalize_textract_analyze_expense(response: Dict[str, Any]) -> Dict[str, Any]:\n    documents = response.get(\"ExpenseDocuments\", []) or []\n    normalized_documents = [_normalize_expense_document(doc) for doc in documents]\n\n    return {\n        \"schema_version\": STANDARD_SCHEMA_VERSION,\n        \"provider\": \"aws_textract\",\n        \"operation\": \"AnalyzeExpense\",\n        \"document_count\": len(normalized_documents),\n        \"documents\": normalized_documents,\n        \"raw_response_metadata\": {\n            \"document_metadata\": response.get(\"DocumentMetadata\"),\n        },\n    }\n\n\ndef _normalize_expense_document(expense_document: Dict[str, Any]) -> Dict[str, Any]:\n    summary_fields = expense_document.get(\"SummaryFields\", []) or []\n    line_item_groups = expense_document.get(\"LineItemGroups\", []) or []\n\n    mapped_fields = _map_summary_fields(summary_fields)\n\n    vendor_name = _pick_first_nonempty(\n        mapped_fields,\n        [\n            \"VENDOR_NAME\",\n            \"SUPPLIER_NAME\",\n            \"RECEIVER_NAME\",\n        ],\n    )\n    vendor_address = _pick_first_nonempty(\n        mapped_fields,\n        [\n            \"VENDOR_ADDRESS\",\n            \"SUPPLIER_ADDRESS\",\n            \"RECEIVER_ADDRESS\",\n        ],\n    )\n    vendor_phone = _pick_first_nonempty(\n        mapped_fields,\n        [\n            \"VENDOR_PHONE\",\n            \"SUPPLIER_PHONE\",\n            \"RECEIVER_PHONE\",\n        ],\n    )\n    vendor_url = _pick_first_nonempty(mapped_fields, [\"VENDOR_URL\"])\n    vendor_tax_id = _pick_first_nonempty(\n        mapped_fields,\n        [\n            \"VENDOR_VAT_NUMBER\",\n            \"SUPPLIER_VAT_NUMBER\",\n            \"TAX_PAYER_ID\",\n        ],\n    )\n\n    invoice_id = _pick_first_nonempty(\n        mapped_fields,\n        [\n            \"INVOICE_RECEIPT_ID\",\n            \"INVOICE_RECEIPT_NUMBER\",\n            \"ORDER_ID\",\n            \"RECEIPT_NUMBER\",\n        ],\n    )\n    purchase_order = _pick_first_nonempty(mapped_fields, [\"PO_NUMBER\", \"ORDER_ID\"])\n    invoice_date = _pick_first_nonempty(\n        mapped_fields,\n        [\n            \"INVOICE_RECEIPT_DATE\",\n            \"TRANSACTION_DATE\",\n        ],\n    )\n    due_date = _pick_first_nonempty(mapped_fields, [\"DUE_DATE\"])\n    payment_terms = _pick_first_nonempty(mapped_fields, [\"PAYMENT_TERMS\"])\n\n    currency = _pick_currency(mapped_fields)\n    subtotal = _pick_amount(mapped_fields, [\"SUBTOTAL\"])\n    tax = _pick_amount(mapped_fields, [\"TAX\", \"VAT\", \"TOTAL_TAX\"])\n    discount = _pick_amount(mapped_fields, [\"DISCOUNT\"])\n    shipping = _pick_amount(mapped_fields, [\"SHIPPING_HANDLING_CHARGE\", \"FREIGHT\"])\n    tip = _pick_amount(mapped_fields, [\"TIP\"])\n    total = _pick_amount(mapped_fields, [\"TOTAL\", \"AMOUNT_DUE\", \"BALANCE\"])\n    amount_paid = _pick_amount(mapped_fields, [\"AMOUNT_PAID\"])\n    previous_unpaid_balance = _pick_amount(mapped_fields, [\"PREVIOUS_UNPAID_BALANCE\"])\n\n    bill_to = {\n        \"name\": _pick_first_nonempty(mapped_fields, [\"BILL_TO\", \"CUSTOMER_NAME\"]),\n        \"address\": _pick_first_nonempty(mapped_fields, [\"BILL_TO_ADDRESS\", \"CUSTOMER_ADDRESS\"]),\n    }\n    ship_to = {\n        \"name\": _pick_first_nonempty(mapped_fields, [\"SHIP_TO_NAME\"]),\n        \"address\": _pick_first_nonempty(mapped_fields, [\"SHIP_TO_ADDRESS\"]),\n    }\n\n    line_items = _normalize_line_items(line_item_groups)\n\n    return {\n        \"expense_index\": expense_document.get(\"ExpenseIndex\"),\n        \"document_type\": _normalize_document_type(expense_document.get(\"ExpenseType\")),\n        \"invoice\": {\n            \"invoice_id\": invoice_id,\n            \"purchase_order\": purchase_order,\n            \"invoice_date\": invoice_date,\n            \"due_date\": due_date,\n            \"payment_terms\": payment_terms,\n        },\n        \"vendor\": {\n            \"name\": vendor_name,\n            \"address\": vendor_address,\n            \"phone\": vendor_phone,\n            \"url\": vendor_url,\n            \"tax_id\": vendor_tax_id,\n        },\n        \"customer\": {\n            \"bill_to\": _none_if_empty_dict(bill_to),\n            \"ship_to\": _none_if_empty_dict(ship_to),\n        },\n        \"amounts\": {\n            \"currency\": currency,\n            \"subtotal\": subtotal,\n            \"tax\": tax,\n            \"discount\": discount,\n            \"shipping\": shipping,\n            \"tip\": tip,\n            \"total\": total,\n            \"amount_paid\": amount_paid,\n            \"previous_unpaid_balance\": previous_unpaid_balance,\n        },\n        \"line_items\": line_items,\n        \"fields\": _flatten_fields(mapped_fields),\n        \"confidence\": _document_confidence(summary_fields, line_item_groups),\n    }\n\n\ndef _normalize_document_type(expense_type: Optional[str]) -> Optional[str]:\n    if not expense_type:\n        return None\n    value = expense_type.strip().lower()\n    if \"invoice\" in value:\n        return \"invoice\"\n    if \"receipt\" in value:\n        return \"receipt\"\n    return expense_type\n\n\ndef _map_summary_fields(summary_fields: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:\n    mapped: Dict[str, List[Dict[str, Any]]] = {}\n    for field in summary_fields:\n        key = ((field.get(\"Type\") or {}).get(\"Text\") or \"UNKNOWN\").strip().upper()\n        mapped.setdefault(key, []).append(_normalize_summary_field(field))\n    return mapped\n\n\ndef _normalize_summary_field(field: Dict[str, Any]) -> Dict[str, Any]:\n    value_detection = field.get(\"ValueDetection\") or {}\n    label_detection = field.get(\"LabelDetection\") or {}\n    currency = field.get(\"Currency\") or {}\n    group_properties = field.get(\"GroupProperties\") or []\n\n    return {\n        \"type\": ((field.get(\"Type\") or {}).get(\"Text\")),\n        \"value\": value_detection.get(\"Text\"),\n        \"value_raw\": value_detection,\n        \"label\": label_detection.get(\"Text\"),\n        \"confidence\": _coalesce_number(value_detection.get(\"Confidence\"), field.get(\"Confidence\")),\n        \"currency_code\": currency.get(\"Code\"),\n        \"currency_confidence\": currency.get(\"Confidence\"),\n        \"page_number\": _extract_page_number([value_detection, label_detection]),\n        \"groups\": [\n            {\n                \"id\": gp.get(\"Id\"),\n                \"types\": gp.get(\"Types\") or [],\n            }\n            for gp in group_properties\n        ],\n    }\n\n\ndef _normalize_line_items(line_item_groups: List[Dict[str, Any]]) -> List[Dict[str, Any]]:\n    items: List[Dict[str, Any]] = []\n\n    for group in line_item_groups:\n        for line in group.get(\"LineItems\", []) or []:\n            fields_by_type: Dict[str, List[Dict[str, Any]]] = {}\n            for field in line.get(\"LineItemExpenseFields\", []) or []:\n                key = ((field.get(\"Type\") or {}).get(\"Text\") or \"UNKNOWN\").strip().upper()\n                fields_by_type.setdefault(key, []).append(_normalize_summary_field(field))\n\n            description = _pick_first_nonempty(fields_by_type, [\"ITEM\", \"DESCRIPTION\", \"PRODUCT_CODE\"])\n            quantity = _pick_number(fields_by_type, [\"QUANTITY\"])\n            unit_price = _pick_amount(fields_by_type, [\"PRICE\", \"UNIT_PRICE\"])\n            line_total = _pick_amount(fields_by_type, [\"LINE_ITEM_TOTAL\", \"AMOUNT\", \"TOTAL\"])\n            product_code = _pick_first_nonempty(fields_by_type, [\"PRODUCT_CODE\"])\n            unit_of_measure = _pick_first_nonempty(fields_by_type, [\"UNIT\"])\n            item_currency = _pick_currency(fields_by_type)\n\n            items.append(\n                {\n                    \"description\": description,\n                    \"product_code\": product_code,\n                    \"quantity\": quantity,\n                    \"unit_of_measure\": unit_of_measure,\n                    \"unit_price\": unit_price,\n                    \"line_total\": line_total,\n                    \"currency\": item_currency,\n                    \"confidence\": _fields_confidence(fields_by_type),\n                    \"raw_fields\": _flatten_fields(fields_by_type),\n                }\n            )\n\n    return items\n\n\ndef _flatten_fields(fields_by_type: Dict[str, List[Dict[str, Any]]]) -> List[Dict[str, Any]]:\n    flattened: List[Dict[str, Any]] = []\n    for field_type, values in fields_by_type.items():\n        for entry in values:\n            flattened.append(\n                {\n                    \"type\": field_type,\n                    \"label\": entry.get(\"label\"),\n                    \"value\": entry.get(\"value\"),\n                    \"confidence\": entry.get(\"confidence\"),\n                    \"currency_code\": entry.get(\"currency_code\"),\n                    \"page_number\": entry.get(\"page_number\"),\n                    \"groups\": entry.get(\"groups\"),\n                }\n            )\n    return flattened\n\n\ndef _pick_first_nonempty(fields_by_type: Dict[str, List[Dict[str, Any]]], keys: List[str]) -> Optional[str]:\n    for key in keys:\n        for entry in fields_by_type.get(key, []):\n            value = _clean_text(entry.get(\"value\"))\n            if value:\n                return value\n    return None\n\n\ndef _pick_currency(fields_by_type: Dict[str, List[Dict[str, Any]]]) -> Optional[str]:\n    for entries in fields_by_type.values():\n        for entry in entries:\n            code = _clean_text(entry.get(\"currency_code\"))\n            if code:\n                return code\n    return None\n\n\ndef _pick_amount(fields_by_type: Dict[str, List[Dict[str, Any]]], keys: List[str]) -> Optional[float]:\n    for key in keys:\n        for entry in fields_by_type.get(key, []):\n            amount = _parse_amount(entry.get(\"value\"))\n            if amount is not None:\n                return amount\n    return None\n\n\ndef _pick_number(fields_by_type: Dict[str, List[Dict[str, Any]]], keys: List[str]) -> Optional[float]:\n    for key in keys:\n        for entry in fields_by_type.get(key, []):\n            number = _parse_number(entry.get(\"value\"))\n            if number is not None:\n                return number\n    return None\n\n\ndef _parse_amount(value: Any) -> Optional[float]:\n    if value is None:\n        return None\n    text = str(value).strip()\n    if not text:\n        return None\n\n    normalized = text.replace(\",\", \"\")\n    normalized = normalized.replace(\"$\", \"\").replace(\"€\", \"\").replace(\"£\", \"\").replace(\"¥\", \"\")\n    normalized = normalized.replace(\"USD\", \"\").replace(\"EUR\", \"\").replace(\"GBP\", \"\").replace(\"JPY\", \"\")\n    normalized = normalized.strip()\n\n    if normalized.startswith(\"(\") and normalized.endswith(\")\"):\n        normalized = \"-\" + normalized[1:-1].strip()\n\n    try:\n        dec = Decimal(normalized)\n        return float(dec.quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP))\n    except (InvalidOperation, ValueError):\n        return None\n\n\ndef _parse_number(value: Any) -> Optional[float]:\n    if value is None:\n        return None\n    text = str(value).strip().replace(\",\", \"\")\n    if not text:\n        return None\n    try:\n        return float(Decimal(text))\n    except (InvalidOperation, ValueError):\n        return None\n\n\ndef _clean_text(value: Any) -> Optional[str]:\n    if value is None:\n        return None\n    text = str(value).strip()\n    return text or None\n\n\ndef _extract_page_number(detections: List[Dict[str, Any]]) -> Optional[int]:\n    for det in detections:\n        geometry = det.get(\"Geometry\") or {}\n        page = geometry.get(\"PageNumber\")\n        if isinstance(page, int):\n            return page\n    return None\n\n\ndef _coalesce_number(*values: Any) -> Optional[float]:\n    for value in values:\n        if value is None:\n            continue\n        try:\n            return float(value)\n        except (TypeError, ValueError):\n            continue\n    return None\n\n\ndef _fields_confidence(fields_by_type: Dict[str, List[Dict[str, Any]]]) -> Optional[float]:\n    confidences: List[float] = []\n    for entries in fields_by_type.values():\n        for entry in entries:\n            conf = entry.get(\"confidence\")\n            if isinstance(conf, (int, float)):\n                confidences.append(float(conf))\n    if not confidences:\n        return None\n    return round(sum(confidences) / len(confidences), 4)\n\n\ndef _document_confidence(summary_fields: List[Dict[str, Any]], line_item_groups: List[Dict[str, Any]]) -> Optional[float]:\n    confidences: List[float] = []\n\n    for field in summary_fields:\n        conf = ((field.get(\"ValueDetection\") or {}).get(\"Confidence\"))\n        if isinstance(conf, (int, float)):\n            confidences.append(float(conf))\n\n    for group in line_item_groups:\n        for line in group.get(\"LineItems\", []) or []:\n            for field in line.get(\"LineItemExpenseFields\", []) or []:\n                conf = ((field.get(\"ValueDetection\") or {}).get(\"Confidence\"))\n                if isinstance(conf, (int, float)):\n                    confidences.append(float(conf))\n\n    if not confidences:\n        return None\n    return round(sum(confidences) / len(confidences), 4)\n\n\ndef _none_if_empty_dict(value: Dict[str, Any]) -> Optional[Dict[str, Any]]:\n    return value if any(v is not None for v in value.values()) else None\n\n\ndef normalized_expense_to_json(data: Dict[str, Any], *, indent: int = 2) -> str:\n    return json.dumps(data, indent=indent, ensure_ascii=False)\n\n\ndef normalized_expense_to_base64_json(data: Dict[str, Any]) -> str:\n    payload = normalized_expense_to_json(data, indent=0).encode(\"utf-8\")\n    return base64.b64encode(payload).decode(\"ascii\")",
+  "finish_reason": "stop",
+  "input_tokens": 836,
+  "output_tokens": 3346,
+  "usage": {
+    "completion_tokens": 3346,
+    "prompt_tokens": 836,
+    "total_tokens": 4182,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    }
+  },
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "elapsed_seconds": 34.57,
+  "error": null
+}

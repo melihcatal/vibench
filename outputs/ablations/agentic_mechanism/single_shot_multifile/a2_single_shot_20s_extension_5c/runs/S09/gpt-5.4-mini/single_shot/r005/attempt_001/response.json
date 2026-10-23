@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 5.8,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 764,
+  "output_text": "{\"embed_text.py\":\"import os\\nfrom embeddings_client import get_embedding_client\\nfrom embeddings_models import normalize_embedding_response, normalize_single_text_input\\n\\nDEFAULT_MODEL = os.getenv(\\\"EMBEDDINGS_MODEL\\\", \\\"text-embedding-3-small\\\")\\n\\n\\ndef embed_text(text: str, model: str = DEFAULT_MODEL) -> list[float]:\\n    client = get_embedding_client()\\n    payload = normalize_single_text_input(text)\\n    response = client.embeddings.create(model=model, input=payload)\\n    normalized = normalize_embedding_response(response)\\n    return normalized[0]\\n\",\"embed_batch.py\":\"import os\\nfrom embeddings_client import get_embedding_client\\nfrom embeddings_models import normalize_batch_text_input, normalize_embedding_response\\n\\nDEFAULT_MODEL = os.getenv(\\\"EMBEDDINGS_MODEL\\\", \\\"text-embedding-3-small\\\")\\n\\n\\ndef embed_batch(texts: list[str], model: str = DEFAULT_MODEL) -> list[list[float]]:\\n    client = get_embedding_client()\\n    payload = normalize_batch_text_input(texts)\\n    response = client.embeddings.create(model=model, input=payload)\\n    return normalize_embedding_response(response)\\n\",\"similarity_score.py\":\"import math\\nfrom embed_text import embed_text\\n\\n\\ndef cosine_similarity(vector_a: list[float], vector_b: list[float]) -> float:\\n    if len(vector_a) != len(vector_b):\\n        raise ValueError(\\\"Embedding vectors must have the same length\\\")\\n    dot = sum(a * b for a, b in zip(vector_a, vector_b))\\n    norm_a = math.sqrt(sum(a * a for a in vector_a))\\n    norm_b = math.sqrt(sum(b * b for b in vector_b))\\n    if norm_a == 0.0 or norm_b == 0.0:\\n        return 0.0\\n    return dot / (norm_a * norm_b)\\n\\n\\ndef similarity_score(text_a: str, text_b: str, model: str | None = None) -> float:\\n    vec_a = embed_text(text_a, model=model or None)\\n    vec_b = embed_text(text_b, model=model or None)\\n    return cosine_similarity(vec_a, vec_b)\\n\",\"embed_for_search.py\":\"import os\\nfrom embed_text import embed_text\\nfrom embed_batch import embed_batch\\n\\nDEFAULT_MODEL = os.getenv(\\\"EMBEDDINGS_MODEL\\\", \\\"text-embedding-3-small\\\")\\n\\n\\ndef embed_for_search(query: str, documents: list[str], model: str = DEFAULT_MODEL) -> dict[str, object]:\\n    query_embedding = embed_text(query, model=model)\\n    document_embeddings = embed_batch(documents, model=model)\\n    return {\\n        \\\"query\\\": query,\\n        \\\"query_embedding\\\": query_embedding,\\n        \\\"documents\\\": documents,\\n        \\\"document_embeddings\\\": document_embeddings,\\n    }\\n\",\"embeddings_client.py\":\"import os\\nfrom functools import lru_cache\\n\\nfrom openai import OpenAI\\n\\n\\n@lru_cache(maxsize=1)\\ndef get_embedding_client() -> OpenAI:\\n    api_key = os.getenv(\\\"OPENAI_API_KEY\\\")\\n    if not api_key:\\n        raise EnvironmentError(\\\"OPENAI_API_KEY is required\\\")\\n    base_url = os.getenv(\\\"OPENAI_BASE_URL\\\")\\n    if base_url:\\n        return OpenAI(api_key=api_key, base_url=base_url)\\n    return OpenAI(api_key=api_key)\\n\",\"embeddings_models.py\":\"from __future__ import annotations\\n\\nfrom collections.abc import Sequence\\n\\n\\ndef normalize_single_text_input(text: str) -> str:\\n    if not isinstance(text, str):\\n        raise TypeError(\\\"text must be a string\\\")\\n    cleaned = text.strip()\\n    if not cleaned:\\n        raise ValueError(\\\"text cannot be empty\\\")\\n    return cleaned\\n\\n\\ndef normalize_batch_text_input(texts: Sequence[str]) -> list[str]:\\n    if not isinstance(texts, Sequence):\\n        raise TypeError(\\\"texts must be a sequence of strings\\\")\\n    normalized = [normalize_single_text_input(text) for text in texts]\\n    if not normalized:\\n        raise ValueError(\\\"texts cannot be empty\\\")\\n    return normalized\\n\\n\\ndef normalize_embedding_response(response) -> list[list[float]]:\\n    data = getattr(response, \\\"data\\\", None)\\n    if data is None:\\n        raise ValueError(\\\"invalid embedding response\\\")\\n    vectors: list[list[float]] = []\\n    for item in data:\\n        embedding = getattr(item, \\\"embedding\\\", None)\\n        if embedding is None:\\n            raise ValueError(\\\"invalid embedding item\\\")\\n        vectors.append([float(value) for value in embedding])\\n    if not vectors:\\n        raise ValueError(\\\"empty embedding response\\\")\\n    return vectors\\n\",\"embedding_job_summary.py\":\"import os\\nfrom collections.abc import Sequence\\n\\nfrom openai import OpenAI\\n\\nDEFAULT_MODEL = os.getenv(\\\"OPENAI_SUMMARY_MODEL\\\", \\\"gpt-4o-mini\\\")\\n\\n\\ndef summarize_embedding_job_results(job_records: Sequence[dict], model: str = DEFAULT_MODEL) -> str:\\n    client = OpenAI(api_key=os.environ[\\\"OPENAI_API_KEY\\\"])\\n    prompt = \\\"Summarize the embedding job results with key counts, failures, and notable patterns.\\\\n\\\\n\\\"\\n    prompt += \\\"Records:\\\\n\\\"\\n    prompt += \\\"\\\\n\\\".join(str(record) for record in job_records)\\n    response = client.responses.create(\\n        model=model,\\n        input=prompt,\\n    )\\n    return getattr(response, \\\"output_text\\\", \\\"\\\")\\n\",\"corpus_safety.py\":\"import os\\nfrom collections.abc import Sequence\\n\\nfrom openai import OpenAI\\n\\nDEFAULT_MODEL = os.getenv(\\\"OPENAI_SAFETY_MODEL\\\", \\\"gpt-4o-mini\\\")\\n\\n\\ndef check_corpus_text_before_embedding(texts: Sequence[str], model: str = DEFAULT_MODEL) -> dict[str, object]:\\n    client = OpenAI(api_key=os.environ[\\\"OPENAI_API_KEY\\\"])\\n    content = \\\"\\\\n\\\".join(texts)\\n    response = client.moderations.create(model=model, input=content)\\n    result = response.results[0]\\n    return {\\n        \\\"flagged\\\": bool(result.flagged),\\n        \\\"categories\\\": dict(getattr(result, \\\"categories\\\", {})),\\n        \\\"category_scores\\\": dict(getattr(result, \\\"category_scores\\\", {})),\\n    }\\n\",\"multilingual_query_translate.py\":\"import os\\n\\nfrom openai import OpenAI\\n\\nDEFAULT_MODEL = os.getenv(\\\"OPENAI_TRANSLATION_MODEL\\\", \\\"gpt-4o-mini\\\")\\n\\n\\ndef translate_query_for_embedding_search(query: str, target_language: str, model: str = DEFAULT_MODEL) -> str:\\n    client = OpenAI(api_key=os.environ[\\\"OPENAI_API_KEY\\\"])\\n    response = client.responses.create(\\n        model=model,\\n        input=f\\\"Translate the following query into {target_language} for multilingual embedding search. Return only the translation. Query: {query}\\\",\\n    )\\n    return getattr(response, \\\"output_text\\\", \\\"\\\").strip()\\n\",\"retrieval_audio_brief.py\":\"import os\\nfrom collections.abc import Sequence\\n\\nfrom openai import OpenAI\\n\\nDEFAULT_MODEL = os.getenv(\\\"OPENAI_AUDIO_MODEL\\\", \\\"gpt-4o-mini-tts\\\")\\nDEFAULT_VOICE = os.getenv(\\\"OPENAI_AUDIO_VOICE\\\", \\\"alloy\\\")\\n\\n\\ndef generate_spoken_brief_from_results(results: Sequence[dict], model: str = DEFAULT_MODEL, voice: str = DEFAULT_VOICE) -> bytes:\\n    client = OpenAI(api_key=os.environ[\\\"OPENAI_API_KEY\\\"])\\n    lines = []\\n    for idx, result in enumerate(results, start=1):\\n        lines.append(f\\\"Result {idx}: {result}\\\")\\n    text = \\\"Create a concise spoken brief from these retrieved search results.\\\\n\\\" + \\\"\\\\n\\\".join(lines)\\n    speech = client.audio.speech.create(\\n        model=model,\\n        voice=voice,\\n        input=text,\\n        format=\\\"mp3\\\",\\n    )\\n    return speech.read()\\n\"}",
+  "output_tokens": 1801,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1801,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 764,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2565
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "completion_tokens_details": {},
+  "elapsed_seconds": 7.08,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 826,
+  "output_text": "{\n    \"encrypt_payload.py\": \"from security_client import kms_client\\n\\ndef encrypt_payload(plaintext):\\n    response = kms_client.encrypt(KeyId='alias/myKey', Plaintext=plaintext)\\n    return response['CiphertextBlob']\",\n    \"decrypt_payload.py\": \"from security_client import kms_client\\n\\ndef decrypt_payload(ciphertext):\\n    response = kms_client.decrypt(CiphertextBlob=ciphertext)\\n    return response['Plaintext']\",\n    \"envelope_encrypt.py\": \"from security_client import kms_client\\nimport base64\\nfrom cryptography.fernet import Fernet\\n\\ndef envelope_encrypt(data):\\n    response = kms_client.generate_data_key(KeyId='alias/myKey', KeySpec='AES_256')\\n    plaintext_data_key = response['Plaintext']\\n    fernet = Fernet(base64.urlsafe_b64encode(plaintext_data_key))\\n    encrypted_data = fernet.encrypt(data.encode())\\n    return {'encrypted_data': encrypted_data, 'encrypted_data_key': response['CiphertextBlob']}\",\n    \"sign_or_verify_key.py\": \"from security_client import kms_client\\n\\ndef sign_message(message):\\n    response = kms_client.sign(KeyId='alias/mySigningKey', Message=message, MessageType='RAW', SigningAlgorithm='RSASSA_PSS_SHA_256')\\n    return response['Signature']\\n\\ndef verify_signature(message, signature):\\n    response = kms_client.verify(KeyId='alias/mySigningKey', Message=message, MessageType='RAW', Signature=signature, SigningAlgorithm='RSASSA_PSS_SHA_256')\\n    return response['SignatureValid']\",\n    \"security_client.py\": \"import boto3\\nimport os\\n\\nkms_client = boto3.client('kms', region_name='us-west-2', aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))\",\n    \"security_models.py\": \"class EncryptionRequest:\\n    def __init__(self, plaintext):\\n        self.plaintext = plaintext\\n\\nclass EncryptionResponse:\\n    def __init__(self, ciphertext):\\n        self.ciphertext = ciphertext\\n\\nclass DecryptionRequest:\\n    def __init__(self, ciphertext):\\n        self.ciphertext = ciphertext\\n\\nclass DecryptionResponse:\\n    def __init__(self, plaintext):\\n        self.plaintext = plaintext\",\n    \"key_usage_summary.py\": \"from security_client import kms_client\\n\\ndef summarize_key_usage(key_id):\\n    response = kms_client.describe_key(KeyId=key_id)\\n    return response['KeyMetadata']\",\n    \"payload_safety.py\": \"import re\\n\\ndef check_payload_safety(decrypted_text):\\n    if re.search(r'unsafe|restricted', decrypted_text, re.IGNORECASE):\\n        return 'Unsafe content detected'\\n    return 'Payload is safe'\",\n    \"crypto_audit_embedding.py\": \"from security_client import kms_client\\n\\ndef embed_audit_notes(encrypted_data, audit_notes):\\n    return f'{encrypted_data}#audit#{audit_notes}'\",\n    \"compliance_note_translate.py\": \"from google.cloud import translate_v2 as translate\\n\\ndef translate_compliance_note(text, target_language='es'):\\n    translate_client = translate.Client()\\n    result = translate_client.translate(text, target_language=target_language)\\n    return result['translatedText']\"\n}",
+  "output_tokens": 945,
+  "prompt_tokens_details": {},
+  "reasoning_tokens": null,
+  "usage": {
+    "completion_tokens": 945,
+    "completion_tokens_details": null,
+    "prompt_tokens": 826,
+    "prompt_tokens_details": null,
+    "total_tokens": 1771
+  }
+}

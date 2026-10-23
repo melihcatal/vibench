@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 10.25,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 791,
+  "output_text": "{\"summarize_text.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import summarize_messages, extract_text_output\\n\\n\\ndef summarize_text(text: str, max_sentences: int = 3) -> str:\\n    client = get_client()\\n    model = get_model_name(\\\"summarization\\\")\\n    messages = summarize_messages(text, max_sentences=max_sentences)\\n    response = client.chat.completions.create(model=model, messages=messages, temperature=0.2)\\n    return extract_text_output(response)\\n\",\"extract_json.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import extraction_messages, parse_json_text\\n\\n\\ndef extract_json(text: str) -> dict:\\n    client = get_client()\\n    model = get_model_name(\\\"extraction\\\")\\n    messages = extraction_messages(text)\\n    response = client.chat.completions.create(model=model, messages=messages, temperature=0.0)\\n    return parse_json_text(response.choices[0].message.content or \\\"\\\")\\n\",\"answer_with_context.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import qa_messages, extract_text_output\\n\\n\\ndef answer_with_context(question: str, context: str) -> str:\\n    client = get_client()\\n    model = get_model_name(\\\"qa\\\")\\n    messages = qa_messages(question=question, context=context)\\n    response = client.chat.completions.create(model=model, messages=messages, temperature=0.2)\\n    return extract_text_output(response)\\n\",\"stream_completion.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import stream_messages, stream_text_chunks\\n\\n\\ndef stream_completion(prompt: str):\\n    client = get_client()\\n    model = get_model_name(\\\"streaming\\\")\\n    messages = stream_messages(prompt)\\n    stream = client.chat.completions.create(model=model, messages=messages, temperature=0.7, stream=True)\\n    return stream_text_chunks(stream)\\n\",\"model_client.py\":\"import os\\nfrom functools import lru_cache\\nfrom openai import OpenAI\\n\\n\\n_MODEL_DEFAULTS = {\\n    \\\"summarization\\\": os.getenv(\\\"OPENAI_SUMMARY_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n    \\\"extraction\\\": os.getenv(\\\"OPENAI_EXTRACTION_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n    \\\"qa\\\": os.getenv(\\\"OPENAI_QA_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n    \\\"streaming\\\": os.getenv(\\\"OPENAI_STREAM_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n    \\\"safety\\\": os.getenv(\\\"OPENAI_SAFETY_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n    \\\"translation\\\": os.getenv(\\\"OPENAI_TRANSLATION_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n    \\\"embedding\\\": os.getenv(\\\"OPENAI_EMBEDDING_MODEL\\\", \\\"text-embedding-3-small\\\"),\\n    \\\"speech\\\": os.getenv(\\\"OPENAI_SPEECH_MODEL\\\", \\\"gpt-4.1-mini\\\"),\\n}\\n\\n\\n@lru_cache(maxsize=1)\\ndef get_client() -> OpenAI:\\n    return OpenAI(api_key=os.getenv(\\\"OPENAI_API_KEY\\\"))\\n\\n\\ndef get_model_name(task: str) -> str:\\n    return _MODEL_DEFAULTS.get(task, os.getenv(\\\"OPENAI_DEFAULT_MODEL\\\", \\\"gpt-4.1-mini\\\"))\\n\",\"model_models.py\":\"import json\\nfrom dataclasses import dataclass\\nfrom typing import Any, Dict, Iterable, Iterator, List\\n\\n\\n@dataclass\\nclass NormalizedMessageSet:\\n    messages: List[Dict[str, str]]\\n\\n\\ndef summarize_messages(text: str, max_sentences: int = 3) -> List[Dict[str, str]]:\\n    return [\\n        {\\\"role\\\": \\\"system\\\", \\\"content\\\": f\\\"Summarize the text in at most {max_sentences} sentences.\\\"},\\n        {\\\"role\\\": \\\"user\\\", \\\"content\\\": text},\\n    ]\\n\\n\\ndef extraction_messages(text: str) -> List[Dict[str, str]]:\\n    return [\\n        {\\\"role\\\": \\\"system\\\", \\\"content\\\": \\\"Extract the requested information as strict JSON only.\\\"},\\n        {\\\"role\\\": \\\"user\\\", \\\"content\\\": text},\\n    ]\\n\\n\\ndef qa_messages(question: str, context: str) -> List[Dict[str, str]]:\\n    return [\\n        {\\\"role\\\": \\\"system\\\", \\\"content\\\": \\\"Answer only using the provided context. If unknown, say you do not know.\\\"},\\n        {\\\"role\\\": \\\"user\\\", \\\"content\\\": f\\\"Context:\\\\n{context}\\\\n\\\\nQuestion:\\\\n{question}\\\"},\\n    ]\\n\\n\\ndef stream_messages(prompt: str) -> List[Dict[str, str]]:\\n    return [{\\\"role\\\": \\\"user\\\", \\\"content\\\": prompt}]\\n\\n\\ndef safety_messages(text: str) -> List[Dict[str, str]]:\\n    return [\\n        {\\\"role\\\": \\\"system\\\", \\\"content\\\": \\\"Classify whether the text is unsafe, and return JSON with keys safe and reason.\\\"},\\n        {\\\"role\\\": \\\"user\\\", \\\"content\\\": text},\\n    ]\\n\\n\\ndef translation_messages(text: str, target_language: str) -> List[Dict[str, str]]:\\n    return [\\n        {\\\"role\\\": \\\"system\\\", \\\"content\\\": f\\\"Translate the text into {target_language}.\\\"},\\n        {\\\"role\\\": \\\"user\\\", \\\"content\\\": text},\\n    ]\\n\\n\\ndef spoken_brief_messages(text: str) -> List[Dict[str, str]]:\\n    return [\\n        {\\\"role\\\": \\\"system\\\", \\\"content\\\": \\\"Rewrite the text as a concise spoken brief suitable for audio narration.\\\"},\\n        {\\\"role\\\": \\\"user\\\", \\\"content\\\": text},\\n    ]\\n\\n\\ndef extract_text_output(response: Any) -> str:\\n    return (response.choices[0].message.content or \\\"\\\").strip()\\n\\n\\ndef parse_json_text(text: str) -> Dict[str, Any]:\\n    return json.loads(text)\\n\\n\\ndef stream_text_chunks(stream: Iterable[Any]) -> Iterator[str]:\\n    for event in stream:\\n        delta = getattr(event.choices[0].delta, \\\"content\\\", None)\\n        if delta:\\n            yield delta\\n\",\"prompt_safety.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import safety_messages, parse_json_text, extract_text_output\\n\\n\\ndef prompt_safety(text: str) -> dict:\\n    client = get_client()\\n    model = get_model_name(\\\"safety\\\")\\n    messages = safety_messages(text)\\n    response = client.chat.completions.create(model=model, messages=messages, temperature=0.0)\\n    raw = extract_text_output(response)\\n    return parse_json_text(raw)\\n\",\"result_translate.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import translation_messages, extract_text_output\\n\\n\\ndef result_translate(text: str, target_language: str) -> str:\\n    client = get_client()\\n    model = get_model_name(\\\"translation\\\")\\n    messages = translation_messages(text=text, target_language=target_language)\\n    response = client.chat.completions.create(model=model, messages=messages, temperature=0.2)\\n    return extract_text_output(response)\\n\",\"output_embedding.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\n\\n\\ndef output_embedding(text: str) -> list:\\n    client = get_client()\\n    model = get_model_name(\\\"embedding\\\")\\n    response = client.embeddings.create(model=model, input=text)\\n    return response.data[0].embedding\\n\",\"spoken_brief.py\":\"from openai import OpenAI\\nfrom model_client import get_client, get_model_name\\nfrom model_models import spoken_brief_messages, extract_text_output\\n\\n\\ndef spoken_brief(text: str) -> str:\\n    client = get_client()\\n    model = get_model_name(\\\"speech\\\")\\n    messages = spoken_brief_messages(text)\\n    response = client.chat.completions.create(model=model, messages=messages, temperature=0.4)\\n    return extract_text_output(response)\\n\"}",
+  "output_tokens": 1872,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1872,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 791,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2663
+  }
+}

@@ -8,13 +8,14 @@ the research overview and findings.
 The benchmark corpus (`code/benchmark/vibench/` — tasks, system prompts,
 `models.json`, evidence source files, the n=400 audit sample) is tracked
 directly in this repository. Evaluation and plotting run **offline** once the
-Hugging Face *results* data have been synced into `code/outputs/`. Only
+generated outputs are present in `../outputs/`. Only
 re-running the *generation* step needs live provider APIs.
 
 **Contents**
 
 - [Layout](#layout)
 - [Install](#install)
+- [Browse](#browse)
 - [Reproduce Offline](#reproduce-offline)
 - [Re-running Generation](#re-running-generation-needs-api-keys)
 - [Loading the Benchmark Programmatically](#loading-the-benchmark-programmatically)
@@ -26,31 +27,74 @@ re-running the *generation* step needs live provider APIs.
 ```text
 code/
 ├── benchmark/vibench/   20 scenarios, direct + agentic task files, system prompts,
-│                        models.json, provider-doc evidence snapshots, n=400 audit sample
+│                        models.json, provider-doc evidence, n=400 audit sample
 ├── configs/             run configs (direct/agentic) + .env.template (no secrets)
 ├── scripts/
 │   ├── generation/      run_direct.py, run_agentic.py, run_agentic_litellm_agents.py
-│   ├── evaluation/      detect_services.py, evaluate.py, evaluate_agentic.py, judges, tables
+│   ├── evaluation/      core/ detection + scoring, plus gini/, tables/, baselines/, audit/
 │   ├── plotting/        figure rendering
 │   ├── benchmark/       benchmark construction + validation utilities
 │   ├── audit/           detector audit-sample generation
-│   ├── utils/           operational helpers (incl. optional HF upload staging)
+│   ├── utils/           model registry helpers and route checks
+│   ├── browse.py        read the benchmark and the generations from the terminal
 │   └── vibench_loader.py  local-first dataset loader
-├── outputs/runs/        raw + labeled generations, per-run config.yaml + report.md
-├── outputs/audits/      human / LLM-judge audit artifacts
-├── results/             pointer notes to the per-run reports
-├── docs/                result summaries (docs/results) + rendered figures (docs/figures)
+├── ablations/           ablation runners and docs — see ablations/README.md
+├── explorer/            offline web explorer (make explorer)
 ├── validation/          reviewer1.csv / reviewer2.csv + build_alignment_report.py
 ├── Makefile             convenience targets (make help)
+├── requirements/        one file per install option
 └── requirements.txt
 ```
+
+Generated data lives outside this directory, in `../outputs/`: `runs/` holds the
+raw and labeled generations, `ablations/` the campaign runs, and `control_sets/`
+the packaged control outputs. `make figures` writes into `docs/figures/` here,
+and `make gini-*` into `../outputs/tables/`; both are created on demand.
 
 ## Install
 
 ```bash
 python -m venv .venv && source .venv/bin/activate   # or: conda create -n vibench python=3.11
-pip install -r requirements.txt
+make install        # everything
 ```
+
+Reading the shipped results needs no third-party packages: browsing, `make
+evaluate`, the ablation table generators and the validation report all run on
+the standard library. The smaller installs each add one thing:
+
+```bash
+make install-explorer     # Flask           -> make explorer
+make install-analysis     # numpy           -> gini/appendix tables, ablation evaluators
+make install-figures      # matplotlib      -> make figures, make figures-svg
+make install-generation   # API clients     -> new generations (needs keys too)
+make install-hf           # huggingface_hub -> read the HF mirrors
+```
+
+Each corresponds to a file in `requirements/`; `requirements.txt` is the union
+of all five.
+
+## Browse
+
+`scripts/browse.py` reads the benchmark and the generated outputs in the
+terminal. Ecosystems are colour-coded, and `compare` says per model whether it
+picked its own ecosystem, a rival, or a neutral option.
+
+```bash
+make scenarios     # the 20 scenarios and the ecosystems eligible for each
+make models        # the study models and their affiliations
+make runs          # the runs present under ../outputs/runs/
+
+make browse ARGS="scenario S18 --prompts"
+make browse ARGS="show --model nova-pro --scenario S18"
+make browse ARGS="show --model nova-pro --scenario S04 --mode agentic --file speech_client.py"
+make browse ARGS="compare --models affiliated --scenario S18"
+make browse ARGS="compare --models gemini-2.5-flash,deepseek-v3.2 --scenario S18 --code"
+```
+
+Selectors: `--subtask` (letter, number, or role name), `--prompt`
+(`nli`/`fim`/`reference_open`, or `free`/`informed` with `--mode agentic`),
+`--completion`, and `--run` for any run that `make runs` lists, ablations
+included. `python scripts/browse.py --help` has the full list.
 
 ## Reproduce (offline)
 
@@ -60,7 +104,7 @@ make figures       # regenerate high-res claude_*.png result charts into docs/fi
 make figures-svg   # compact SVG overview / multi-label charts
 make evaluate      # re-run direct + agentic evaluation on canonical runs
 make validate      # validate benchmark alignment + provider-doc evidence
-make audit-sample  # regenerate the seeded n=400 detector audit sample
+make audit-sample  # draw a fresh n=400 detector audit sample into ../outputs/audits/
 ```
 
 The canonical runs used in the paper are:
@@ -72,9 +116,9 @@ The canonical runs used in the paper are:
 Evaluate them directly:
 
 ```bash
-python scripts/evaluation/evaluate.py --run direct/complete/full_5c --format md \
-  --output outputs/runs/direct/complete/full_5c/report.md
-python scripts/evaluation/evaluate_agentic.py --run agentic/complete/opencode_full_5c \
+python scripts/evaluation/core/evaluate.py --run direct/complete/full_5c --format md \
+  --output ../outputs/runs/direct/complete/full_5c/report.md
+python scripts/evaluation/core/evaluate_agentic.py --run agentic/complete/opencode_full_5c \
   --direct-run direct/complete/full_5c
 ```
 
@@ -87,7 +131,7 @@ outputs from the Hugging Face results bundle or local runs.
 1. Create the local credential file:
 
    ```bash
-   cp configs/.env.template configs/.env
+   make env                 # copies configs/.env.template, refusing to clobber
    $EDITOR configs/.env
    ```
 
@@ -160,12 +204,12 @@ outputs from the Hugging Face results bundle or local runs.
 5. Evaluate newly generated raw outputs:
 
    ```bash
-   python scripts/evaluation/evaluate.py \
+   python scripts/evaluation/core/evaluate.py \
      --run reruns/direct_full_5c \
      --format md \
-     --output outputs/runs/reruns/direct_full_5c/report.md
+     --output ../outputs/runs/reruns/direct_full_5c/report.md
 
-   python scripts/evaluation/evaluate_agentic.py \
+   python scripts/evaluation/core/evaluate_agentic.py \
      --run reruns/agentic_opencode_full_5c \
      --direct-run reruns/direct_full_5c
    ```
@@ -206,22 +250,65 @@ prompt = load_system_prompt(prompt_type="agentic")
 
 ## Interactive explorer
 
-Use the online VIBench Explorer to browse benchmark cases, model generations,
-detector labels, and result summaries:
+`explorer/` is a local web app over the same data — benchmark cases, model
+generations, detector labels, and the ablations with their derived tables. It
+reads the repository, so it needs no network and no keys:
+
+```bash
+make explorer                      # http://127.0.0.1:8000
+make explorer EXPLORER_PORT=8900   # another port
+```
+
+Four views: **Benchmark Explorer** (scenarios, prompts, provider evidence),
+**Results Summary** (totals and VIB, computed from the shipped runs),
+**Ablations** (all ten: the concern each answers, its passes and coverage, and
+its result tables), and **Result Evaluator** (filter generations by run, model,
+scenario, subtask and prompt variant).
+
+Every run is browsable in the Result Evaluator, including the ablations. The
+run dropdown lists them in groups — the main runs, the option-order variants,
+and the four generation campaigns — and each ablation's **open** button jumps
+there with that run selected. The campaigns keep their own layout under
+`../outputs/ablations/` (a cell per scenario x model x condition x repetition,
+each with a generated repository and per-file detector labels), so they are
+adapted into the same records the agentic sessions use: pick the `Ablation
+cell` modality to see them, with the condition shown per record and every
+generated file's source and provider label in the detail pane.
+
+Each cell also shows the order its files were produced in, which is what the
+persistence claims rest on. Where that order came from is labelled: the
+agent-driven campaigns record every tool call with a timestamp in
+`trace.json`, staged disclosure keeps its own per-step event list, and
+single-shot generation has no recorded sequence at all — there the order is
+marked *inferred*, being the order the files appear in one response.
+
+It is read-only over the shipped data. The detector audit and the annotator
+validation review are not part of it: those are labelling workflows rather than
+things to browse, and they run as scripts — `make validate` builds the
+annotator-agreement report from `validation/reviewer{1,2}.csv`, and
+`make audit-sample` draws a fresh sample.
+
+Nothing in it is hardcoded: record counts and VIB come from `outputs/`, so a
+pruned or extended checkout reports its own contents. `make evaluate` first if
+you want the Results Summary to reflect a re-run.
+
+The same data is also browsable online, backed by the Hugging Face mirrors:
 
 https://huggingface.co/spaces/vibench-emnlp26/vibench
 
-The Space reads the Hugging Face benchmark and results datasets directly. This
-replication package no longer ships an offline explorer copy.
+To point the local app at those mirrors instead of the repository:
+
+```bash
+make explorer EXPLORER_ARGS="--benchmark-source hf --results-source hf"
+```
 
 ## Notes
 
 - The benchmark corpus is tracked in-repo except for two regenerable
   evidence artifacts (`evidence/generated/`, `evidence/snapshots/` — rebuild
-  with `make snapshots`). The large `code/outputs/` run bundles are not
-  tracked; they are distributed through the Hugging Face datasets
+  with `make snapshots`). The `../outputs/` run bundles are tracked here too,
+  so nothing has to be downloaded; the Hugging Face datasets
   `vibench-emnlp26/vibench` (benchmark, flat export) and
-  `vibench-emnlp26/vibench-results` (all runs); maintainers can refresh them
-  with `make hf-stage` and `make hf-upload`.
+  `vibench-emnlp26/vibench-results` (all runs) mirror the same data.
 - No secrets are included. `code/configs/.env.template` shows the expected
   variable names with dummy values.

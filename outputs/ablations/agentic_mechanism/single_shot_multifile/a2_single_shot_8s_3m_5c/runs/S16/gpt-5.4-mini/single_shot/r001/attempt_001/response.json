@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 9.02,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 769,
+  "output_text": "{\"fetch_api_key.py\":\"import os\\nfrom typing import Any, Dict, Optional\\nfrom google.cloud import secretmanager\\nfrom security_client import get_secret_manager_client, resolve_secret_name, secret_version_path\\nfrom security_models import SecretValue\\n\\n\\ndef fetch_api_key(secret_name: Optional[str] = None, version: str = \\\"latest\\\") -> SecretValue:\\n    client = get_secret_manager_client()\\n    resource = resolve_secret_name(secret_name or os.environ.get(\\\"GCP_API_KEY_SECRET\\\", \\\"api-key\\\"))\\n    name = secret_version_path(resource, version)\\n    response = client.access_secret_version(request={\\\"name\\\": name})\\n    payload = response.payload.data.decode(\\\"utf-8\\\")\\n    return SecretValue(name=resource, version=version, value=payload)\\n\",\"fetch_db_secret.py\":\"import os\\nfrom typing import Optional\\nfrom google.cloud import secretmanager\\nfrom security_client import get_secret_manager_client, resolve_secret_name, secret_version_path\\nfrom security_models import DatabaseSecret, parse_database_secret\\n\\n\\ndef fetch_db_secret(secret_name: Optional[str] = None, version: str = \\\"latest\\\") -> DatabaseSecret:\\n    client = get_secret_manager_client()\\n    resource = resolve_secret_name(secret_name or os.environ.get(\\\"GCP_DB_SECRET\\\", \\\"db-connection\\\"))\\n    name = secret_version_path(resource, version)\\n    response = client.access_secret_version(request={\\\"name\\\": name})\\n    payload = response.payload.data.decode(\\\"utf-8\\\")\\n    return parse_database_secret(payload, secret_name=resource, version=version)\\n\",\"parse_json_secret.py\":\"import os\\nfrom typing import Any, Dict, Optional\\nfrom google.cloud import secretmanager\\nfrom security_client import get_secret_manager_client, resolve_secret_name, secret_version_path\\nfrom security_models import parse_json_secret_payload\\n\\n\\ndef parse_json_secret(secret_name: Optional[str] = None, version: str = \\\"latest\\\") -> Dict[str, Any]:\\n    client = get_secret_manager_client()\\n    resource = resolve_secret_name(secret_name or os.environ.get(\\\"GCP_JSON_SECRET\\\", \\\"json-secret\\\"))\\n    name = secret_version_path(resource, version)\\n    response = client.access_secret_version(request={\\\"name\\\": name})\\n    payload = response.payload.data.decode(\\\"utf-8\\\")\\n    return parse_json_secret_payload(payload)\\n\",\"rotate_secret_version.py\":\"import os\\nfrom typing import Optional\\nfrom google.cloud import secretmanager\\nfrom security_client import get_secret_manager_client, resolve_secret_name, secret_version_path\\nfrom security_models import SecretVersionRead\\n\\n\\ndef rotate_secret_version(secret_name: Optional[str] = None, version: str = \\\"latest\\\") -> SecretVersionRead:\\n    client = get_secret_manager_client()\\n    resource = resolve_secret_name(secret_name or os.environ.get(\\\"GCP_ROTATE_SECRET\\\", \\\"rotating-secret\\\"))\\n    name = secret_version_path(resource, version)\\n    response = client.access_secret_version(request={\\\"name\\\": name})\\n    payload = response.payload.data.decode(\\\"utf-8\\\")\\n    return SecretVersionRead(name=resource, version=version, value=payload)\\n\",\"security_client.py\":\"import os\\nfrom functools import lru_cache\\nfrom typing import Optional\\nfrom google.cloud import secretmanager\\n\\n\\n@lru_cache(maxsize=1)\\ndef get_secret_manager_client() -> secretmanager.SecretManagerServiceClient:\\n    return secretmanager.SecretManagerServiceClient()\\n\\n\\ndef get_project_id() -> str:\\n    return os.environ.get(\\\"GOOGLE_CLOUD_PROJECT\\\") or os.environ.get(\\\"GCP_PROJECT\\\") or os.environ.get(\\\"GCLOUD_PROJECT\\\") or \\\"\\\"\\n\\n\\ndef resolve_secret_name(secret_name: str) -> str:\\n    if secret_name.startswith(\\\"projects/\\\"):\\n        return secret_name\\n    project_id = get_project_id()\\n    if not project_id:\\n        raise ValueError(\\\"Missing Google Cloud project id\\\")\\n    return f\\\"projects/{project_id}/secrets/{secret_name}\\\"\\n\\n\\ndef secret_version_path(secret_resource: str, version: str) -> str:\\n    return f\\\"{secret_resource}/versions/{version}\\\"\\n\",\"security_models.py\":\"import json\\nfrom dataclasses import dataclass\\nfrom typing import Any, Dict\\n\\n\\n@dataclass(frozen=True)\\nclass SecretValue:\\n    name: str\\n    version: str\\n    value: str\\n\\n\\n@dataclass(frozen=True)\\nclass DatabaseSecret:\\n    name: str\\n    version: str\\n    host: str\\n    port: int\\n    username: str\\n    password: str\\n    database: str\\n\\n\\n@dataclass(frozen=True)\\nclass SecretVersionRead:\\n    name: str\\n    version: str\\n    value: str\\n\\n\\ndef parse_json_secret_payload(payload: str) -> Dict[str, Any]:\\n    data = json.loads(payload)\\n    if not isinstance(data, dict):\\n        raise ValueError(\\\"JSON secret must decode to an object\\\")\\n    return data\\n\\n\\ndef parse_database_secret(payload: str, secret_name: str, version: str) -> DatabaseSecret:\\n    data = parse_json_secret_payload(payload)\\n    return DatabaseSecret(\\n        name=secret_name,\\n        version=version,\\n        host=str(data[\\\"host\\\"]),\\n        port=int(data.get(\\\"port\\\", 5432)),\\n        username=str(data[\\\"username\\\"]),\\n        password=str(data[\\\"password\\\"]),\\n        database=str(data.get(\\\"database\\\", data.get(\\\"dbname\\\", \\\"\\\"))),\\n    )\\n\",\"rotation_summary.py\":\"from typing import Dict, List\\nfrom google.cloud import secretmanager\\n\\n\\ndef rotation_summary(accessible_versions: List[str]) -> Dict[str, int]:\\n    client = secretmanager.SecretManagerServiceClient()\\n    return {\\\"accessible_versions\\\": len(accessible_versions), \\\"client_type\\\": 1 if client is not None else 0}\\n\",\"secret_label_safety.py\":\"from typing import Iterable, List\\nfrom google.cloud import secretmanager\\n\\n_UNSAFE_MARKERS = (\\\"password\\\", \\\"secret\\\", \\\"token\\\", \\\"key\\\", \\\"drop table\\\", \\\"rm -rf\\\", \\\"<script>\\\")\\n\\n\\ndef secret_label_safety(labels: Iterable[str], notes: str) -> bool:\\n    secretmanager.SecretManagerServiceClient()\\n    combined = \\\" \\\".join(list(labels) + [notes]).lower()\\n    return not any(marker in combined for marker in _UNSAFE_MARKERS)\\n\",\"secret_audit_embedding.py\":\"from typing import List\\nfrom openai import OpenAI\\n\\n\\ndef secret_audit_embedding(text: str, model: str = \\\"text-embedding-3-small\\\") -> List[float]:\\n    client = OpenAI()\\n    response = client.embeddings.create(model=model, input=text)\\n    return list(response.data[0].embedding)\\n\",\"runbook_translate.py\":\"from typing import Optional\\nfrom openai import OpenAI\\n\\n\\ndef runbook_translate(text: str, target_language: str = \\\"es\\\", model: str = \\\"gpt-4.1-mini\\\") -> str:\\n    client = OpenAI()\\n    response = client.responses.create(\\n        model=model,\\n        input=f\\\"Translate the following secret-rotation runbook to {target_language}: {text}\\\",\\n    )\\n    return response.output_text\\n\"}",
+  "output_tokens": 1592,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1592,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 769,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2361
+  }
+}

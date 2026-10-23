@@ -5,8 +5,8 @@ Run all commands from the `code/` directory.
 ```bash
 cd code
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp configs/.env.template configs/.env
+make install-generation
+make env
 $EDITOR configs/.env
 ```
 
@@ -243,12 +243,12 @@ After generating raw outputs, run the detector/evaluator to create labeled
 outputs and reports:
 
 ```bash
-python scripts/evaluation/evaluate.py \
+python scripts/evaluation/core/evaluate.py \
   --run reruns/direct_full_5c \
   --format md \
   --output outputs/runs/reruns/direct_full_5c/report.md
 
-python scripts/evaluation/evaluate_agentic.py \
+python scripts/evaluation/core/evaluate_agentic.py \
   --run reruns/agentic_opencode_full_5c \
   --direct-run reruns/direct_full_5c
 ```
@@ -256,7 +256,7 @@ python scripts/evaluation/evaluate_agentic.py \
 For agentic-only smoke tests, you can pair against the bundled direct run:
 
 ```bash
-python scripts/evaluation/evaluate_agentic.py \
+python scripts/evaluation/core/evaluate_agentic.py \
   --run scratch/opencode_gemini_s18_free \
   --direct-run direct/complete/full_5c
 ```
@@ -265,9 +265,9 @@ python scripts/evaluation/evaluate_agentic.py \
 
 Option-order and affiliated-omission robustness configs live under:
 
-- `configs/vibench/direct/ablations/option_order/`
-- `configs/vibench/agentic/ablations/option_order/opencode/`
-- `configs/vibench/agentic/ablations/option_order/agents_sdk/`
+- `configs/vibench/direct/variants/option_order/`
+- `configs/vibench/agentic/variants/option_order/opencode/`
+- `configs/vibench/agentic/variants/option_order/agents_sdk/`
 
 The convenience wrapper is:
 

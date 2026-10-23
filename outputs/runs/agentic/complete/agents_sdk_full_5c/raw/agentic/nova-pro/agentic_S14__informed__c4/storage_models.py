@@ -1,0 +1,5 @@
+class StorageObject:
+    def __init__(self, bucket_name, object_key, metadata):
+        self.bucket_name = bucket_name
+        self.object_key = object_key
+        self.metadata = metadata

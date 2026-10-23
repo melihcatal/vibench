@@ -1,0 +1,22 @@
+{
+  "command": [
+    "opencode",
+    "run",
+    "--attach",
+    "http://127.0.0.1:59826",
+    "--format",
+    "json",
+    "-m",
+    "openai/gpt-5.4-mini",
+    "--agent",
+    "vibench",
+    "--variant",
+    "none",
+    "<prompt_text>"
+  ],
+  "elapsed_seconds": 5.933657207991928,
+  "error": null,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "{\"type\":\"step_start\",\"timestamp\":1789821301607,\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"part\":{\"id\":\"prt_0b9a9b365001ZyJisQsqVDhvaI\",\"messageID\":\"msg_0b9a9b16b001OJTOaECvRwGUtB\",\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"type\":\"step-start\"}}\n{\"type\":\"tool_use\",\"timestamp\":1789821305896,\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"part\":{\"type\":\"tool\",\"tool\":\"bash\",\"callID\":\"call_ZL2O78bM7I1biItbDKekA2cr\",\"state\":{\"status\":\"completed\",\"input\":{\"command\":\"python - <<'PY'\\nfrom pathlib import Path\\np=Path('poll_transcription.py')\\np.write_text('''import os\\\\nimport time\\\\nfrom typing import Any, Dict, Optional\\\\n\\\\nimport requests\\\\n\\\\nOPENAI_RESPONSES_URL = \\\"https://api.openai.com/v1/responses\\\"\\\\n\\\\n\\\\ndef poll_transcription(job_id: str, api_key: Optional[str] = None, timeout_seconds: int = 300, interval_seconds: int = 5) -> Dict[str, Any]:\\\\n    token = api_key or os.environ.get(\\\"OPENAI_API_KEY\\\")\\\\n    if not token:\\\\n        raise ValueError(\\\"OPENAI_API_KEY is required\\\")\\\\n    deadline = time.time() + timeout_seconds\\\\n    headers = {\\\"Authorization\\\": f\\\"Bearer {token}\\\"}\\\\n    last_response: Dict[str, Any] = {}\\\\n    while True:\\\\n        response = requests.get(f\\\"{OPENAI_RESPONSES_URL}/{job_id}\\\", headers=headers, timeout=30)\\\\n        response.raise_for_status()\\\\n        payload = response.json()\\\\n        last_response = payload\\\\n        status = payload.get(\\\"status\\\") or payload.get(\\\"state\\\")\\\\n        if status in {\\\"completed\\\", \\\"succeeded\\\", \\\"done\\\", \\\"finished\\\"}:\\\\n            transcript = payload.get(\\\"output_text\\\") or payload.get(\\\"transcript\\\") or payload.get(\\\"text\\\") or payload\\\\n            return {\\\"job_id\\\": job_id, \\\"status\\\": status, \\\"transcript\\\": transcript, \\\"response\\\": payload}\\\\n        if status in {\\\"failed\\\", \\\"cancelled\\\", \\\"canceled\\\", \\\"error\\\"}:\\\\n            raise RuntimeError(f\\\"transcription job {job_id} ended with status {status}\\\")\\\\n        if time.time() >= deadline:\\\\n            raise TimeoutError(f\\\"transcription job {job_id} did not complete within {timeout_seconds} seconds\\\")\\\\n        time.sleep(interval_seconds)\\\\n\\\\n''')\\nPY\",\"timeout\":120000,\"workdir\":\"/private/var/folders/bf/pt_kfhl16yb4r9vfb588n1fm0000gn/T/vb-staged-txbr2hym\",\"description\":\"Writes poll transcription module\"},\"output\":\"(no output)\",\"metadata\":{\"output\":\"(no output)\",\"exit\":0,\"description\":\"Writes poll transcription module\",\"truncated\":false},\"title\":\"Writes poll transcription module\",\"time\":{\"start\":1789821305865,\"end\":1789821305894}},\"metadata\":{\"openai\":{\"itemId\":\"fc_0dc204feebf3baf8016aae8175a91087d2a3a5fc5494ab5eae\"}},\"id\":\"prt_0b9a9b3d6001GV4pOaIEIxtqDr\",\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"messageID\":\"msg_0b9a9b16b001OJTOaECvRwGUtB\"}}\n{\"type\":\"step_finish\",\"timestamp\":1789821305941,\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"part\":{\"id\":\"prt_0b9a9c44d001RJDQ7mCs3Figbh\",\"reason\":\"tool-calls\",\"messageID\":\"msg_0b9a9b16b001OJTOaECvRwGUtB\",\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"type\":\"step-finish\",\"tokens\":{\"total\":5578,\"input\":1489,\"output\":505,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":3584}},\"cost\":0.00365805}}\n{\"type\":\"step_start\",\"timestamp\":1789821306439,\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"part\":{\"id\":\"prt_0b9a9c646001OE1JXoDTbSuGA7\",\"messageID\":\"msg_0b9a9c451001mYyCZr5UdCb67M\",\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"type\":\"step-start\"}}\n{\"type\":\"text\",\"timestamp\":1789821306612,\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"part\":{\"id\":\"prt_0b9a9c6a400187TAbwo8HPpQH2\",\"messageID\":\"msg_0b9a9c451001mYyCZr5UdCb67M\",\"sessionID\":\"ses_f46564eacffevAl8CW5DKJz5SQ\",\"type\":\"text\",\"text\":\"\",\"time\":{\"start\":1789821306532,\"end\":1789821306611},\"metadata\":{\"openai\":{\"itemId\":\"msg_0c9c1171c483c0ed016aae817a770887d2864ed415453830b9\",\"phase\":\"final_answer\"}}}}\n"
+}

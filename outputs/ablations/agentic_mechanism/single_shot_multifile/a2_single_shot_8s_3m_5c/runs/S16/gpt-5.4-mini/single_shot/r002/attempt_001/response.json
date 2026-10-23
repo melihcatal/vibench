@@ -1,0 +1,46 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "image_tokens": null,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 9.12,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 769,
+  "output_text": "{\"fetch_api_key.py\":\"import os\\nfrom typing import Any, Dict\\n\\nfrom security_client import SecretManagerClient, get_secret_manager_client\\nfrom security_models import SecretFetchRequest, SecretValue\\n\\n\\ndef fetch_api_key(secret_name: str, version: str = \\\"latest\\\") -> SecretValue:\\n    client = get_secret_manager_client()\\n    request = SecretFetchRequest(secret_name=secret_name, version=version)\\n    return client.fetch_secret(request)\\n\",\"fetch_db_secret.py\":\"from security_client import get_secret_manager_client\\nfrom security_models import SecretFetchRequest, SecretValue\\n\\n\\ndef fetch_db_secret(secret_name: str, version: str = \\\"latest\\\") -> SecretValue:\\n    client = get_secret_manager_client()\\n    request = SecretFetchRequest(secret_name=secret_name, version=version)\\n    return client.fetch_secret(request)\\n\",\"parse_json_secret.py\":\"import json\\n\\nfrom security_client import get_secret_manager_client\\nfrom security_models import SecretFetchRequest, normalize_json_secret\\n\\n\\ndef parse_json_secret(secret_name: str, version: str = \\\"latest\\\"):\\n    client = get_secret_manager_client()\\n    secret = client.fetch_secret(SecretFetchRequest(secret_name=secret_name, version=version))\\n    return normalize_json_secret(secret.value)\\n\",\"rotate_secret_version.py\":\"from security_client import get_secret_manager_client\\nfrom security_models import SecretFetchRequest, SecretVersionRequest\\n\\n\\ndef rotate_secret_version(secret_name: str, version: str = \\\"latest\\\", stage: str = \\\"CURRENT\\\"):\\n    client = get_secret_manager_client()\\n    request = SecretVersionRequest(secret_name=secret_name, version=version, stage=stage)\\n    return client.fetch_secret_version(request)\\n\",\"security_client.py\":\"import os\\nfrom dataclasses import dataclass\\nfrom typing import Optional\\n\\nfrom google.cloud import secretmanager\\n\\nfrom security_models import SecretFetchRequest, SecretValue, SecretVersionRequest, normalize_secret_payload\\n\\n\\n@dataclass\\nclass SecretManagerConfig:\\n    project_id: str\\n\\n\\ndef load_config() -> SecretManagerConfig:\\n    project_id = os.environ.get(\\\"GOOGLE_CLOUD_PROJECT\\\") or os.environ.get(\\\"GCP_PROJECT\\\")\\n    if not project_id:\\n        raise ValueError(\\\"GOOGLE_CLOUD_PROJECT or GCP_PROJECT must be set\\\")\\n    return SecretManagerConfig(project_id=project_id)\\n\\n\\nclass SecretManagerClient:\\n    def __init__(self, config: Optional[SecretManagerConfig] = None):\\n        self.config = config or load_config()\\n        self.client = secretmanager.SecretManagerServiceClient()\\n\\n    def _build_name(self, secret_name: str, version: str) -> str:\\n        return f\\\"projects/{self.config.project_id}/secrets/{secret_name}/versions/{version}\\\"\\n\\n    def fetch_secret(self, request: SecretFetchRequest) -> SecretValue:\\n        name = self._build_name(request.secret_name, request.version)\\n        response = self.client.access_secret_version(request={\\\"name\\\": name})\\n        payload = response.payload.data.decode(\\\"utf-8\\\")\\n        return SecretValue(secret_name=request.secret_name, version=request.version, value=payload, normalized=normalize_secret_payload(payload))\\n\\n    def fetch_secret_version(self, request: SecretVersionRequest) -> SecretValue:\\n        version = request.stage if request.stage else request.version\\n        return self.fetch_secret(SecretFetchRequest(secret_name=request.secret_name, version=version))\\n\\n\\ndef get_secret_manager_client() -> SecretManagerClient:\\n    return SecretManagerClient()\\n\",\"security_models.py\":\"import json\\nfrom dataclasses import dataclass\\nfrom typing import Any, Dict, Optional\\n\\n\\n@dataclass\\nclass SecretFetchRequest:\\n    secret_name: str\\n    version: str = \\\"latest\\\"\\n\\n\\n@dataclass\\nclass SecretVersionRequest:\\n    secret_name: str\\n    version: str = \\\"latest\\\"\\n    stage: str = \\\"CURRENT\\\"\\n\\n\\n@dataclass\\nclass SecretValue:\\n    secret_name: str\\n    version: str\\n    value: str\\n    normalized: Optional[Any] = None\\n\\n\\ndef normalize_secret_payload(payload: str):\\n    return payload.strip()\\n\\n\\ndef normalize_json_secret(payload: str):\\n    return json.loads(payload)\\n\",\"rotation_summary.py\":\"from typing import Dict, List\\n\\nfrom google.cloud import secretmanager\\n\\nfrom security_client import load_config\\n\\n\\ndef rotation_summary(secret_name: str) -> Dict[str, List[str]]:\\n    config = load_config()\\n    client = secretmanager.SecretManagerServiceClient()\\n    parent = f\\\"projects/{config.project_id}/secrets/{secret_name}\\\"\\n    versions = client.list_secret_versions(request={\\\"parent\\\": parent})\\n    status = []\\n    for version in versions:\\n        status.append(f\\\"{version.name}:{version.state.name}\\\")\\n    return {\\\"secret_name\\\": secret_name, \\\"versions\\\": status}\\n\",\"secret_label_safety.py\":\"import re\\nfrom typing import Dict, List\\n\\nfrom google.cloud import secretmanager\\n\\nfrom security_client import load_config\\n\\n\\nUNSAFE_PATTERNS = [r\\\"password\\\", r\\\"token\\\", r\\\"private\\\\s*key\\\", r\\\"secret\\\"]\\n\\n\\ndef secret_label_safety(secret_name: str) -> Dict[str, List[str]]:\\n    config = load_config()\\n    client = secretmanager.SecretManagerServiceClient()\\n    name = f\\\"projects/{config.project_id}/secrets/{secret_name}\\\"\\n    secret = client.get_secret(request={\\\"name\\\": name})\\n    findings = []\\n    for k, v in secret.labels.items():\\n        text = f\\\"{k}={v}\\\"\\n        if any(re.search(pattern, text, re.IGNORECASE) for pattern in UNSAFE_PATTERNS):\\n            findings.append(text)\\n    return {\\\"secret_name\\\": secret_name, \\\"unsafe_labels\\\": findings}\\n\",\"secret_audit_embedding.py\":\"from typing import List\\n\\nfrom google.cloud import secretmanager\\nfrom vertexai.language_models import TextEmbeddingModel\\n\\nfrom security_client import load_config\\n\\n\\ndef secret_audit_embedding(notes: List[str]):\\n    config = load_config()\\n    secretmanager.SecretManagerServiceClient()\\n    model = TextEmbeddingModel.from_pretrained(\\\"text-embedding-004\\\")\\n    embeddings = model.get_embeddings(notes)\\n    return {\\\"project_id\\\": config.project_id, \\\"embeddings\\\": [embedding.values for embedding in embeddings]}\\n\",\"runbook_translate.py\":\"from google.cloud import translate_v3 as translate\\n\\nfrom security_client import load_config\\n\\n\\ndef runbook_translate(text: str, target_language_code: str = \\\"es\\\"):\\n    config = load_config()\\n    client = translate.TranslationServiceClient()\\n    parent = f\\\"projects/{config.project_id}/locations/global\\\"\\n    response = client.translate_text(request={\\\"parent\\\": parent, \\\"contents\\\": [text], \\\"mime_type\\\": \\\"text/plain\\\", \\\"target_language_code\\\": target_language_code})\\n    return response.translations[0].translated_text\\n\"}",
+  "output_tokens": 1538,
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "image_tokens": null,
+    "text_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "usage": {
+    "completion_tokens": 1538,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "image_tokens": null,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens": 769,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null,
+      "video_tokens": null
+    },
+    "total_tokens": 2307
+  }
+}

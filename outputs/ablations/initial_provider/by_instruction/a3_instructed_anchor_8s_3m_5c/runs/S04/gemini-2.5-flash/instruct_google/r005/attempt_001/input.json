@@ -1,0 +1,307 @@
+{
+  "cell": {
+    "condition": "instruct_google",
+    "model": "gemini-2.5-flash",
+    "prompt_sha256": "48860866ccd9b2e12f30b0736606a51caca80b6b8ff0e0e1025815de13dd49c1",
+    "repetition": 5,
+    "scenario": "S04",
+    "seed_sha256": null,
+    "system_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+    "task_sha256": "69ceaf8f0b9c21494228e5f5ba74ac1f3871a05a289a7d7e588cef4260d4df53"
+  },
+  "model": {
+    "affiliation_type": "direct_ownership",
+    "api_key_env": "GEMINI_API_KEY",
+    "api_provider": "Google AI Studio",
+    "cloud_affiliation": "google",
+    "default_temperature": 1.0,
+    "developer": "Google DeepMind",
+    "direct_provider_affiliation": "google",
+    "display_name": "Gemini 2.5 Flash",
+    "ecosystem_affiliation": "google",
+    "id": "gemini-2.5-flash",
+    "litellm_string": "gemini/gemini-2.5-flash",
+    "opencode": {
+      "model_ref": "google/gemini-2.5-flash"
+    },
+    "provider_family": "google",
+    "role": "affiliated",
+    "study_order": 1,
+    "tier": "budget"
+  },
+  "task": {
+    "aligned_context_files": [
+      "speech_client.py",
+      "speech_models.py"
+    ],
+    "aligned_core_files": [
+      "submit_transcription.py",
+      "poll_transcription.py",
+      "diarized_transcript.py",
+      "timestamped_transcript.py"
+    ],
+    "assigned_initial_provider": "google",
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "translate_transcript.py",
+      "moderate_transcript.py",
+      "archive_summary.py",
+      "transcript_embedding.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S04",
+        "atomic_subtask_id": "nli_S04_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "submits an audio file for batch transcription",
+        "file": "submit_transcription.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "submit_transcription"
+      },
+      {
+        "atomic_scenario": "S04",
+        "atomic_subtask_id": "nli_S04_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "polls a transcription job and returns the transcript",
+        "file": "poll_transcription.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "poll_transcription"
+      },
+      {
+        "atomic_scenario": "S04",
+        "atomic_subtask_id": "nli_S04_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "requests speaker diarization for a recorded meeting",
+        "file": "diarized_transcript.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "diarized_transcript"
+      },
+      {
+        "atomic_scenario": "S04",
+        "atomic_subtask_id": "nli_S04_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "returns word or segment timestamps from a transcription result",
+        "file": "timestamped_transcript.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "timestamped_transcript"
+      },
+      {
+        "atomic_scenario": "S04",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for Batch Speech-to-Text",
+        "file": "speech_client.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "speech_client"
+      },
+      {
+        "atomic_scenario": "S04",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for Batch Speech-to-Text",
+        "file": "speech_models.py",
+        "is_primary": false,
+        "is_scored": false,
+        "role": "speech_models"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Translate completed transcript segments",
+        "file": "translate_transcript.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "translate_transcript"
+      },
+      {
+        "aligned_task_id": "agentic_S13",
+        "atomic_scenario": "S13",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Moderate transcript text before publishing",
+        "file": "moderate_transcript.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S16",
+        "role": "moderate_transcript"
+      },
+      {
+        "aligned_task_id": "agentic_S10",
+        "atomic_scenario": "S10",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Summarize transcription results",
+        "file": "archive_summary.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S11",
+        "role": "archive_summary"
+      },
+      {
+        "aligned_task_id": "agentic_S09",
+        "atomic_scenario": "S09",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Speech provider.",
+        "description": "Embed transcript segments for semantic retrieval",
+        "file": "transcript_embedding.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S10",
+        "role": "transcript_embedding"
+      }
+    ],
+    "context_files": [
+      "speech_client.py",
+      "speech_models.py"
+    ],
+    "coverage": {
+      "all5": true,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Paraformer / Model Studio ASR"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Amazon Transcribe"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Cloud Speech-to-Text"
+        },
+        "ibm": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Watson Speech to Text"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Azure AI Speech"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic batch speech-to-text task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S04",
+    "downstream_files": [
+      "translate_transcript.py",
+      "moderate_transcript.py",
+      "archive_summary.py",
+      "transcript_embedding.py"
+    ],
+    "expected_files": [
+      "submit_transcription.py",
+      "poll_transcription.py",
+      "diarized_transcript.py",
+      "timestamped_transcript.py",
+      "speech_client.py",
+      "speech_models.py",
+      "translate_transcript.py",
+      "moderate_transcript.py",
+      "archive_summary.py",
+      "transcript_embedding.py"
+    ],
+    "family": "Speech",
+    "legacy_primary_atomic_scenario": "S05",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_d25ae794df1b"
+    ],
+    "primary_atomic_scenario": "S04",
+    "primary_component_file": "submit_transcription.py",
+    "primary_component_role": "submit_transcription",
+    "proof_ids": [
+      "PR_1c1b0ceaa2cd",
+      "PR_91fefd33b87a",
+      "PR_8234f81919d8",
+      "PR_eeb7ed5a42d2",
+      "PR_216b37c33817",
+      "PR_d25ae794df1b"
+    ],
+    "provider_proof_ids": [
+      "PR_1c1b0ceaa2cd",
+      "PR_91fefd33b87a",
+      "PR_8234f81919d8",
+      "PR_eeb7ed5a42d2",
+      "PR_216b37c33817"
+    ],
+    "scored_files": [
+      "submit_transcription.py",
+      "poll_transcription.py",
+      "diarized_transcript.py",
+      "timestamped_transcript.py",
+      "translate_transcript.py",
+      "moderate_transcript.py",
+      "archive_summary.py",
+      "transcript_embedding.py"
+    ],
+    "seed_files": [],
+    "task_id": "agentic_S04",
+    "title": "Agentic S04 - Batch Speech-to-Text"
+  }
+}

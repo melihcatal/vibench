@@ -1,0 +1,10 @@
+import dashscope
+
+dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
+
+
+def describe_image(image_path):
+    with open(image_path, "rb") as image_file:
+        image_data = image_file.read()
+    response = dashscope.Vision.describe_image(image=image_data)
+    return response.body["description"]

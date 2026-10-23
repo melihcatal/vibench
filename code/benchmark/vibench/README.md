@@ -49,7 +49,7 @@ The current retained results show a stable but non-universal VIB pattern:
 - IBM models remain weak on direct self-preference, with Granite showing more
   downstream leakage than raw affiliated selection.
 
-Use `../../docs/results/current_results.md` for the exact current tables.
+Use `docs/results/current_results.md (generated; see code/benchmark/README.md)` for the exact current tables.
 
 ## Benchmark task files
 

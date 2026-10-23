@@ -1,0 +1,47 @@
+{
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": null,
+    "audio_tokens": null,
+    "image_tokens": null,
+    "reasoning_tokens": 1621,
+    "rejected_prediction_tokens": null,
+    "text_tokens": 2523,
+    "video_tokens": null
+  },
+  "elapsed_seconds": 18.14,
+  "error": null,
+  "finish_reason": "stop",
+  "input_tokens": 826,
+  "output_text": "```json\n{\n  \"synthesize_text.py\": \"import os\\nimport boto3\\n\\ndef synthesize_text_aws_polly(text: str, voice_id: str = 'Joanna', output_format: str = 'mp3') -> bytes:\\n    client = boto3.client(\\n        'polly',\\n        region_name=os.environ.get('AWS_REGION', 'us-east-1'),\\n        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),\\n        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY')\\n    )\\n    response = client.synthesize_speech(\\n        Text=text,\\n        OutputFormat=output_format,\\n        VoiceId=voice_id\\n    )\\n    if 'AudioStream' in response:\\n        return response['AudioStream'].read()\\n    return b''\\n\",\n  \"synthesize_ssml.py\": \"import os\\nfrom google.cloud import texttospeech\\n\\ndef synthesize_ssml_google_cloud(ssml_text: str, language_code: str = 'en-US', name: str = 'en-US-Neural2-C', speaking_rate: float = 1.0) -> bytes:\\n    client = texttospeech.TextToSpeechClient()\\n    synthesis_input = texttospeech.SynthesisInput(ssml=ssml_text)\\n    voice = texttospeech.VoiceSelectionParams(\\n        language_code=language_code,\\n        name=name\\n    )\\n    audio_config = texttospeech.AudioConfig(\\n        audio_encoding=texttospeech.AudioEncoding.MP3,\\n        speaking_rate=speaking_rate\\n    )\\n    response = client.synthesize_speech(\\n        input=synthesis_input,\\n        voice=voice,\\n        audio_config=audio_config\\n    )\\n    return response.audio_content\\n\",\n  \"select_voice.py\": \"import os\\nimport asyncio\\nimport azure.cognitiveservices.speech as speechsdk\\n\\nclass AzureVoiceInfo:\\n    def __init__(self, short_name: str, display_name: str, locale: str, gender: str):\\n        self.short_name = short_name\\n        self.display_name = display_name\\n        self.locale = locale\\n        self.gender = gender\\n\\nasync def list_voices_azure(locale: str = None) -> list[AzureVoiceInfo]:\\n    speech_key = os.environ.get('AZURE_SPEECH_KEY')\\n    service_region = os.environ.get('AZURE_SPEECH_REGION', 'eastus')\\n    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)\\n    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)\\n    result = await speech_synthesizer.get_voices_async()\\n    voices = []\\n    if result.reason == speechsdk.ResultReason.VoicesListRetrieved:\\n        for voice in result.voices:\\n            if locale is None or voice.locale == locale:\\n                voices.append(AzureVoiceInfo(voice.short_name, voice.local_name, voice.locale, voice.gender))\\n    return voices\\n\",\n  \"save_audio.py\": \"import os\\nimport boto3\\n\\ndef save_audio_to_s3(audio_bytes: bytes, bucket_name: str, object_key: str) -> str:\\n    client = boto3.client(\\n        's3',\\n        region_name=os.environ.get('AWS_REGION', 'us-east-1'),\\n        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),\\n        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY')\\n    )\\n    client.put_object(\\n        Bucket=bucket_name,\\n        Key=object_key,\\n        Body=audio_bytes,\\n        ContentType='audio/mpeg' \\n    )\\n    return f\\\"s3://{bucket_name}/{object_key}\\\"\\n\\ndef save_audio_to_local_file(audio_bytes: bytes, file_path: str):\\n    with open(file_path, 'wb') as f:\\n        f.write(audio_bytes)\\n\",\n  \"speech_client.py\": \"import os\\n\\nclass SpeechClientConfig:\\n    def __init__(self):\\n        self.aws_region = os.environ.get('AWS_REGION', 'us-east-1')\\n        self.aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')\\n        self.aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')\\n\\n        self.google_credential_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')\\n\\n        self.azure_speech_key = os.environ.get('AZURE_SPEECH_KEY')\\n        self.azure_speech_region = os.environ.get('AZURE_SPEECH_REGION', 'eastus')\\n\\n        self.deepl_auth_key = os.environ.get('DEEPL_AUTH_KEY')\\n        self.openai_api_key = os.environ.get('OPENAI_API_KEY')\\n        self.cohere_api_key = os.environ.get('COHERE_API_KEY')\\n        self.assemblyai_api_key = os.environ.get('ASSEMBLYAI_API_KEY')\\n\\nclass SpeechClient:\\n    def __init__(self):\\n        self.config = SpeechClientConfig()\\n\\n    def get_aws_region(self) -> str:\\n        return self.config.aws_region\\n\\n    def get_deepl_auth_key(self) -> str:\\n        return self.config.deepl_auth_key\\n\",\n  \"speech_models.py\": \"from typing import Optional, Literal\\n\\nclass TextSynthesisRequest:\\n    def __init__(self, text: str, voice_id: str, output_format: Literal['mp3', 'ogg', 'pcm'] = 'mp3'):\\n        self.text = text\\n        self.voice_id = voice_id\\n        self.output_format = output_format\\n\\nclass SsmlSynthesisRequest:\\n    def __init__(self, ssml: str, language_code: str, voice_name: str, speaking_rate: float = 1.0):\\n        self.ssml = ssml\\n        self.language_code = language_code\\n        self.voice_name = voice_name\\n        self.speaking_rate = speaking_rate\\n\\nclass VoiceSelectionParams:\\n    def __init__(self, locale: str, gender: Optional[Literal['Male', 'Female']] = None):\\n        self.locale = locale\\n        self.gender = gender\\n\\nclass AudioOutput:\\n    def __init__(self, audio_bytes: bytes, content_type: str = 'audio/mpeg'):\\n        self.audio_bytes = audio_bytes\\n        self.content_type = content_type\\n\\nclass TranslationRequest:\\n    def __init__(self, text: str, target_lang: str, source_lang: Optional[str] = None):\\n        self.text = text\\n        self.target_lang = target_lang\\n        self.source_lang = source_lang\\n\\nclass ModerationRequest:\\n    def __init__(self, text: str):\\n        self.text = text\\n\\nclass EmbeddingRequest:\\n    def __init__(self, texts: list[str]):\\n        self.texts = texts\\n\\nclass TranscriptionRequest:\\n    def __init__(self, audio_filepath: str):\\n        self.audio_filepath = audio_filepath\\n\",\n  \"script_translate.py\": \"import os\\nimport deepl\\n\\ndef translate_script_deepl(text: str, target_lang: str, source_lang: str = None) -> str:\\n    auth_key = os.environ.get('DEEPL_AUTH_KEY')\\n    if not auth_key:\\n        raise ValueError(\\\"DEEPL_AUTH_KEY environment variable not set.\\\")\\n    translator = deepl.Translator(auth_key)\\n    result = translator.translate_text(text, target_lang=target_lang, source_lang=source_lang)\\n    if isinstance(result, list):\\n        return result[0].text if result else ''\\n    return result.text\\n\",\n  \"script_safety.py\": \"import os\\nfrom openai import OpenAI\\n\\ndef check_script_safety_openai(text: str) -> dict:\\n    api_key = os.environ.get('OPENAI_API_KEY')\\n    if not api_key:\\n        raise ValueError(\\\"OPENAI_API_KEY environment variable not set.\\\")\\n    client = OpenAI(api_key=api_key)\\n    response = client.moderations.create(input=text, model=\\\"text-moderation-latest\\\")\\n    return response.model_dump()\\n\",\n  \"script_embedding.py\": \"import os\\nimport cohere\\n\\ndef embed_script_cohere(texts: list[str], model: str = 'embed-english-v3.0') -> list[list[float]]:\\n    api_key = os.environ.get('COHERE_API_KEY')\\n    if not api_key:\\n        raise ValueError(\\\"COHERE_API_KEY environment variable not set.\\\")\\n    co = cohere.Client(api_key=api_key)\\n    response = co.embed(texts=texts, model=model)\\n    return response.embeddings\\n\",\n  \"tts_qa_transcript.py\": \"import os\\nimport assemblyai as aai\\n\\ndef transcribe_audio_assemblyai(audio_filepath: str) -> str:\\n    api_key = os.environ.get('ASSEMBLYAI_API_KEY')\\n    if not api_key:\\n        raise ValueError(\\\"ASSEMBLYAI_API_KEY environment variable not set.\\\")\\n    aai.settings.api_key = api_key\\n    transcriber = aai.Transcriber()\\n    transcript = transcriber.transcribe(audio_filepath)\\n    if transcript.status == aai.TranscriptStatus.completed:\\n        return transcript.text\\n    else:\\n        raise Exception(f\\\"Transcription failed with status: {transcript.status}\\\")\\n\"\n}\n```",
+  "output_tokens": 4144,
+  "prompt_tokens_details": {
+    "audio_tokens": null,
+    "cached_tokens": null,
+    "image_tokens": null,
+    "text_tokens": 826,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 1621,
+  "usage": {
+    "cache_read_input_tokens": null,
+    "completion_tokens": 4144,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "image_tokens": null,
+      "reasoning_tokens": 1621,
+      "rejected_prediction_tokens": null,
+      "text_tokens": 2523,
+      "video_tokens": null
+    },
+    "prompt_tokens": 826,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": null,
+      "image_tokens": null,
+      "text_tokens": 826,
+      "video_tokens": null
+    },
+    "total_tokens": 4970
+  }
+}

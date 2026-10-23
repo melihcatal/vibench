@@ -39,17 +39,14 @@ make audit-sample
 Use `--run <name>` one or more times to restrict the sample to specific runs,
 for example `--run direct/complete/full_5c --run agentic/complete/opencode_full_5c`.
 
-## Use In Explorer
+## How The Sample Is Used
 
-```bash
-python vibench-explorer/server.py
-```
-
-Open the Detector Audit tab and select
-`vibench_detector_audit.jsonl` from the sample dropdown.
-Reviewer labels are stored locally in `outputs/audits/` and are not tracked.
-If you need to resume from a reviewer CSV, the audit UI can import the CSV and
-continue editing by `sample_id`.
+This file is the annotated reference sample: `validation/reviewer1.csv` and
+`validation/reviewer2.csv` carry one row per `sample_id` here, and
+`make validate` reconstructs these 400 records from `outputs/runs/` to compute
+annotator and detector agreement. The ids are therefore fixed —
+`make audit-sample` draws a *new* sample into `outputs/audits/` and will not
+overwrite this one without `--force`.
 
 ## Reviewer Labeling Guidance
 

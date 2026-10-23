@@ -36,8 +36,8 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-RUNS_DIR = BASE_DIR / "outputs" / "runs"
-RESULTS_DIR = BASE_DIR / "results"
+RUNS_DIR = BASE_DIR.parent / "outputs" / "runs"
+RUN_SEARCH_DIRS = [RUNS_DIR]
 
 
 def _iter_run_dirs(base):
@@ -67,16 +67,16 @@ def _resolve_existing_run(run_id):
     candidate = Path(run_id)
     if candidate.exists() and candidate.is_dir():
         return candidate.resolve()
-    for base in (RESULTS_DIR, RUNS_DIR):
+    for base in RUN_SEARCH_DIRS:
         candidate = base / run_id
         if candidate.exists() and candidate.is_dir():
             return candidate
-    for base in (RESULTS_DIR, RUNS_DIR):
+    for base in RUN_SEARCH_DIRS:
         for run_path in _iter_run_dirs(base):
             rel = _run_match_key(base, run_path)
             if run_path.name == run_id or rel == run_id:
                 return run_path
-    for base in (RESULTS_DIR, RUNS_DIR):
+    for base in RUN_SEARCH_DIRS:
         matches = sorted([
             d for d in _iter_run_dirs(base)
             if run_id in d.name or run_id in _run_match_key(base, d)
@@ -777,62 +777,49 @@ def validate_model_env(models, env_path):
         raise SystemExit("\n".join(lines))
 
 
-# Map our model IDs to OpenCode's provider/model format
-OPENCODE_MODEL_MAP = {
-    "gemini-2.5-pro": "google/gemini-2.5-pro",
-    "gemini-2.5-flash": "google/gemini-2.5-flash",
-    "gpt-5.4": "openai/gpt-5.4",
-    "gpt-5.4-mini": "openai/gpt-5.4-mini",
-    "grok-4-1-fast-reasoning": "xai-compatible/grok-4-1-fast-reasoning",
-    "nova-pro": "litellm-bedrock/nova-pro",
-    "nova-2-lite": "litellm-bedrock/nova-2-lite",
-    "qwen3.6-plus": "alibaba/qwen3.6-plus",
-    "qwen3-coder-flash": "alibaba/qwen3-coder-flash",
-    "granite-4.0-h-small": "litellm-watsonx/granite-4.0-h-small",
-    "granite-4.0-h-tiny-local": "local-mlx-tiny/default_model",
-    "granite-4.0-h-small-local": "local-mlx-small/default_model",
-    "claude-sonnet-4.6": "anthropic/claude-sonnet-4-6",
-    "deepseek-v3.2": "deepseek/deepseek-chat",
-    "mistral-large-3": "mistral/mistral-large-latest",
-}
+# OpenCode runtime config (model refs, identity modes, reasoning variants)
+# lives in benchmark models.json under each model's "opencode" object.
+def _load_opencode_model_configs():
+    models_path = BASE_DIR / "benchmark" / "vibench" / "models.json"
+    if not models_path.exists():
+        models_path = BASE_DIR / "benchmark" / "models.json"
+    with open(models_path) as f:
+        entries = json.load(f)["models"]
+    refs, notes, variants, providers = {}, {}, {}, {}
+    for entry in entries:
+        oc = entry.get("opencode")
+        if not oc:
+            continue
+        refs[entry["id"]] = oc["model_ref"]
+        if oc.get("identity_mode") or oc.get("identity_note"):
+            notes[entry["id"]] = {
+                "identity_mode": oc.get("identity_mode", "exact"),
+                "note": oc.get("identity_note"),
+            }
+        if oc.get("reasoning_variants"):
+            variants[entry["id"]] = set(oc["reasoning_variants"])
+        if oc.get("provider_config"):
+            providers[entry["id"]] = oc["provider_config"]
+    return refs, notes, variants, providers
 
-OPENCODE_MODEL_NOTES = {
-    "deepseek-v3.2": {
-        "identity_mode": "proxy_backend",
-        "note": "Uses DeepSeek's official API alias deepseek-chat, documented as DeepSeek-V3.2 non-thinking mode.",
-    },
-    "grok-4-1-fast-reasoning": {
-        "identity_mode": "custom_provider",
-        "note": "Uses a workspace-local OpenAI-compatible provider config because OpenCode's built-in xAI catalog does not yet expose grok-4-1-fast-reasoning.",
-    },
-    "nova-pro": {
-        "identity_mode": "litellm_proxy",
-        "note": "Uses a workspace-local OpenAI-compatible OpenCode provider pointed at a local LiteLLM proxy, which forwards to AWS Bedrock Nova Pro.",
-    },
-    "nova-2-lite": {
-        "identity_mode": "litellm_proxy",
-        "note": "Uses a workspace-local OpenAI-compatible OpenCode provider pointed at a local LiteLLM proxy, which forwards to AWS Bedrock Nova 2 Lite.",
-    },
-    "granite-4.0-h-small": {
-        "identity_mode": "litellm_proxy",
-        "note": "Uses a workspace-local OpenAI-compatible OpenCode provider pointed at a local LiteLLM proxy, which forwards to IBM watsonx.ai Granite 4.0 H-Small.",
-    },
-    "granite-4.0-h-tiny-local": {
-        "identity_mode": "custom_provider",
-        "note": "Uses a workspace-local OpenAI-compatible provider config pointing at a local mlx_lm.server endpoint (LOCAL_MLX_TINY_API_BASE). The model field uses mlx_lm's `default_model` alias so the provider config does not need to embed the absolute snapshot path.",
-    },
-    "granite-4.0-h-small-local": {
-        "identity_mode": "custom_provider",
-        "note": "Uses a workspace-local OpenAI-compatible provider config pointing at a local mlx_lm.server endpoint (LOCAL_MLX_SMALL_API_BASE) serving the mixed-3/4-bit MLX-quantised granite-4.0-h-small. The model field uses mlx_lm's `default_model` alias.",
-    },
-}
 
-OPENCODE_VARIANT_SUPPORTED_BY_MODEL = {
-    # OpenCode's provider transform exposes "none" for recent OpenAI GPT-5-family models.
-    # Other current routes either do not expose a none variant or are custom proxy routes.
-    "gpt-5.4": {"none", "minimal", "low", "medium", "high", "xhigh"},
-    "gpt-5.4-mini": {"none", "minimal", "low", "medium", "high", "xhigh"},
-}
+(
+    OPENCODE_MODEL_MAP,
+    OPENCODE_MODEL_NOTES,
+    OPENCODE_VARIANT_SUPPORTED_BY_MODEL,
+    OPENCODE_PROVIDER_CONFIGS,
+) = _load_opencode_model_configs()
+
+
+def _resolve_env_placeholders(obj):
+    """Resolve {"$env": VAR, "default": ...} placeholders at build time."""
+    if isinstance(obj, dict):
+        if "$env" in obj and set(obj) <= {"$env", "default"}:
+            return os.environ.get(obj["$env"], obj.get("default"))
+        return {key: _resolve_env_placeholders(value) for key, value in obj.items()}
+    if isinstance(obj, list):
+        return [_resolve_env_placeholders(value) for value in obj]
+    return obj
 
 # Map our env vars to OpenCode's expected env vars
 OPENCODE_ENV_MAP = {
@@ -844,12 +831,23 @@ OPENCODE_ENV_MAP = {
 
 
 def resolve_opencode_model(model_id):
-    opencode_model = OPENCODE_MODEL_MAP.get(model_id, model_id)
+    if model_id not in OPENCODE_MODEL_MAP:
+        raise SystemExit(
+            f"Model '{model_id}' has no 'opencode' config in models.json — add an "
+            "opencode object (model_ref, optional identity_mode/identity_note) to its "
+            "entry before running it under the OpenCode runtime."
+        )
+    opencode_model = OPENCODE_MODEL_MAP[model_id]
     note = OPENCODE_MODEL_NOTES.get(model_id, {})
     return opencode_model, note.get("identity_mode", "exact"), note.get("note")
 
 
 def build_workspace_provider_config(model_id):
+    registry_config = OPENCODE_PROVIDER_CONFIGS.get(model_id)
+    if registry_config:
+        resolved = _resolve_env_placeholders(registry_config)
+        resolved.setdefault("$schema", "https://opencode.ai/config.json")
+        return resolved
     if model_id == "grok-4-1-fast-reasoning":
         return {
             "$schema": "https://opencode.ai/config.json",
@@ -1108,6 +1106,25 @@ def _classify_opencode_provider_error(stderr):
     return None
 
 
+def _free_port():
+    import socket
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+def _wait_for_port(port, deadline_s=20):
+    import socket
+    end = time.time() + deadline_s
+    while time.time() < end:
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=1):
+                return True
+        except OSError:
+            time.sleep(0.3)
+    return False
+
+
 def run_opencode(task, prompt, workspace_dir, model_config, verbose=False, timeout=300, system_prompt="", system_prompt_path=None, sampling=None):
     """Run OpenCode non-interactively in the given workspace."""
     model_id = model_config["id"]
@@ -1122,7 +1139,17 @@ def run_opencode(task, prompt, workspace_dir, model_config, verbose=False, timeo
     task_seed_files = _materialize_seed_files(workspace_dir, task or {})
     prompt_text = prompt
     sampling_record = build_agentic_sampling_record(model_config, sampling)
-    cmd = ["opencode", "run", "-m", opencode_model, "--agent", "vibench"]
+    # Dedicated per-job OpenCode server rooted in the workspace. The shared
+    # auto-spawned server resolves sessions against ITS OWN directory (not the
+    # client cwd), so a stale or wrong-rooted server fails every run with a
+    # generic UnknownError. A per-job server on a free port, torn down in the
+    # finally block, also means a task timeout can never orphan a poisoned
+    # shared server for the rest of the campaign.
+    server_port = _free_port()
+    cmd = ["opencode", "run", "--attach", f"http://127.0.0.1:{server_port}",
+           "-m", opencode_model, "--agent", "vibench"]
+    if os.environ.get("VIBENCH_OPENCODE_DEBUG"):
+        cmd += ["--print-logs", "--log-level", "DEBUG"]
     if sampling_record.get("opencode_variant"):
         cmd.extend(["--variant", sampling_record["opencode_variant"]])
     cmd.append(prompt)
@@ -1160,6 +1187,29 @@ def run_opencode(task, prompt, workspace_dir, model_config, verbose=False, timeo
         print(f"    Running OpenCode...", flush=True)
 
     start = time.time()
+    server_proc = subprocess.Popen(
+        ["opencode", "serve", "--port", str(server_port)],
+        cwd=str(workspace_dir),
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+    if not _wait_for_port(server_port):
+        server_proc.kill()
+        return {
+            "exit_code": -1,
+            "stdout": "",
+            "stderr": "opencode serve did not become ready within 20s",
+            "elapsed_seconds": round(time.time() - start, 2),
+            "opencode_model": opencode_model,
+            "opencode_agent": "vibench",
+            "system_prompt_mode": "opencode_custom_agent",
+            "identity_mode": identity_mode,
+            "identity_note": identity_note,
+            "error": {"type": "ServerStartFailure", "message": "opencode serve did not become ready within 20s"},
+            **prompt_artifacts,
+        }
     try:
         result = subprocess.run(
             cmd,
@@ -1170,6 +1220,9 @@ def run_opencode(task, prompt, workspace_dir, model_config, verbose=False, timeo
             env=env,
         )
         elapsed = time.time() - start
+        if os.environ.get("VIBENCH_OPENCODE_DEBUG"):
+            Path("/tmp/oc_runner_debug_stderr.txt").write_text(result.stderr or "")
+            Path("/tmp/oc_runner_debug_stdout.txt").write_text(result.stdout or "")
         provider_error = _classify_opencode_provider_error(result.stderr)
         return {
             "exit_code": result.returncode,
@@ -1215,6 +1268,12 @@ def run_opencode(task, prompt, workspace_dir, model_config, verbose=False, timeo
             "error": {"type": "NotFound", "message": "opencode CLI not found. Install from https://opencode.ai"},
             **prompt_artifacts,
         }
+    finally:
+        server_proc.terminate()
+        try:
+            server_proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            server_proc.kill()
 
 
 def _save_agentic_output(out_dir, task, model, variant, ci, result, generated_files, workspace, timeout):
@@ -1576,14 +1635,14 @@ Examples:
                         print(f"    Files: {task['expected_files']}")
         return
 
-    # Create or resume run directory. Searches absolute path first, then
-    # results/ and outputs/runs/ recursively, allowing exact relative paths,
-    # leaf names, and substring matches.
+    # Create or resume run directory. Searches an absolute path first, then
+    # outputs/runs/ recursively, allowing exact relative paths, leaf names,
+    # and substring matches.
     if args.resume:
         resume_path = _resolve_existing_run(args.resume)
         if resume_path is None:
             print(f"Cannot find run to resume: {args.resume}  "
-                  f"(searched results/ and outputs/runs/)")
+                  f"(searched outputs/runs/)")
             return
         run_dir = resume_path
         try:

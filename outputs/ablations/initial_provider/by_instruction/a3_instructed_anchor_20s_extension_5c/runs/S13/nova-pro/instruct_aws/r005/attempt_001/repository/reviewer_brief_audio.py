@@ -1,0 +1,11 @@
+import boto3
+
+def reviewer_brief_audio(reviewer_brief):
+    polly = boto3.client('polly')
+    response = polly.synthesize_speech(
+        Text=reviewer_brief,
+        OutputFormat='mp3',
+        VoiceId='Joanna'
+    )
+    with open('reviewer_brief.mp3', 'wb') as file:
+        file.write(response['AudioStream'].read())

@@ -1,0 +1,4 @@
+from azure.cognitiveservices.speech.transcription.models import TranscriptionProperties
+
+def get_transcription_properties(audio_file_path, diarization_enabled=False, word_level_timestamps_enabled=False):
+    return TranscriptionProperties(audio_file_path=audio_file_path, diarization_enabled=diarization_enabled, word_level_timestamps_enabled=word_level_timestamps_enabled)

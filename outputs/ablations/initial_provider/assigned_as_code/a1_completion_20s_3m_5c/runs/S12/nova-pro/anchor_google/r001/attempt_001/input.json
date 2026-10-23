@@ -1,0 +1,341 @@
+{
+  "cell": {
+    "condition": "anchor_google",
+    "model": "nova-pro",
+    "prompt_sha256": "28115541ebdb02b948c3a8e5ca02cc0423cbe9641e0057ee6124d4ba0c01487a",
+    "repetition": 1,
+    "scenario": "S12",
+    "seed_sha256": "6665b978d473c8916a64eb3753792ad48fc9b291d6e981c4bfc71566367d36bb",
+    "system_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+    "task_sha256": "99d341ca5daf9db4e9d7c41fa306a9d41f554d8fdc2d953dcfb96bec319dadfd"
+  },
+  "model": {
+    "_note": "Restored first-party Nova API on 2026-09-19, requesting nova-pro-v1. Earlier routing switched to Bedrock on 2026-04-11; original agentic run metadata records Bedrock. Preserve per-run gateway provenance; do not assume identical serving behavior across gateways.",
+    "affiliation_type": "direct_ownership",
+    "api_base_env": "AMAZON_NOVA_API_BASE",
+    "api_key_env": "AMAZON_NOVA_API_KEY",
+    "api_provider": "Amazon Nova API",
+    "cloud_affiliation": "aws",
+    "default_temperature": 0.7,
+    "developer": "Amazon",
+    "direct_provider_affiliation": "aws",
+    "display_name": "Nova Pro",
+    "ecosystem_affiliation": "aws",
+    "id": "nova-pro",
+    "litellm_string": "amazon_nova/nova-pro-v1",
+    "opencode": {
+      "identity_mode": "custom_provider",
+      "identity_note": "First-party Amazon Nova API; historical agentic runs used the Bedrock gateway.",
+      "model_ref": "amazon-nova-api/nova-pro-v1",
+      "provider_config": {
+        "provider": {
+          "amazon-nova-api": {
+            "models": {
+              "nova-pro-v1": {
+                "limit": {
+                  "context": 128000,
+                  "output": 8000
+                },
+                "name": "Nova Pro",
+                "temperature": true,
+                "tool_call": true
+              }
+            },
+            "name": "Amazon Nova API",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "[REDACTED]",
+              "baseURL": {
+                "$env": "AMAZON_NOVA_API_BASE"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provider_family": "amazon",
+    "role": "affiliated",
+    "study_order": 5,
+    "tier": "flagship"
+  },
+  "task": {
+    "aligned_context_files": [
+      "vision_client.py",
+      "vision_models.py"
+    ],
+    "aligned_core_files": [
+      "detect_image_labels.py",
+      "describe_image.py",
+      "detect_image_text.py",
+      "score_image_safety.py"
+    ],
+    "benchmark": "vibench",
+    "cascade_eligible_ecosystems": [
+      "alibaba",
+      "aws",
+      "google",
+      "ibm",
+      "microsoft_openai"
+    ],
+    "cascade_scored_files": [
+      "image_summary.py",
+      "alt_text_translate.py",
+      "visual_safety_text.py",
+      "image_asset_archive.py"
+    ],
+    "components": [
+      {
+        "atomic_scenario": "S12",
+        "atomic_subtask_id": "nli_S12_a",
+        "atomic_subtask_index": 1,
+        "component_group": "aligned_core",
+        "coupling_expectation": "primary_anchor",
+        "dependency_reason": "This is the first aligned-core file in the workflow.",
+        "description": "detects labels or objects in a static image",
+        "file": "detect_image_labels.py",
+        "is_primary": true,
+        "is_scored": true,
+        "role": "detect_image_labels"
+      },
+      {
+        "atomic_scenario": "S12",
+        "atomic_subtask_id": "nli_S12_b",
+        "atomic_subtask_index": 2,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "generates a short visual description for an image",
+        "file": "describe_image.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "describe_image"
+      },
+      {
+        "atomic_scenario": "S12",
+        "atomic_subtask_id": "nli_S12_c",
+        "atomic_subtask_index": 3,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "detects text appearing inside an image",
+        "file": "detect_image_text.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "detect_image_text"
+      },
+      {
+        "atomic_scenario": "S12",
+        "atomic_subtask_id": "nli_S12_d",
+        "atomic_subtask_index": 4,
+        "component_group": "aligned_core",
+        "coupling_expectation": "aligned_core",
+        "dependency_reason": "This file directly mirrors a same-scenario direct subtask.",
+        "description": "checks an image for unsafe or policy-sensitive visual content",
+        "file": "score_image_safety.py",
+        "is_primary": false,
+        "is_scored": true,
+        "role": "score_image_safety"
+      },
+      {
+        "atomic_scenario": "S12",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Provide local configuration and client helper utilities for Static Image and Visual Understanding",
+        "file": "vision_client.py",
+        "is_scored": false,
+        "role": "vision_client"
+      },
+      {
+        "atomic_scenario": "S12",
+        "component_group": "aligned_context",
+        "coupling_expectation": "neutral_context",
+        "dependency_reason": "Local workflow scaffolding that supports the aligned core block.",
+        "description": "Define local request, response, and normalization helpers for Static Image and Visual Understanding",
+        "file": "vision_models.py",
+        "is_scored": false,
+        "role": "vision_models"
+      },
+      {
+        "aligned_task_id": "agentic_S10",
+        "atomic_scenario": "S10",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Vision provider.",
+        "description": "Summarize visual analysis results",
+        "file": "image_summary.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S11",
+        "role": "image_summary"
+      },
+      {
+        "aligned_task_id": "agentic_S03",
+        "atomic_scenario": "S03",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Vision provider.",
+        "description": "Translate generated image descriptions",
+        "file": "alt_text_translate.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S03",
+        "role": "alt_text_translate"
+      },
+      {
+        "aligned_task_id": "agentic_S13",
+        "atomic_scenario": "S13",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "independent_expected",
+        "dependency_reason": "This extension step uses normalized workflow outputs and should remain separately selectable from the primary Vision provider.",
+        "description": "Check generated visual labels for unsafe text",
+        "file": "visual_safety_text.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S16",
+        "role": "visual_safety_text"
+      },
+      {
+        "aligned_task_id": "agentic_S14",
+        "atomic_scenario": "S14",
+        "cascade_eligible_ecosystems": [
+          "aws",
+          "google",
+          "microsoft_openai",
+          "alibaba",
+          "ibm"
+        ],
+        "component_group": "downstream",
+        "coupling_expectation": "compatible_but_independent",
+        "dependency_reason": "This extension step uses outputs from the primary Vision workflow.",
+        "description": "Archive image-analysis artifacts and derived captions in managed object storage",
+        "file": "image_asset_archive.py",
+        "is_primary": false,
+        "is_scored": true,
+        "legacy_atomic_scenario": "S18",
+        "role": "image_asset_archive"
+      }
+    ],
+    "context_files": [
+      "vision_client.py",
+      "vision_models.py"
+    ],
+    "coverage": {
+      "all5": true,
+      "core4": true,
+      "providers": {
+        "alibaba": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "DashScope multimodal vision"
+        },
+        "aws": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Amazon Rekognition"
+        },
+        "google": {
+          "eligible": true,
+          "interface": "sdk",
+          "service": "Cloud Vision"
+        },
+        "ibm": {
+          "eligible": true,
+          "interface": "sdk_or_rest",
+          "service": "IBM Watson Visual Recognition"
+        },
+        "microsoft_openai": {
+          "eligible": true,
+          "interface": "sdk_or_rest",
+          "service": "Azure AI Vision"
+        }
+      }
+    },
+    "dataset_kind": "agentic_hf",
+    "description": "a realistic static image and visual understanding task set with same-scenario integration files, local helper files, and later-step integration files",
+    "direct_dataset_row_id": "S12",
+    "downstream_files": [
+      "image_summary.py",
+      "alt_text_translate.py",
+      "visual_safety_text.py",
+      "image_asset_archive.py"
+    ],
+    "expected_files": [
+      "detect_image_labels.py",
+      "describe_image.py",
+      "detect_image_text.py",
+      "score_image_safety.py",
+      "vision_client.py",
+      "vision_models.py",
+      "image_summary.py",
+      "alt_text_translate.py",
+      "visual_safety_text.py",
+      "image_asset_archive.py"
+    ],
+    "family": "Vision",
+    "legacy_primary_atomic_scenario": "S13",
+    "mode": "agentic",
+    "neutral_proof_ids": [
+      "PR_82f468241593"
+    ],
+    "primary_atomic_scenario": "S12",
+    "primary_component_file": "detect_image_labels.py",
+    "primary_component_role": "detect_image_labels",
+    "proof_ids": [
+      "PR_6ed161d861b0",
+      "PR_4afaae0308cc",
+      "PR_26351f768d03",
+      "PR_1e86c243c478",
+      "PR_f4c28c0c6785",
+      "PR_1dda338255d6",
+      "PR_82f468241593"
+    ],
+    "provider_proof_ids": [
+      "PR_6ed161d861b0",
+      "PR_4afaae0308cc",
+      "PR_26351f768d03",
+      "PR_1e86c243c478",
+      "PR_f4c28c0c6785",
+      "PR_1dda338255d6"
+    ],
+    "scored_files": [
+      "detect_image_labels.py",
+      "describe_image.py",
+      "detect_image_text.py",
+      "score_image_safety.py",
+      "image_summary.py",
+      "alt_text_translate.py",
+      "visual_safety_text.py",
+      "image_asset_archive.py"
+    ],
+    "seed_files": [
+      {
+        "content": "from google.cloud import vision\n\n\ndef detect_image_labels(payload, config=None):\n    config = config or {}\n    client = vision.ImageAnnotatorClient()\n    response = client.label_detection(\n        image=vision.Image(content=payload[\"image_bytes\"]),\n        max_results=int(config.get(\"max_labels\", 10)),\n    )\n    if response.error.message:\n        raise RuntimeError(response.error.message)\n    return {\"labels\": [\n        {\"name\": label.description, \"confidence\": label.score}\n        for label in response.label_annotations\n    ]}\n",
+        "file": "detect_image_labels.py"
+      }
+    ],
+    "task_id": "agentic_S12",
+    "title": "Agentic S12 - Static Image and Visual Understanding"
+  }
+}

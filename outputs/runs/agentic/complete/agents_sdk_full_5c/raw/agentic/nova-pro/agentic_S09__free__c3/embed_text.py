@@ -1,0 +1,9 @@
+import os
+from huggingface_hub import InferenceApi
+
+api = InferenceApi(repo_id='sentence-transformers/all-MiniLM-L6-v2', token=os.getenv('HUGGINGFACE_API_TOKEN'))
+
+def embed_text(text):
+    inputs = {'inputs': text}
+    response = api(**inputs)
+    return response['embedding']

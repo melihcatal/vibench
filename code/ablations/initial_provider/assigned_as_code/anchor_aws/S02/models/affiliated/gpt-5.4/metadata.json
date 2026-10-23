@@ -1,0 +1,108 @@
+{
+  "scenario": "S02",
+  "condition": "anchor_aws",
+  "model_id": "gpt-5.4",
+  "role": "affiliated",
+  "prompt_variant": "original_NLI_plus_seed_notice",
+  "source_task_id": "agentic_S02",
+  "original_anchor_file": "start_oauth_login.py",
+  "workspace_dir": "workspace",
+  "seed_file": "start_oauth_login.py",
+  "seed_provider": "aws",
+  "seed_sha256": "fe77c2791cd9e3d87588458819347052d91a3bc4bc2ad52a462794cc6a853b2c",
+  "prompt_sha256": "c64614112feafd21e818fe5725457e988e3773c09a3c285fcfd422be3e170864",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "original_prompt_sha256": "21c38c3b2de1e8cb8fa5b34cd59862440cedc1aaa6cd852c3909adf3310b1b96",
+  "expected_generated_files": [
+    "oauth_callback.py",
+    "profile_claims.py",
+    "pkce_login.py",
+    "identity_client.py",
+    "identity_models.py",
+    "audit_summary.py",
+    "claims_moderation.py",
+    "consent_translate.py",
+    "login_audit_store.py"
+  ],
+  "expected_repository_files": [
+    "start_oauth_login.py",
+    "oauth_callback.py",
+    "profile_claims.py",
+    "pkce_login.py",
+    "identity_client.py",
+    "identity_models.py",
+    "audit_summary.py",
+    "claims_moderation.py",
+    "consent_translate.py",
+    "login_audit_store.py"
+  ],
+  "downstream_atomic_scenarios": {
+    "audit_summary.py": "S10",
+    "claims_moderation.py": "S13",
+    "consent_translate.py": "S03",
+    "login_audit_store.py": "S15"
+  },
+  "scored_files": [
+    "audit_summary.py",
+    "claims_moderation.py",
+    "consent_translate.py",
+    "login_audit_store.py"
+  ],
+  "input_contract": {
+    "payload": [
+      "redirect_uri"
+    ],
+    "output": [
+      "authorization_url",
+      "session_id"
+    ],
+    "aws_config": [
+      "domain_prefix",
+      "region",
+      "client_id",
+      "identity_provider (optional)"
+    ],
+    "google_config": [
+      "api_key",
+      "provider_id (configured oidc.* code-flow provider)",
+      "tenant_id (optional)"
+    ],
+    "preconditions": "Enable federated authorization-code login and register the redirect URI. Retain the returned binding server-side: AWS state and Identity Platform sessionId are provider-specific, not interchangeable token-exchange inputs.",
+    "implementation_docs": [
+      "https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html",
+      "https://docs.cloud.google.com/identity-platform/docs/reference/rest/v1/accounts/createAuthUri"
+    ]
+  },
+  "evidence": {
+    "provider_key": "aws",
+    "ecosystem": "aws",
+    "label": "Cognito Hosted UI Federation",
+    "service": "Amazon Cognito federation",
+    "sdk": "boto3 + OIDC",
+    "interface": "sdk_or_protocol",
+    "official_docs": [
+      {
+        "title": "Federation with user pools",
+        "url": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-identity-provider.html",
+        "proof_id": "PR_a499344f6eec"
+      }
+    ],
+    "operations": [
+      "authorize",
+      "token",
+      "userinfo"
+    ],
+    "auth_env": [
+      "COGNITO_DOMAIN",
+      "COGNITO_CLIENT_ID"
+    ],
+    "eligible": true,
+    "notes": "Cognito supports OIDC/SAML identity providers and hosted login.",
+    "proof_ids": [
+      "PR_a499344f6eec"
+    ]
+  },
+  "dependency_package": "",
+  "sdk_migration": null,
+  "status": "prepared_not_live_validated"
+}

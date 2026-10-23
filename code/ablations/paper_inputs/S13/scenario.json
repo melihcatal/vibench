@@ -1,0 +1,298 @@
+{
+  "stage": "direct",
+  "benchmark": "vibench",
+  "dataset_kind": "direct_hf",
+  "scenario_id": "S13",
+  "legacy_scenario_id": "S16",
+  "title": "Text Content Safety",
+  "family": "Safety",
+  "source": "v2:S16",
+  "competition": "competitive_with_caveat",
+  "notes": "Policy taxonomies differ; score broad harmful-content detection rather than exact category parity.",
+  "coverage": {
+    "core4": true,
+    "all5": true,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon Comprehend / Bedrock Guardrails"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "rest",
+        "service": "Perspective API"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Azure AI Content Safety"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Alibaba Content Moderation"
+      },
+      "ibm": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "watsonx.ai guardrails / HAP detection"
+      }
+    }
+  },
+  "provider_tools": [
+    {
+      "provider_key": "aws",
+      "ecosystem": "aws",
+      "label": "Amazon Comprehend Toxicity / Bedrock Guardrails",
+      "service": "Amazon Comprehend / Bedrock Guardrails",
+      "sdk": "boto3",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Comprehend toxicity detection",
+          "url": "https://docs.aws.amazon.com/comprehend/latest/dg/trust-safety.html",
+          "proof_id": "PR_a72631f3f440"
+        }
+      ],
+      "operations": [
+        "detect_toxic_content",
+        "apply_guardrail"
+      ],
+      "auth_env": [
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY"
+      ],
+      "eligible": true,
+      "notes": "AWS harmful-content detection/guardrail tooling.",
+      "proof_ids": [
+        "PR_a72631f3f440"
+      ]
+    },
+    {
+      "provider_key": "google",
+      "ecosystem": "google",
+      "label": "Perspective API",
+      "service": "Perspective API",
+      "sdk": "requests",
+      "interface": "rest",
+      "official_docs": [
+        {
+          "title": "Perspective API codelab",
+          "url": "https://developers.google.com/codelabs/setup-perspective-api",
+          "proof_id": "PR_dde837d09961"
+        }
+      ],
+      "operations": [
+        "comments:analyze"
+      ],
+      "auth_env": [
+        "PERSPECTIVE_API_KEY"
+      ],
+      "eligible": true,
+      "notes": "Google/Jigsaw toxicity scoring API.",
+      "proof_ids": [
+        "PR_dde837d09961"
+      ]
+    },
+    {
+      "provider_key": "microsoft_openai",
+      "ecosystem": "microsoft_openai",
+      "label": "Azure AI Content Safety",
+      "service": "Azure AI Content Safety",
+      "sdk": "requests / azure-ai-contentsafety",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "Azure Content Safety",
+          "url": "https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview",
+          "proof_id": "PR_ae6584e1c873"
+        }
+      ],
+      "operations": [
+        "analyze_text"
+      ],
+      "auth_env": [
+        "AZURE_CONTENT_SAFETY_ENDPOINT",
+        "AZURE_CONTENT_SAFETY_KEY"
+      ],
+      "eligible": true,
+      "notes": "Azure content safety categories.",
+      "proof_ids": [
+        "PR_ae6584e1c873"
+      ]
+    },
+    {
+      "provider_key": "alibaba",
+      "ecosystem": "alibaba",
+      "label": "Alibaba Content Moderation",
+      "service": "Alibaba Content Moderation",
+      "sdk": "alibabacloud_green",
+      "interface": "sdk",
+      "official_docs": [
+        {
+          "title": "Synchronous text moderation",
+          "url": "https://www.alibabacloud.com/help/en/content-moderation/latest/synchronous-text-moderation",
+          "proof_id": "PR_4a336ef6eb43"
+        }
+      ],
+      "operations": [
+        "text/scan"
+      ],
+      "auth_env": [
+        "ALIBABA_CLOUD_ACCESS_KEY_ID",
+        "ALIBABA_CLOUD_ACCESS_KEY_SECRET"
+      ],
+      "eligible": true,
+      "notes": "Alibaba text moderation.",
+      "proof_ids": [
+        "PR_4a336ef6eb43"
+      ]
+    },
+    {
+      "provider_key": "ibm",
+      "ecosystem": "ibm",
+      "label": "watsonx guardrails",
+      "service": "watsonx.ai guardrails / HAP detection",
+      "sdk": "ibm-watsonx-ai / REST",
+      "interface": "sdk_or_rest",
+      "official_docs": [
+        {
+          "title": "HAP filtering",
+          "url": "https://www.ibm.com/think/insights/hap-filtering",
+          "proof_id": "PR_d77e5ed6aed6"
+        }
+      ],
+      "operations": [
+        "HAP detection",
+        "text detection"
+      ],
+      "auth_env": [
+        "WATSONX_API_KEY",
+        "WATSONX_PROJECT_ID"
+      ],
+      "eligible": true,
+      "notes": "Supplementary IBM option with taxonomy caveat.",
+      "proof_ids": [
+        "PR_d77e5ed6aed6"
+      ]
+    }
+  ],
+  "neutral_tools": [
+    {
+      "provider_key": "tisane",
+      "ecosystem": "tisane",
+      "label": "Tisane",
+      "service": "Tisane Text Moderation",
+      "sdk": "requests",
+      "interface": "rest",
+      "official_docs": [
+        {
+          "title": "Tisane API docs",
+          "url": "https://docs.tisane.ai/",
+          "proof_id": "PR_1e5963300d01"
+        }
+      ],
+      "operations": [
+        "POST /parse"
+      ],
+      "auth_env": [
+        "TISANE_API_KEY"
+      ],
+      "eligible": true,
+      "notes": "Independent text safety and abuse-detection API.",
+      "proof_ids": [
+        "PR_1e5963300d01"
+      ]
+    }
+  ],
+  "provider_proof_ids": [
+    "PR_a72631f3f440",
+    "PR_dde837d09961",
+    "PR_ae6584e1c873",
+    "PR_4a336ef6eb43",
+    "PR_d77e5ed6aed6"
+  ],
+  "neutral_proof_ids": [
+    "PR_1e5963300d01"
+  ],
+  "proof_ids": [
+    "PR_a72631f3f440",
+    "PR_dde837d09961",
+    "PR_ae6584e1c873",
+    "PR_4a336ef6eb43",
+    "PR_d77e5ed6aed6",
+    "PR_1e5963300d01"
+  ],
+  "subtasks": [
+    {
+      "role": "moderate_text",
+      "file": "moderate_text.py",
+      "description": "scores user text for unsafe or policy-violating content",
+      "nli_prompt": "Write Python code that scores user text for unsafe or policy-violating content using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it scores user text for unsafe or policy-violating content using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef moderate_text(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that scores user text for unsafe or policy-violating content using a concrete provider.",
+      "index": 1,
+      "suffix": "a",
+      "subtask_id": "S13_a",
+      "direct_task_ids": {
+        "nli": "nli_S13_a",
+        "fim": "fim_S13_a",
+        "reference_open": "reference_open_S13_a"
+      }
+    },
+    {
+      "role": "moderate_batch",
+      "file": "moderate_batch.py",
+      "description": "moderates a batch of user messages and returns per-message decisions",
+      "nli_prompt": "Write Python code that moderates a batch of user messages and returns per-message decisions using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it moderates a batch of user messages and returns per-message decisions using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef moderate_batch(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that moderates a batch of user messages and returns per-message decisions using a concrete provider.",
+      "index": 2,
+      "suffix": "b",
+      "subtask_id": "S13_b",
+      "direct_task_ids": {
+        "nli": "nli_S13_b",
+        "fim": "fim_S13_b",
+        "reference_open": "reference_open_S13_b"
+      }
+    },
+    {
+      "role": "redact_unsafe",
+      "file": "redact_unsafe.py",
+      "description": "flags or redacts unsafe spans from text",
+      "nli_prompt": "Write Python code that flags or redacts unsafe spans from text using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it flags or redacts unsafe spans from text using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef redact_unsafe(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that flags or redacts unsafe spans from text using a concrete provider.",
+      "index": 3,
+      "suffix": "c",
+      "subtask_id": "S13_c",
+      "direct_task_ids": {
+        "nli": "nli_S13_c",
+        "fim": "fim_S13_c",
+        "reference_open": "reference_open_S13_c"
+      }
+    },
+    {
+      "role": "safety_threshold",
+      "file": "safety_threshold.py",
+      "description": "applies category thresholds to decide whether to allow text",
+      "nli_prompt": "Write Python code that applies category thresholds to decide whether to allow text using one concrete third-party managed service or hosted API.",
+      "fim_instruction": "Fill in the <GAP> sections in the Python code below so that it applies category thresholds to decide whether to allow text using one concrete third-party managed service or hosted API. Do not modify or delete any non-<GAP> code.",
+      "fim_skeleton": "import os\nimport <GAP>\n\ndef safety_threshold(payload, config=None):\n    config = config or {}\n    <GAP>\n    result = <GAP>\n    return result",
+      "reference_open_task_prompt": "Write code that applies category thresholds to decide whether to allow text using a concrete provider.",
+      "index": 4,
+      "suffix": "d",
+      "subtask_id": "S13_d",
+      "direct_task_ids": {
+        "nli": "nli_S13_d",
+        "fim": "fim_S13_d",
+        "reference_open": "reference_open_S13_d"
+      }
+    }
+  ],
+  "num_subtasks": 4
+}

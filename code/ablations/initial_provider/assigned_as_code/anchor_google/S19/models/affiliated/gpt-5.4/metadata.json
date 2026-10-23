@@ -1,0 +1,108 @@
+{
+  "scenario": "S19",
+  "condition": "anchor_google",
+  "model_id": "gpt-5.4",
+  "role": "affiliated",
+  "prompt_variant": "original_NLI_plus_seed_notice",
+  "source_task_id": "agentic_S19",
+  "original_anchor_file": "query_metric_window.py",
+  "workspace_dir": "workspace",
+  "seed_file": "query_metric_window.py",
+  "seed_provider": "google",
+  "seed_sha256": "b2dcb2d56159e2af93199a0fca11581310b7569a38e96815f6f537181dd8d4ea",
+  "prompt_sha256": "677e12fa3e70c17ad3578e66b52e191a2a3c09d89a749a58508dc4d6db3c8420",
+  "system_prompt_sha256": "148730d68c69f6118897d8560257e57fd89cbc5603c0712b66d952fb500ae737",
+  "original_prompt_sha256": "3d06e2e99fe22756d6f8dec50504a3166136724b002b487eca01ce9803544642",
+  "expected_generated_files": [
+    "aggregate_metric_stats.py",
+    "filter_metric_dimensions.py",
+    "compare_metric_series.py",
+    "observability_client.py",
+    "observability_models.py",
+    "metric_summary.py",
+    "metric_annotation_safety.py",
+    "dashboard_note_translate.py",
+    "metrics_export_archive.py"
+  ],
+  "expected_repository_files": [
+    "query_metric_window.py",
+    "aggregate_metric_stats.py",
+    "filter_metric_dimensions.py",
+    "compare_metric_series.py",
+    "observability_client.py",
+    "observability_models.py",
+    "metric_summary.py",
+    "metric_annotation_safety.py",
+    "dashboard_note_translate.py",
+    "metrics_export_archive.py"
+  ],
+  "downstream_atomic_scenarios": {
+    "metric_summary.py": "S10",
+    "metric_annotation_safety.py": "S13",
+    "dashboard_note_translate.py": "S03",
+    "metrics_export_archive.py": "S14"
+  },
+  "scored_files": [
+    "metric_summary.py",
+    "metric_annotation_safety.py",
+    "dashboard_note_translate.py",
+    "metrics_export_archive.py"
+  ],
+  "input_contract": {
+    "payload": [
+      "metric (provider-specific name/type)",
+      "start_time (Unix seconds)",
+      "end_time (Unix seconds)"
+    ],
+    "output": [
+      "points: [{timestamp (Unix seconds), value}]"
+    ],
+    "aws_config": [
+      "namespace",
+      "dimensions (optional)",
+      "period_seconds (optional, 60)",
+      "region (optional)"
+    ],
+    "google_config": [
+      "project_id",
+      "period_seconds (optional, 60)"
+    ],
+    "preconditions": "Matched scalar numeric gauge metric and time window; identify a single series in the test project. Use valid alignment periods and no more than 1440 CloudWatch datapoints. Time-window boundaries and aggregation semantics remain service-specific."
+  },
+  "evidence": {
+    "provider_key": "google",
+    "ecosystem": "google",
+    "label": "Google Cloud Monitoring",
+    "service": "Cloud Monitoring",
+    "sdk": "google-cloud-monitoring",
+    "interface": "sdk",
+    "official_docs": [
+      {
+        "title": "Time series list",
+        "url": "https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.timeSeries/list",
+        "proof_id": "PR_de43fb12022b"
+      },
+      {
+        "title": "Metric descriptors",
+        "url": "https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/list",
+        "proof_id": "PR_a41f4a545995"
+      }
+    ],
+    "operations": [
+      "list_time_series",
+      "list_metric_descriptors"
+    ],
+    "auth_env": [
+      "GOOGLE_APPLICATION_CREDENTIALS"
+    ],
+    "eligible": true,
+    "notes": "Managed metrics platform with time-series list and descriptor APIs.",
+    "proof_ids": [
+      "PR_de43fb12022b",
+      "PR_a41f4a545995"
+    ]
+  },
+  "dependency_package": "google-cloud-monitoring",
+  "sdk_migration": null,
+  "status": "prepared_not_live_validated"
+}

@@ -1,0 +1,36 @@
+import os
+from datetime import datetime, timedelta
+
+from google.cloud import monitoring_v3
+
+def filter_metric_dimensions(
+    project_id: str,
+    metric_type: str,
+    end_time: datetime,
+    duration_minutes: int,
+    dimension_filters: dict, # e.g., {'instance_name': 'my-instance'}
+):
+    """Queries metric data filtered by resource labels or dimensions using Google Cloud Monitoring."""
+    client = monitoring_v3.MetricServiceClient()
+    project_name = f"projects/{project_id}"
+
+    start_time = end_time - timedelta(minutes=duration_minutes)
+
+    interval = monitoring_v3.TimeInterval(
+        end_time={'seconds': int(end_time.timestamp())},
+        start_time={'seconds': int(start_time.timestamp())},
+    )
+
+    filter_parts = [f'metric.type = "{metric_type}"']
+    for dim, value in dimension_filters.items():
+        filter_parts.append(f'resource.labels.\"{dim}\" = "{value}"')
+    query_filter = " AND ".join(filter_parts)
+
+    results = client.list_time_series(
+        name=project_name,
+        filter=query_filter,
+        interval=interval,
+        view=monitoring_v3.ListTimeSeriesRequest.TimeSeriesView.FULL,
+    )
+
+    return list(results)

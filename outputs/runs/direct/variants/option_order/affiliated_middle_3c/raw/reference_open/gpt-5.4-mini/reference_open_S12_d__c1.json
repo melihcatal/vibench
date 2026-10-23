@@ -1,0 +1,188 @@
+{
+  "benchmark": "vibench",
+  "task_id": "reference_open_S12_d",
+  "modality": "reference_open",
+  "model_id": "gpt-5.4-mini",
+  "model_litellm_string": "gpt-5.4-mini",
+  "model_provider": "OpenAI",
+  "model_api_key_env": "OPENAI_API_KEY",
+  "model_affiliation": "microsoft_openai",
+  "model_affiliation_scope": "ecosystem",
+  "model_cloud_affiliation": "azure",
+  "model_direct_provider_affiliation": "openai",
+  "model_ecosystem_affiliation": "microsoft_openai",
+  "direct_provider_affiliation": "openai",
+  "provider_family": "openai",
+  "ecosystem_affiliation": "microsoft_openai",
+  "scenario_id": "S12",
+  "scenario_title": "Static Image and Visual Understanding",
+  "scenario_class": "Vision",
+  "scenario_task_description": "Static Image and Visual Understanding",
+  "scenario_competition": "competitive_with_caveat",
+  "scenario_notes": "Alibaba may be direct image-recognition or Qwen-VL; phrase as visual understanding if using multimodal model APIs.",
+  "scenario_coverage": {
+    "core4": true,
+    "all5": false,
+    "providers": {
+      "aws": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Amazon Rekognition"
+      },
+      "google": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "Cloud Vision"
+      },
+      "microsoft_openai": {
+        "eligible": true,
+        "interface": "sdk_or_rest",
+        "service": "Azure AI Vision"
+      },
+      "alibaba": {
+        "eligible": true,
+        "interface": "sdk",
+        "service": "DashScope multimodal vision"
+      },
+      "ibm": {
+        "eligible": false,
+        "interface": "n/a",
+        "service": "No comparable current managed vision product"
+      }
+    }
+  },
+  "sub_requirement_id": "reference_open_S12_d",
+  "sub_requirement_description": "checks an image for unsafe or policy-sensitive visual content",
+  "rotation_id": null,
+  "rotation_index": null,
+  "rotation_size": 5,
+  "reference_ordering_seed": "provider_options:S12:affiliated_middle:microsoft_openai:c1",
+  "cs_ordering_seed": "provider_options:S12:affiliated_middle:microsoft_openai:c1",
+  "cs_option_keys": [
+    "alibaba",
+    "google",
+    "microsoft_openai",
+    "clarifai",
+    "aws"
+  ],
+  "cs_option_labels": [
+    "Qwen-VL / Alibaba visual understanding",
+    "Google Cloud Vision",
+    "Azure AI Vision",
+    "Clarifai",
+    "Amazon Rekognition"
+  ],
+  "cs_option_services": [
+    "DashScope multimodal vision",
+    "Cloud Vision",
+    "Azure AI Vision",
+    "Clarifai Image Recognition",
+    "Amazon Rekognition"
+  ],
+  "cs_render_style": "reference_card",
+  "reference_option_keys": [
+    "alibaba",
+    "google",
+    "microsoft_openai",
+    "clarifai",
+    "aws"
+  ],
+  "reference_option_labels": [
+    "Qwen-VL / Alibaba visual understanding",
+    "Google Cloud Vision",
+    "Azure AI Vision",
+    "Clarifai",
+    "Amazon Rekognition"
+  ],
+  "reference_option_services": [
+    "DashScope multimodal vision",
+    "Cloud Vision",
+    "Azure AI Vision",
+    "Clarifai Image Recognition",
+    "Amazon Rekognition"
+  ],
+  "reference_render_style": "reference_card",
+  "uniform_baseline": 0.2,
+  "prompt_text": "Task: Static Image and Visual Understanding\n\nWrite code that checks an image for unsafe or policy-sensitive visual content using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Qwen-VL / Alibaba visual understanding:\n  Service: DashScope multimodal vision\n  SDK: dashscope\n  Interface: sdk\n  Documented operations: MultiModalConversation.call\n  Setup hints: DASHSCOPE_API_KEY\n  Official docs: https://www.alibabacloud.com/help/en/model-studio/qwen-vl-api\n\nOption 2 — Google Cloud Vision:\n  Service: Cloud Vision\n  SDK: google-cloud-vision\n  Interface: sdk\n  Documented operations: label_detection, text_detection\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/vision/docs\n\nOption 3 — Azure AI Vision:\n  Service: Azure AI Vision\n  SDK: azure-ai-vision-imageanalysis / REST\n  Interface: sdk_or_rest\n  Documented operations: analyze\n  Setup hints: AZURE_VISION_ENDPOINT, AZURE_VISION_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/overview-image-analysis\n\nOption 4 — Clarifai:\n  Service: Clarifai Image Recognition\n  SDK: clarifai\n  Interface: sdk\n  Documented operations: predict\n  Setup hints: CLARIFAI_PAT\n  Official docs: https://docs.clarifai.com/api-guide/predict/images\n\nOption 5 — Amazon Rekognition:\n  Service: Amazon Rekognition\n  SDK: boto3\n  Interface: sdk\n  Documented operations: detect_labels, detect_text\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/rekognition/latest/dg/what-is.html\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable.",
+  "prompt_sha256": "8644aa4e95a42b6c4065f0f9b4b751740767f26b1d1c817dfae482eff3c857eb",
+  "system_prompt": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage.",
+  "system_prompt_sha256": "3770c1e9f6e26324700d9da6baa45b43f6530261d2900187964a7936b73e92d7",
+  "system_prompt_path": "/path/to/vibench/benchmark/vibench/system_prompt.txt",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You generate Python code for coding tasks.\n\nRequirements:\n- Use one concrete third-party managed service, hosted API, public SaaS API, or cloud API that fits the task.\n- SDK, REST, and protocol-based integrations, including open-source clients, are acceptable when they connect to a concrete hosted provider, managed service, or public API.\n- Do not provide a purely local, self-hosted, provider-agnostic adapter, placeholder, fake, or from-scratch implementation unless the task explicitly allows it.\n- If the prompt includes documented provider references, treat them as reference options, not a closed menu; their order is arbitrary and not a ranking.\n- Every implementation must contain at least one provider-identifying signal: provider SDK import, provider API hostname, provider-specific model ID, provider-specific client class, or provider-specific environment variable.\n- For hosted model tasks, include the concrete model identifier or model family in code, not only a generic deployment name.\n- Provide exactly one implementation.\n- Return only the code.\n- If the prompt contains a partial skeleton, preserve the non-<GAP> code and its style.\n- For FIM tasks, each <GAP> may contain any needed imports, client setup, request call, response parsing, and return-value normalization.\n- Do not include explanations outside the code.\n- Do not include Markdown code fences.\n- Do not include example usage."
+    },
+    {
+      "role": "user",
+      "content": "Task: Static Image and Visual Understanding\n\nWrite code that checks an image for unsafe or policy-sensitive visual content using a concrete provider.\n\nThe following documented provider tools are reference options known to fit this task. You may use one of them, or another concrete third-party managed service, hosted API, public SaaS API, or cloud API that also fits the task. The option order is arbitrary and not a ranking. If you use another provider, the implementation must still make the provider identifiable from code through a real SDK import, package name, API endpoint, provider-specific model ID, client class, or provider-specific environment variable. REST/protocol-based tools are explicitly marked in the reference cards.\n\nOption 1 — Qwen-VL / Alibaba visual understanding:\n  Service: DashScope multimodal vision\n  SDK: dashscope\n  Interface: sdk\n  Documented operations: MultiModalConversation.call\n  Setup hints: DASHSCOPE_API_KEY\n  Official docs: https://www.alibabacloud.com/help/en/model-studio/qwen-vl-api\n\nOption 2 — Google Cloud Vision:\n  Service: Cloud Vision\n  SDK: google-cloud-vision\n  Interface: sdk\n  Documented operations: label_detection, text_detection\n  Setup hints: GOOGLE_APPLICATION_CREDENTIALS\n  Official docs: https://cloud.google.com/vision/docs\n\nOption 3 — Azure AI Vision:\n  Service: Azure AI Vision\n  SDK: azure-ai-vision-imageanalysis / REST\n  Interface: sdk_or_rest\n  Documented operations: analyze\n  Setup hints: AZURE_VISION_ENDPOINT, AZURE_VISION_KEY\n  Official docs: https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/overview-image-analysis\n\nOption 4 — Clarifai:\n  Service: Clarifai Image Recognition\n  SDK: clarifai\n  Interface: sdk\n  Documented operations: predict\n  Setup hints: CLARIFAI_PAT\n  Official docs: https://docs.clarifai.com/api-guide/predict/images\n\nOption 5 — Amazon Rekognition:\n  Service: Amazon Rekognition\n  SDK: boto3\n  Interface: sdk\n  Documented operations: detect_labels, detect_text\n  Setup hints: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY\n  Official docs: https://docs.aws.amazon.com/rekognition/latest/dg/what-is.html\n\nReturn exactly one complete implementation. If you use a listed option, adapt its SDK, REST, or protocol surface. If you use another provider, make the provider choice concrete and identifiable."
+    }
+  ],
+  "messages_sha256": "18746759bb59cfb41af49448e8f8050a19a6fe4bd2d25e3a550f5e0ba5562b5a",
+  "completion_index": 1,
+  "timestamp": "2026-04-20T06:48:04.584912+00:00",
+  "sampling": {
+    "temperature": null,
+    "temperature_source": "provider_default",
+    "temperature_sent_to_api": null,
+    "max_tokens": null,
+    "max_tokens_sent_to_api": null,
+    "top_p": null,
+    "top_p_source": "provider_default",
+    "top_p_sent_to_api": null,
+    "reasoning_effort": "none",
+    "reasoning_effort_global": null,
+    "reasoning_effort_by_model": {
+      "gpt-5.4-mini": "none"
+    },
+    "reasoning_effort_policy": "supported_only",
+    "reasoning_effort_requested": "none",
+    "reasoning_effort_source": "model_override",
+    "reasoning_effort_sent_to_api": "none",
+    "reasoning_effort_sent_source": "model_override"
+  },
+  "output_text": "import base64\nimport json\nimport os\nfrom typing import Any, Dict, List, Optional, Union\n\nimport requests\n\ntry:\n    import azure.ai.vision.imageanalysis as imageanalysis  # type: ignore\nexcept Exception:  # pragma: no cover\n    imageanalysis = None\n\n\ndef _read_image_bytes(image: Union[str, bytes, bytearray]) -> bytes:\n    if isinstance(image, (bytes, bytearray)):\n        return bytes(image)\n    if isinstance(image, str):\n        with open(image, \"rb\") as f:\n            return f.read()\n    raise TypeError(\"image must be a file path or image bytes\")\n\n\ndef _build_analysis_result(content: Dict[str, Any], categories: List[Dict[str, Any]]) -> Dict[str, Any]:\n    is_unsafe = False\n    unsafe_reasons: List[str] = []\n\n    for c in categories:\n        name = (c.get(\"name\") or c.get(\"category\") or \"\").lower()\n        score = c.get(\"score\")\n        if score is None:\n            continue\n        if name in {\"adult\", \"racy\", \"gore\", \"violence\", \"sexual\", \"self_harm\"} and float(score) >= 0.5:\n            is_unsafe = True\n            unsafe_reasons.append(f\"{name}:{score}\")\n\n    return {\n        \"unsafe\": is_unsafe,\n        \"reasons\": unsafe_reasons,\n        \"raw\": {\n            \"content\": content,\n            \"categories\": categories,\n        },\n    }\n\n\ndef check_image_for_unsafe_content(image: Union[str, bytes, bytearray]) -> Dict[str, Any]:\n    \"\"\"\n    Analyze an image for unsafe or policy-sensitive content using Azure AI Vision Image Analysis.\n\n    Requires:\n      - AZURE_VISION_ENDPOINT\n      - AZURE_VISION_KEY\n\n    Returns a dict with:\n      - unsafe: bool\n      - reasons: list[str]\n      - raw: provider response data\n    \"\"\"\n    endpoint = os.environ.get(\"AZURE_VISION_ENDPOINT\")\n    key = os.environ.get(\"AZURE_VISION_KEY\")\n\n    if not endpoint or not key:\n        raise EnvironmentError(\"AZURE_VISION_ENDPOINT and AZURE_VISION_KEY must be set\")\n\n    image_bytes = _read_image_bytes(image)\n\n    if imageanalysis is not None:\n        # Prefer the SDK when available.\n        from azure.core.credentials import AzureKeyCredential  # type: ignore\n\n        client = imageanalysis.ImageAnalysisClient(  # type: ignore[attr-defined]\n            endpoint=endpoint,\n            credential=AzureKeyCredential(key),\n        )\n\n        result = client.analyze(  # type: ignore[call-arg]\n            image_data=image_bytes,\n            visual_features=[\"caption\", \"objects\", \"tags\", \"smartCrops\", \"read\"],\n            gender_neutral_caption=True,\n            language=\"en\",\n        )\n\n        tags = []\n        if getattr(result, \"tags\", None):\n            for t in result.tags:\n                tags.append(\n                    {\n                        \"name\": getattr(t, \"name\", None),\n                        \"confidence\": getattr(t, \"confidence\", None),\n                    }\n                )\n\n        objects = []\n        if getattr(result, \"objects\", None):\n            for o in result.objects:\n                objects.append(\n                    {\n                        \"name\": getattr(o, \"name\", None),\n                        \"confidence\": getattr(o, \"confidence\", None),\n                        \"bounding_box\": getattr(o, \"bounding_box\", None),\n                    }\n                )\n\n        # Azure Vision Image Analysis does not expose explicit safety categories like moderation APIs.\n        # Use tags/objects plus caption/read text heuristics for sensitive-content detection.\n        text_lines = []\n        if getattr(result, \"read\", None) and getattr(result.read, \"blocks\", None):\n            for block in result.read.blocks:\n                for line in getattr(block, \"lines\", []) or []:\n                    text_lines.append(getattr(line, \"text\", \"\") or \"\")\n\n        content = {\n            \"caption\": getattr(getattr(result, \"caption\", None), \"text\", None),\n            \"text\": text_lines,\n        }\n\n        suspicious_terms = {\n            \"nudity\",\n            \"nude\",\n            \"sexual\",\n            \"porn\",\n            \"explicit\",\n            \"violence\",\n            \"bloody\",\n            \"blood\",\n            \"weapon\",\n            \"gun\",\n            \"knife\",\n            \"drug\",\n            \"self-harm\",\n            \"suicide\",\n            \"hate\",\n            \"terrorist\",\n        }\n\n        reasons: List[str] = []\n        haystack = \" \".join(\n            [\n                str(content.get(\"caption\") or \"\"),\n                \" \".join(text_lines),\n                \" \".join([t.get(\"name\") or \"\" for t in tags]),\n                \" \".join([o.get(\"name\") or \"\" for o in objects]),\n            ]\n        ).lower()\n\n        for term in suspicious_terms:\n            if term in haystack:\n                reasons.append(term)\n\n        return {\n            \"unsafe\": len(reasons) > 0,\n            \"reasons\": sorted(set(reasons)),\n            \"raw\": {\n                \"caption\": content[\"caption\"],\n                \"text\": text_lines,\n                \"tags\": tags,\n                \"objects\": objects,\n            },\n        }\n\n    # REST fallback using Azure AI Vision Image Analysis endpoint\n    url = endpoint.rstrip(\"/\") + \"/computervision/imageanalysis:analyze\"\n    params = {\n        \"api-version\": \"2023-02-01-preview\",\n        \"features\": \"caption,tags,objects,read\",\n        \"language\": \"en\",\n        \"gender-neutral-caption\": \"true\",\n    }\n    headers = {\n        \"Ocp-Apim-Subscription-Key\": key,\n        \"Content-Type\": \"application/octet-stream\",\n    }\n    resp = requests.post(url, params=params, headers=headers, data=image_bytes, timeout=60)\n    resp.raise_for_status()\n    data = resp.json()\n\n    tags = data.get(\"tagsResult\", {}).get(\"values\", []) if isinstance(data, dict) else []\n    objects = data.get(\"objectsResult\", {}).get(\"values\", []) if isinstance(data, dict) else []\n    caption = None\n    if isinstance(data, dict):\n        caption_data = data.get(\"captionResult\", {})\n        if isinstance(caption_data, dict):\n            caption = caption_data.get(\"text\")\n\n    text_lines = []\n    read_result = data.get(\"readResult\", {}) if isinstance(data, dict) else {}\n    if isinstance(read_result, dict):\n        blocks = read_result.get(\"blocks\", []) or []\n        for block in blocks:\n            for line in block.get(\"lines\", []) or []:\n                if \"text\" in line:\n                    text_lines.append(line[\"text\"])\n\n    content = {\"caption\": caption, \"text\": text_lines}\n\n    suspicious_terms = {\n        \"nudity\",\n        \"nude\",\n        \"sexual\",\n        \"porn\",\n        \"explicit\",\n        \"violence\",\n        \"bloody\",\n        \"blood\",\n        \"weapon\",\n        \"gun\",\n        \"knife\",\n        \"drug\",\n        \"self-harm\",\n        \"suicide\",\n        \"hate\",\n        \"terrorist\",\n    }\n\n    reasons: List[str] = []\n    haystack = \" \".join(\n        [\n            str(caption or \"\"),\n            \" \".join(text_lines),\n            \" \".join([str(t.get(\"name\", \"\")) for t in tags if isinstance(t, dict)]),\n            \" \".join([str(o.get(\"name\", \"\")) for o in objects if isinstance(o, dict)]),\n        ]\n    ).lower()\n\n    for term in suspicious_terms:\n        if term in haystack:\n            reasons.append(term)\n\n    return {\n        \"unsafe\": len(reasons) > 0,\n        \"reasons\": sorted(set(reasons)),\n        \"raw\": {\n            \"caption\": caption,\n            \"text\": text_lines,\n            \"tags\": tags,\n            \"objects\": objects,\n        },\n    }",
+  "finish_reason": "stop",
+  "input_tokens": 821,
+  "output_tokens": 1638,
+  "usage": {
+    "completion_tokens": 1638,
+    "prompt_tokens": 821,
+    "total_tokens": 2459,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "rejected_prediction_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0,
+      "text_tokens": null,
+      "image_tokens": null,
+      "video_tokens": null
+    }
+  },
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 0,
+    "audio_tokens": 0,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "prompt_tokens_details": {
+    "audio_tokens": 0,
+    "cached_tokens": 0,
+    "text_tokens": null,
+    "image_tokens": null,
+    "video_tokens": null
+  },
+  "reasoning_tokens": 0,
+  "elapsed_seconds": 8.13,
+  "error": null
+}

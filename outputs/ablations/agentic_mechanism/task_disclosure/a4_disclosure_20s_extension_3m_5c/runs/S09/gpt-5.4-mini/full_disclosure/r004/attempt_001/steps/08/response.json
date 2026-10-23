@@ -1,0 +1,22 @@
+{
+  "command": [
+    "opencode",
+    "run",
+    "--attach",
+    "http://127.0.0.1:54845",
+    "--format",
+    "json",
+    "-m",
+    "openai/gpt-5.4-mini",
+    "--agent",
+    "vibench",
+    "--variant",
+    "none",
+    "<prompt_text>"
+  ],
+  "elapsed_seconds": 4.7801817919826135,
+  "error": null,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "{\"type\":\"step_start\",\"timestamp\":1789860830191,\"sessionID\":\"ses_f43fb25ffffeu6CIJ9boXENkyH\",\"part\":{\"id\":\"prt_0bc04dbed001hokDBp6qTH60Bw\",\"messageID\":\"msg_0bc04da1a001DgQchWPN40bC75\",\"sessionID\":\"ses_f43fb25ffffeu6CIJ9boXENkyH\",\"type\":\"step-start\"}}\n{\"type\":\"text\",\"timestamp\":1789860833955,\"sessionID\":\"ses_f43fb25ffffeu6CIJ9boXENkyH\",\"part\":{\"id\":\"prt_0bc04dca30016PN2RDTDIP1tn5\",\"messageID\":\"msg_0bc04da1a001DgQchWPN40bC75\",\"sessionID\":\"ses_f43fb25ffffeu6CIJ9boXENkyH\",\"type\":\"text\",\"text\":\"import os\\nimport re\\nfrom dataclasses import dataclass\\nfrom typing import Dict, Iterable, List, Optional, Tuple\\n\\nimport requests\\n\\n\\n_PROVIDER_API_HOST = \\\"https://api.openai.com\\\"\\n_PROVIDER_ENV_VAR = \\\"OPENAI_API_KEY\\\"\\n\\n\\n@dataclass\\nclass CorpusSafetyResult:\\n    safe: bool\\n    score: float\\n    reasons: List[str]\\n    categories: Dict[str, float]\\n    provider: str = \\\"openai\\\"\\n    model: str = \\\"omni-moderation-latest\\\"\\n\\n\\nclass CorpusSafetyError(RuntimeError):\\n    pass\\n\\n\\ndef _get_api_key(api_key: Optional[str] = None) -> str:\\n    key = api_key or os.getenv(_PROVIDER_ENV_VAR)\\n    if not key:\\n        raise CorpusSafetyError(f\\\"Missing {_PROVIDER_ENV_VAR}\\\")\\n    return key\\n\\n\\ndef _normalize_text(text: str) -> str:\\n    return re.sub(r\\\"\\\\s+\\\", \\\" \\\", text).strip()\\n\\n\\ndef _chunk_text(text: str, max_chars: int = 8000) -> List[str]:\\n    text = _normalize_text(text)\\n    if not text:\\n        return [\\\"\\\"]\\n    return [text[i : i + max_chars] for i in range(0, len(text), max_chars)]\\n\\n\\ndef _moderate(text: str, api_key: str, model: str) -> Dict:\\n    resp = requests.post(\\n        f\\\"{_PROVIDER_API_HOST}/v1/moderations\\\",\\n        headers={\\n            \\\"Authorization\\\": f\\\"Bearer {api_key}\\\",\\n            \\\"Content-Type\\\": \\\"application/json\\\",\\n        },\\n        json={\\\"model\\\": model, \\\"input\\\": text},\\n        timeout=30,\\n    )\\n    if resp.status_code >= 400:\\n        raise CorpusSafetyError(f\\\"Moderation request failed: {resp.status_code} {resp.text}\\\")\\n    return resp.json()\\n\\n\\ndef check_corpus_text(\\n    text: str,\\n    api_key: Optional[str] = None,\\n    model: str = \\\"omni-moderation-latest\\\",\\n    threshold: float = 0.5,\\n) -> CorpusSafetyResult:\\n    key = _get_api_key(api_key)\\n    chunks = _chunk_text(text)\\n    reasons: List[str] = []\\n    categories: Dict[str, float] = {}\\n    max_score = 0.0\\n    safe = True\\n\\n    for chunk in chunks:\\n        result = _moderate(chunk, key, model)\\n        item = (result.get(\\\"results\\\") or [{}])[0]\\n        flagged = bool(item.get(\\\"flagged\\\"))\\n        category_scores = item.get(\\\"category_scores\\\") or {}\\n        for cat, score in category_scores.items():\\n            categories[cat] = max(categories.get(cat, 0.0), float(score))\\n            max_score = max(max_score, float(score))\\n        if flagged:\\n            safe = False\\n            flagged_categories = item.get(\\\"categories\\\") or {}\\n            for cat, is_flagged in flagged_categories.items():\\n                if is_flagged:\\n                    reasons.append(cat)\\n\\n    if max_score >= threshold:\\n        safe = False\\n\\n    reasons = sorted(set(reasons))\\n    return CorpusSafetyResult(\\n        safe=safe,\\n        score=max_score,\\n        reasons=reasons,\\n        categories=categories,\\n        provider=\\\"openai\\\",\\n        model=model,\\n    )\\n\\n\\ndef corpus_is_safe(text: str, api_key: Optional[str] = None, threshold: float = 0.5) -> bool:\\n    return check_corpus_text(text, api_key=api_key, threshold=threshold).safe\",\"time\":{\"start\":1789860830371,\"end\":1789860833953},\"metadata\":{\"openai\":{\"itemId\":\"msg_067a4635c8b428ee016aaf1bde606087d2b277ee2d9c4a31e5\",\"phase\":\"final_answer\"}}}}\n"
+}
